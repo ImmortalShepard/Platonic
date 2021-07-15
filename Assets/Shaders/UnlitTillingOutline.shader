@@ -12,6 +12,7 @@ Shader "Custom/UnlitTillingOutline"
 
         [MainTexture] _BaseMap("Texture", 2D) = "white" {}
         [MainColor][HDR] _BaseColor("Color", Color) = (1, 1, 1, 1)
+        _BlendRatio("Blend Ratio", Float) = 0
 
         [KeywordEnum(X, Y, Z)] _Axis1("Axis1", Float) = 0
         [KeywordEnum(X, Y, Z)] _Axis2("Axis2", Float) = 1
@@ -36,6 +37,7 @@ Shader "Custom/UnlitTillingOutline"
         float _PrecalculateNormals;
         float4 _BaseMap_ST;
         float4 _BaseColor;
+        float _BlendRatio;
         float _Axis1;
         float _Axis2;
         CBUFFER_END
@@ -129,7 +131,7 @@ Shader "Custom/UnlitTillingOutline"
             float4 frag(VertexOutput i) : SV_TARGET
             {
                 float4 baseTex = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, i.uv);
-                return baseTex * _BaseColor;
+                return saturate(baseTex + float4(_BlendRatio, _BlendRatio, _BlendRatio, 0)) * _BaseColor;
             }
 
             ENDHLSL
