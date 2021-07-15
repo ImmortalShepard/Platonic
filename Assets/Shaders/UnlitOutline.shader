@@ -4,14 +4,14 @@ Shader "Custom/UnlitOutline"
     Properties
     {
         _Thickness("Thickness", Range(-1.0, 1.0)) = 0.02
-		[HDR]_Color("Outline Color", Color) = (0, 0, 0, 1)
+		[HDR]_Color("Outline Color", Color) = (0,0,0,1)
 		_ID("Stencil ID", int) = 1
 
 		// If enabled, this shader will use "smoothed" normals stored in TEXCOORD1 to extrude along
 		[Toggle(USE_PRECALCULATED_OUTLINE_NORMALS)]_PrecalculateNormals("Use UV1 normals", Float) = 0
 
         [MainTexture] _BaseMap("Texture", 2D) = "white" {}
-        [MainColor]   _BaseColor("Color", Color) = (1, 1, 1, 1)
+        [MainColor][HDR] _BaseColor("Color", Color) = (1, 1, 1, 1)
     }
 
     SubShader
@@ -89,6 +89,7 @@ Shader "Custom/UnlitOutline"
             Name "Outline"
             Tags {"LightMode" = "Outline"}
 
+            Cull Off
             Stencil
 			{
 				Ref [_ID]

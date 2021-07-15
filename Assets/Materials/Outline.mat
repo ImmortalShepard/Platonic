@@ -123,7 +123,7 @@ Material:
     - _SrcBlend: 1
     - _Stencil: 0
     - _Surface: 0
-    - _Thickness: 0.199
+    - _Thickness: 0.2
     - _WorkflowMode: 1
     - _ZWrite: 1
     m_Colors:

@@ -2,7 +2,7 @@
 #define BACKFACEOUTLINES_INCLUDED
 
 // Data from the meshes
-struct Attributes
+struct OutlineInput
 {
 	float4 positionOS       : POSITION; // Position in object space
 	float3 normalOS         : NORMAL; // Normal vector in object space
@@ -17,7 +17,7 @@ struct OutlineOutput
 	float4 positionCS   : SV_POSITION; // Position in clip space
 };
 
-OutlineOutput Vertex(Attributes input)
+OutlineOutput Vertex(OutlineInput input)
 {
 	OutlineOutput output = (OutlineOutput)0;
 
