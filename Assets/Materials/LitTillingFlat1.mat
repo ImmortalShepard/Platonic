@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!114 &-8253799588245651440
+--- !u!114 &-8682686942430121107
 MonoBehaviour:
   m_ObjectHideFlags: 11
   m_CorrespondingSourceObject: {fileID: 0}
@@ -20,10 +20,9 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Outline
-  m_Shader: {fileID: -6465566751694194690, guid: 5e2d4d3836d46fe43b0a5dd64cefa8c7, type: 3}
-  m_ShaderKeywords: ENUM_40F7EBA1E4BF4F4F80E5FCF43FDB8362_Y ENUM_AB3A5442069F40EDA98E7344B278A15E_X
-    USE_PRECALCULATED_OUTLINE_NORMALS _AXIS1_X _AXIS2_Z
+  m_Name: LitTillingFlat1
+  m_Shader: {fileID: -6465566751694194690, guid: ec4e641337712e246baab48a262da279, type: 3}
+  m_ShaderKeywords: BOOLEAN_F86DDD5B9F1448558F1546BF21045206_ON
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -33,13 +32,13 @@ Material:
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
-    - Texture2D_17314d3a61c340b0bc951f8faf713617:
+    - Texture2D_a410be8001674d18bf20c8705014441a:
         m_Texture: {fileID: 2800000, guid: f27c1326d8f10ad45881339b6699db6b, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _BaseMap:
-        m_Texture: {fileID: 2800000, guid: f27c1326d8f10ad45881339b6699db6b, type: 3}
-        m_Scale: {x: 0.1, y: 0.1}
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _BumpMap:
         m_Texture: {fileID: 0}
@@ -73,10 +72,6 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    - _OutlineTex:
-        m_Texture: {fileID: 8400000, guid: 059ee18bd3c66dd40a9f4fd92ad07907, type: 2}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
     - _ParallaxMap:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
@@ -98,20 +93,15 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Floats:
-    - ENUM_40F7EBA1E4BF4F4F80E5FCF43FDB8362: 1
-    - ENUM_AB3A5442069F40EDA98E7344B278A15E: 0
-    - Vector1_01d28bb81c244364836998741bf02b21: 0
+    - BOOLEAN_F86DDD5B9F1448558F1546BF21045206: 1
+    - Vector1_0e951999a7004d5a8c91a353134b26f4: 0
+    - Vector1_510bb408d29d4fc6ab32238d85d50be9: 0.001
     - _AlphaClip: 0
-    - _Axis1: 0
-    - _Axis2: 2
     - _Blend: 0
-    - _BlendColor: 0
-    - _BlendRatio: 0
     - _BumpScale: 1
     - _ClearCoatMask: 0
     - _ClearCoatSmoothness: 0
     - _Cull: 2
-    - _CullMode: 0
     - _Cutoff: 0.5
     - _DetailAlbedoMapScale: 1
     - _DetailNormalMapScale: 1
@@ -120,30 +110,26 @@ Material:
     - _GlossMapScale: 0
     - _Glossiness: 0
     - _GlossyReflections: 0
-    - _ID: 2
     - _Metallic: 0
     - _OcclusionStrength: 1
-    - _OutlineGroup: 0
     - _Parallax: 0.005
-    - _PrecalculateNormals: 1
     - _QueueOffset: 0
     - _ReceiveShadows: 1
-    - _SampleGI: 0
     - _Smoothness: 0.5
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
-    - _Stencil: 0
     - _Surface: 0
-    - _Thickness: 0.1
     - _WorkflowMode: 1
     - _ZWrite: 1
     m_Colors:
-    - Color_3e68896e3ec14683b6d8e07d64206406: {r: 0.7073247, g: 0.8018868, b: 0.8018868, a: 0}
-    - Vector2_72f6ab60ec9340588f15d68b7760072b: {r: 0.125, g: 0.125, b: 0, a: 0}
-    - Vector2_dd090af951564a7683cf1938bb2600b3: {r: 0, g: 0, b: 0, a: 0}
-    - _BaseColor: {r: 0.6433339, g: 0.745283, b: 0.745283, a: 1}
-    - _Color: {r: 0, g: 0, b: 0, a: 1}
+    - Color_170f81a9327b496380a0f9056a06a640: {r: 1, g: 1, b: 1, a: 0}
+    - Vector2_dba61eda1c2f4d1786e4b7bfd6cacc7b: {r: 0, g: 0, b: 0, a: 0}
+    - Vector2_fc4e278925e94756b8036cf960666584: {r: 0.125, g: 0.125, b: 0, a: 0}
+    - Vector3_be7d6598cede4f1d8f20932756d46ad6: {r: 0, g: -1, b: 0, a: 0}
+    - Vector3_f9823a61ed814bfa800be098bf7911a2: {r: 0, g: 1, b: 0, a: 0}
+    - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
+    - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
   m_BuildTextureStacks: []

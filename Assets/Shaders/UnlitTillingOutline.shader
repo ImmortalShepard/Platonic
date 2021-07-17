@@ -14,13 +14,13 @@ Shader "Custom/UnlitTillingOutline"
         [MainColor][HDR] _BaseColor("Color", Color) = (1, 1, 1, 1)
         _BlendRatio("Blend Ratio", Float) = 0
 
-        [KeywordEnum(X, Y, Z)] _Axis1("Axis1", Float) = 0
-        [KeywordEnum(X, Y, Z)] _Axis2("Axis2", Float) = 1
+        _ViewDirection("View Direction", Vector) = (0,-1,0,0)
+        [Toggle]_UseViewDirection("Use View Direction", Float) = 0
     }
 
     SubShader
     {
-        Tags {"RenderType" = "Opaque" "IgnoreProjector" = "True" "RenderPipeline" = "UniversalPipeline" "ShaderModel"="4.5"}
+        Tags {"RenderType" = "Opaque" "UniversalMaterialType" = "Unlit" "RenderPipeline" = "UniversalPipeline" "ShaderModel"="4.5"}
 
         HLSLINCLUDE
         #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
@@ -38,8 +38,8 @@ Shader "Custom/UnlitTillingOutline"
         float4 _BaseMap_ST;
         float4 _BaseColor;
         float _BlendRatio;
-        float _Axis1;
-        float _Axis2;
+        float3 _ViewDirection;
+        float _UseViewDirection;
         CBUFFER_END
 
         //SAMPLER(SamplerState_Linear_Repeat);
@@ -63,68 +63,49 @@ Shader "Custom/UnlitTillingOutline"
             HLSLPROGRAM
             #pragma vertex vert
             #pragma fragment frag
-
-            #pragma shader_feature_local _AXIS1_X _AXIS1_Y _AXIS1_Z
-            #pragma shader_feature_local _AXIS2_X _AXIS2_Y _AXIS2_Z
-
-            #if defined(_AXIS1_X) && defined(_AXIS2_X)
-                #define AXIS_XX
-            #elif defined(_AXIS1_X) && defined(_AXIS2_Y)
-                #define AXIS_XY
-            #elif defined(_AXIS1_X) && defined(_AXIS2_Z)
-                #define AXIS_XZ
-            #elif defined(_AXIS1_Y) && defined(_AXIS2_X)
-                #define AXIS_YX
-            #elif defined(_AXIS1_Y) && defined(_AXIS2_Y)
-                #define AXIS_YY
-            #elif defined(_AXIS1_Y) && defined(_AXIS2_Z)
-                #define AXIS_YZ
-            #elif defined(_AXIS1_Z) && defined(_AXIS2_X)
-                #define AXIS_ZX
-            #elif defined(_AXIS1_Z) && defined(_AXIS2_Y)
-                #define AXIS_ZY
-            #elif defined(_AXIS1_Z) && defined(_AXIS2_Z)
-                #define AXIS_ZZ
-            #endif
+            #pragma shader_feature_local _USEVIEWDIRECTION_ON
 
             struct VertexInput
             {
                 float4 position : POSITION;
+                float2 uv : TEXCOORD0;
             };
 
             struct VertexOutput
             {
-                float4 position : SV_POSITION;   
+                float4 position : SV_POSITION;
                 float2 uv : TEXCOORD0;
             };
+
+            float PositiveSign(float number)
+            {
+                if (number >= 0)
+                {
+                    return 1;
+                }
+                return -1;
+            }
 
             VertexOutput vert(VertexInput i)
             {
                 VertexOutput o;
                 o.position = TransformObjectToHClip(i.position.xyz);
-                float3 absoluteWorldPosition = GetAbsolutePositionWS(TransformObjectToWorld(i.position.xyz));
-                #if defined(AXIS_XX)
-                    o.uv = absoluteWorldPosition.xx;
-                #elif defined(AXIS_XY)
-                    o.uv = absoluteWorldPosition.xy;
-                #elif defined(AXIS_XZ)
-                    o.uv = absoluteWorldPosition.xz;
-                #elif defined(AXIS_YX)
-                    o.uv = absoluteWorldPosition.yx;
-                #elif defined(AXIS_YY)
-                    o.uv = absoluteWorldPosition.yy;
-                #elif defined(AXIS_YZ)
-                    o.uv = absoluteWorldPosition.yz;
-                #elif defined(AXIS_ZX)
-                    o.uv = absoluteWorldPosition.zx;
-                #elif defined(AXIS_ZY)
-                    o.uv = absoluteWorldPosition.zy;
-                #elif defined(AXIS_ZZ)
-                    o.uv = absoluteWorldPosition.zz;
+                
+                float3 worldPosition = GetAbsolutePositionWS(TransformObjectToWorld(i.position.xyz));
+                float3 viewDirection;
+                #if defined(_USEVIEWDIRECTION_ON)
+                    viewDirection = _ViewDirection;
                 #else
-                    o.uv = float2(0,0);
+                    viewDirection = -1 * mul(UNITY_MATRIX_M, transpose(mul(UNITY_MATRIX_I_M, UNITY_MATRIX_I_V)) [2].xyz);
                 #endif
-                o.uv = TRANSFORM_TEX(o.uv, _BaseMap);
+
+                float3 projected = worldPosition - viewDirection * dot(worldPosition, viewDirection);
+
+                float uvX = projected.x;
+                float uvY = length(float2(projected.y, projected.z)) * PositiveSign(projected.z);
+
+                o.uv = TRANSFORM_TEX(float2(uvX, uvY),_BaseMap);
+
                 return o;
             }
 
@@ -162,6 +143,32 @@ Shader "Custom/UnlitTillingOutline"
 
 			// Include our logic file
 			#include "BackFaceOutlines.hlsl"
+
+            ENDHLSL
+        }
+
+        Pass
+        {
+            Name "ShadowCaster"
+            Tags {"LightMode" = "ShadowCaster"}
+
+            Cull Back
+            Blend One Zero
+            ZTest LEqual
+            ZWrite On
+            ColorMask 0
+
+            HLSLPROGRAM
+
+            #pragma vertex vert
+            #pragma fragment frag
+            #pragma multi_compile_shadowcaster
+            #pragma shader_feature_local_fragment _ALPHATEST_ON
+
+            #pragma vertex ShadowPassVertex
+            #pragma fragment ShadowPassFragment
+
+            #include "Packages/com.unity.render-pipelines.universal/Shaders/ShadowCasterPass.hlsl"
 
             ENDHLSL
         }

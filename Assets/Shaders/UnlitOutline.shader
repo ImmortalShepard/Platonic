@@ -16,7 +16,7 @@ Shader "Custom/UnlitOutline"
 
     SubShader
     {
-        Tags {"RenderType" = "Opaque" "IgnoreProjector" = "True" "RenderPipeline" = "UniversalPipeline" "ShaderModel"="4.5"}
+        Tags {"RenderType" = "Opaque" "UniversalMaterialType" = "Unlit" "RenderPipeline" = "UniversalPipeline" "ShaderModel"="4.5"}
 
         HLSLINCLUDE
         #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
@@ -109,6 +109,32 @@ Shader "Custom/UnlitOutline"
 
 			// Include our logic file
 			#include "BackFaceOutlines.hlsl"
+
+            ENDHLSL
+        }
+
+        Pass
+        {
+            Name "ShadowCaster"
+            Tags {"LightMode" = "ShadowCaster"}
+
+            Cull Back
+            Blend One Zero
+            ZTest LEqual
+            ZWrite On
+            ColorMask 0
+
+            HLSLPROGRAM
+
+            #pragma vertex vert
+            #pragma fragment frag
+            #pragma multi_compile_shadowcaster
+            #pragma shader_feature_local_fragment _ALPHATEST_ON
+
+            #pragma vertex ShadowPassVertex
+            #pragma fragment ShadowPassFragment
+
+            #include "Packages/com.unity.render-pipelines.universal/Shaders/ShadowCasterPass.hlsl"
 
             ENDHLSL
         }
