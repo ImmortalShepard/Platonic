@@ -32,7 +32,7 @@ OutlineOutput Vertex(OutlineInput input)
 	float4 clipPosition = TransformObjectToHClip(input.positionOS.xyz);
 	float3 clipNormal = mul((float3x3) UNITY_MATRIX_VP, mul((float3x3) UNITY_MATRIX_M, normalOS));
 
-	float2 offset = normalize(clipNormal.xy) / _ScreenParams.xy * _Thickness * clipPosition.w * 200;
+	float2 offset = normalize(clipNormal.xy) / _ScreenParams.xy * _OutlineThickness * clipPosition.w * 200;
 	clipPosition.xy += offset;
 	output.positionCS = clipPosition;
 #else
@@ -40,7 +40,7 @@ OutlineOutput Vertex(OutlineInput input)
 	float3 normalWS = TransformObjectToWorldNormal(normalOS);
 
 	// Extrude the world space position along a normal vector
-	posWS = posWS + normalWS * _Thickness;
+	posWS = posWS + normalWS * _OutlineThickness;
 	// Convert this position to world and clip space
 	output.positionCS = TransformWorldToHClip(posWS);
 #endif
@@ -50,7 +50,7 @@ OutlineOutput Vertex(OutlineInput input)
 
 float4 Fragment(OutlineOutput input) : SV_Target
 {
-	return _Color;
+	return _OutlineColor;
 }
 
 #endif

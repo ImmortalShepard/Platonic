@@ -12,6 +12,9 @@ Shader "Custom/UnlitOutline"
 
         [MainTexture] _BaseMap("Texture", 2D) = "white" {}
         [MainColor][HDR] _BaseColor("Color", Color) = (1, 1, 1, 1)
+
+        [Toggle(_ALPHATEST_ON)] _EnableAlphaTest("Enable Alpha Cutoff", Float) = 0.0
+		_Cutoff ("Alpha Cutoff", Float) = 0.5
     }
 
     SubShader
@@ -32,6 +35,7 @@ Shader "Custom/UnlitOutline"
         int _ID;
         float _PrecalculateNormals;
         float4 _BaseColor;
+        float _Cutoff;
         CBUFFER_END
 
         TEXTURE2D(_BaseMap);
@@ -113,30 +117,58 @@ Shader "Custom/UnlitOutline"
             ENDHLSL
         }
 
-        Pass
-        {
-            Name "ShadowCaster"
-            Tags {"LightMode" = "ShadowCaster"}
+        // UsePass "Universal Render Pipeline/Lit/ShadowCaster"
+		// Note, you can do this, but it will break batching with the SRP Batcher currently due to the CBUFFERs not being the same.
+		// So instead, we'll define the pass manually :
+		Pass {
+			Name "ShadowCaster"
+			Tags { "LightMode"="ShadowCaster" }
 
-            Cull Back
-            Blend One Zero
-            ZTest LEqual
-            ZWrite On
-            ColorMask 0
+			ZWrite On
+			ZTest LEqual
 
-            HLSLPROGRAM
+			HLSLPROGRAM
+			// Required to compile gles 2.0 with standard srp library
+			#pragma prefer_hlslcc gles
+			#pragma exclude_renderers d3d11_9x gles
+			//#pragma target 4.5
 
-            #pragma vertex vert
-            #pragma fragment frag
-            #pragma multi_compile_shadowcaster
-            #pragma shader_feature_local_fragment _ALPHATEST_ON
+			// Material Keywords
+			#pragma shader_feature _ALPHATEST_ON
+			#pragma shader_feature _SMOOTHNESS_TEXTURE_ALBEDO_CHANNEL_A
 
-            #pragma vertex ShadowPassVertex
-            #pragma fragment ShadowPassFragment
+			// GPU Instancing
+			#pragma multi_compile_instancing
+			#pragma multi_compile _ DOTS_INSTANCING_ON
+            
+			#pragma vertex ShadowPassVertex
+			#pragma fragment ShadowPassFragment
+			
+			#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/CommonMaterial.hlsl"
+			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/SurfaceInput.hlsl"
+			#include "Packages/com.unity.render-pipelines.universal/Shaders/ShadowCasterPass.hlsl"
 
-            #include "Packages/com.unity.render-pipelines.universal/Shaders/ShadowCasterPass.hlsl"
+			// Note if we want to do any vertex displacment, we'll need to change the vertex function :
+			/*
+			//  e.g. 
+			#pragma vertex vert
 
-            ENDHLSL
-        }
+			Varyings vert(Attributes input) {
+				Varyings output;
+				UNITY_SETUP_INSTANCE_ID(input);
+
+				// Example Displacement
+				input.positionOS += float4(0, _SinTime.y, 0, 0);
+
+				output.uv = TRANSFORM_TEX(input.texcoord, _BaseMap);
+				output.positionCS = GetShadowPositionHClip(input);
+				return output;
+			}*/
+
+			// Using the ShadowCasterPass means we also need _BaseMap, _BaseColor and _Cutoff shader properties.
+			// Also including them in cbuffer, with the exception of _BaseMap as it's a texture.
+
+			ENDHLSL
+		}
     }
 }
