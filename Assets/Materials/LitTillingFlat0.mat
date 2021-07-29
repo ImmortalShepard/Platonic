@@ -8,8 +8,9 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: LitTillingFlat0
-  m_Shader: {fileID: -6465566751694194690, guid: ec4e641337712e246baab48a262da279, type: 3}
-  m_ShaderKeywords: BOOLEAN_F86DDD5B9F1448558F1546BF21045206_ON
+  m_Shader: {fileID: 4800000, guid: 88f1f2ddb2a86a9499ac620fef082de1, type: 3}
+  m_ShaderKeywords: BOOLEAN_F86DDD5B9F1448558F1546BF21045206_ON MAKE_FLAT_ON USE_VIEW_DIRECTION_ON
+    USR_VIEW_DIRECTION_ON
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -67,6 +68,10 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _Texture:
+        m_Texture: {fileID: 2800000, guid: f27c1326d8f10ad45881339b6699db6b, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - unity_Lightmaps:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
@@ -80,11 +85,17 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Floats:
+    - BOOLEAN_002224FC4000476C947E01C823F2C2F7: 0
     - BOOLEAN_F86DDD5B9F1448558F1546BF21045206: 1
+    - MAKE_FLAT: 1
+    - USE_PRECALCULATED_OUTLINE_NORMALS: 0
+    - USE_VIEW_DIRECTION: 1
+    - USR_VIEW_DIRECTION: 1
     - Vector1_0e951999a7004d5a8c91a353134b26f4: 0
     - Vector1_510bb408d29d4fc6ab32238d85d50be9: 0
     - _AlphaClip: 0
     - _Blend: 0
+    - _BlendRatio: 0
     - _BumpScale: 1
     - _ClearCoatMask: 0
     - _ClearCoatSmoothness: 0
@@ -94,12 +105,20 @@ Material:
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
     - _EnvironmentReflections: 1
+    - _FlatHeight: 0
+    - _FlatRotationDegrees: 45
     - _GlossMapScale: 0
     - _Glossiness: 0
     - _GlossyReflections: 0
+    - _GridLineSize: 0.1
+    - _GridSize: 1
+    - _Height: 0
+    - _ID: 0
     - _Metallic: 0
     - _OcclusionStrength: 1
+    - _OutlineThickness: 0.1
     - _Parallax: 0.005
+    - _PrecalculateNormals: 0
     - _QueueOffset: 0
     - _ReceiveShadows: 1
     - _Smoothness: 0.5
@@ -116,9 +135,16 @@ Material:
     - Vector3_be7d6598cede4f1d8f20932756d46ad6: {r: 0, g: -1, b: 0, a: 0}
     - Vector3_f9823a61ed814bfa800be098bf7911a2: {r: 0, g: 1, b: 0, a: 0}
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
-    - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _Color: {r: 0.7989498, g: 0.8867924, b: 0.88514006, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
+    - _FlatRotationAxis: {r: 1, g: 0, b: 0, a: 0}
+    - _GridColor: {r: 0, g: 0, b: 0, a: 0.5019608}
+    - _GridOffset: {r: -0.05, g: -0.05, b: 0, a: 0}
+    - _Offset: {r: 0, g: 0, b: 0, a: 0}
+    - _OutlineColor: {r: 0, g: 0, b: 0, a: 1}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
+    - _Tilling: {r: 0.125, g: 0.125, b: 0, a: 0}
+    - _ViewDirection: {r: 0, g: -1, b: 0, a: 0}
   m_BuildTextureStacks: []
 --- !u!114 &198487959822767980
 MonoBehaviour:

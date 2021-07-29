@@ -1,0 +1,68 @@
+_OutlineThickness("Outline Thickness", Range(-1.0, 1.0)) = 0.1
+[HDR]_OutlineColor("Outline Color", Color) = (0,0,0,1)
+_ID("Outline Stencil ID", int) = 1
+// If enabled, this shader will use "smoothed" normals stored in TEXCOORD1 to extrude along
+[Toggle(USE_PRECALCULATED_OUTLINE_NORMALS)]_PrecalculateNormals("Use UV1 normals", Float) = 0
+
+Stencil
+{
+	Ref [_ID]
+	Comp always
+	Pass replace
+	ZFail keep
+}
+
+Pass
+{
+	Name "Outline"
+	Tags {"LightMode" = "Outline"}
+
+	Cull Off
+	Stencil
+	{
+		Ref [_ID]
+		Comp notequal
+		Fail keep
+		Pass replace
+	}
+
+	HLSLPROGRAM
+	#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+	
+	CBUFFER_START(UnityPerMaterial)
+	float _OutlineThickness;
+	float4 _OutlineColor;
+	int _ID;
+	CBUFFER_END
+	
+	#pragma target 4.5
+	#pragma exclude_renderers gles gles3 glcore
+	#pragma multi_compile_instancing
+	#pragma multi_compile_fog
+	#pragma multi_compile _ DOTS_INSTANCING_ON
+
+	// Keywords
+	#pragma multi_compile _ _SCREEN_SPACE_OCCLUSION
+	#pragma multi_compile _ LIGHTMAP_ON
+	#pragma multi_compile _ DIRLIGHTMAP_COMBINED
+	#pragma multi_compile _ _MAIN_LIGHT_SHADOWS
+	#pragma multi_compile _ _MAIN_LIGHT_SHADOWS_CASCADE
+	#pragma multi_compile _ADDITIONAL_LIGHTS_VERTEX _ADDITIONAL_LIGHTS _ADDITIONAL_OFF
+	#pragma multi_compile _ _ADDITIONAL_LIGHT_SHADOWS
+	#pragma multi_compile _ _SHADOWS_SOFT
+	#pragma multi_compile _ LIGHTMAP_SHADOW_MIXING
+	#pragma multi_compile _ SHADOWS_SHADOWMASK
+
+	// Register our material keywords
+	#pragma shader_feature_local USE_PRECALCULATED_OUTLINE_NORMALS
+	#pragma shader_feature_local MAKE_FLAT_ON
+
+	// Register our functions
+	#pragma vertex Vertex
+	#pragma fragment Fragment
+
+	// Include our logic file
+	#include "BackFaceOutlines.hlsl"
+
+	ENDHLSL
+}

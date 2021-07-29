@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 059afaf050cfa3a40ae6530556940dbd
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - _cameraTransform: {instanceID: 0}
+  - _rigidbody: {instanceID: 0}
+  - _movementSettings: {fileID: 11400000, guid: 4e0f38b659d24c143892e9ee34b80dc4, type: 2}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

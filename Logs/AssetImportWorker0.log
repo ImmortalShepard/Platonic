@@ -15,11 +15,11 @@ D:/Git/Unity/Platonic
 -logFile
 Logs/AssetImportWorker0.log
 -srvPort
-57216
+51298
 Successfully changed project path to: D:/Git/Unity/Platonic
 D:/Git/Unity/Platonic
 Using Asset Import Pipeline V2.
-Refreshing native plugins compatible for Editor in 64.71 ms, found 2 plugins.
+Refreshing native plugins compatible for Editor in 66.52 ms, found 2 plugins.
 Preloading 0 native plugins for Editor in 0.00 ms.
 Initialize engine version: 2020.3.13f1 (71691879b7f5)
 [Subsystems] Discovering subsystems at path G:/Unity/2020.3.13f1/Editor/Data/Resources/UnitySubsystems
@@ -36,41 +36,41 @@ Initialize mono
 Mono path[0] = 'G:/Unity/2020.3.13f1/Editor/Data/Managed'
 Mono path[1] = 'G:/Unity/2020.3.13f1/Editor/Data/MonoBleedingEdge/lib/mono/unityjit'
 Mono config path = 'G:/Unity/2020.3.13f1/Editor/Data/MonoBleedingEdge/etc'
-Using monoOptions --debugger-agent=transport=dt_socket,embedding=1,server=y,suspend=n,address=127.0.0.1:56940
+Using monoOptions --debugger-agent=transport=dt_socket,embedding=1,server=y,suspend=n,address=127.0.0.1:56208
 Begin MonoManager ReloadAssembly
 Registering precompiled unity dll's ...
 Register platform support module: G:/Unity/2020.3.13f1/Editor/Data/PlaybackEngines/WindowsStandaloneSupport/UnityEditor.WindowsStandalone.Extensions.dll
 Register platform support module: G:/Unity/2020.3.13f1/Editor/Data/PlaybackEngines/LinuxStandaloneSupport/UnityEditor.LinuxStandalone.Extensions.dll
-Registered in 0.001566 seconds.
+Registered in 0.001648 seconds.
 Native extension for LinuxStandalone target not found
 Native extension for WindowsStandalone target not found
-Refreshing native plugins compatible for Editor in 63.39 ms, found 2 plugins.
+Refreshing native plugins compatible for Editor in 68.41 ms, found 2 plugins.
 Preloading 0 native plugins for Editor in 0.00 ms.
 Mono: successfully reloaded assembly
-- Completed reload, in  1.198 seconds
+- Completed reload, in  1.196 seconds
 Platform modules already initialized, skipping
 Registering precompiled user dll's ...
-Registered in 0.006384 seconds.
+Registered in 0.007710 seconds.
 Begin MonoManager ReloadAssembly
 Native extension for LinuxStandalone target not found
 Native extension for WindowsStandalone target not found
-Refreshing native plugins compatible for Editor in 66.81 ms, found 2 plugins.
+Refreshing native plugins compatible for Editor in 68.25 ms, found 2 plugins.
 Preloading 0 native plugins for Editor in 0.00 ms.
 Mono: successfully reloaded assembly
-- Completed reload, in  2.107 seconds
+- Completed reload, in  2.032 seconds
 Platform modules already initialized, skipping
 ========================================================================
 Worker process is ready to serve import requests
 Shader 'Universal Render Pipeline/Particles/Lit': fallback shader 'Universal Render Pipeline/Particles/SimpleLit' not found
-Launched and connected shader compiler UnityShaderCompiler.exe after 0.06 seconds
-Refreshing native plugins compatible for Editor in 0.88 ms, found 2 plugins.
+Launched and connected shader compiler UnityShaderCompiler.exe after 0.04 seconds
+Refreshing native plugins compatible for Editor in 0.99 ms, found 2 plugins.
 Preloading 0 native plugins for Editor in 0.00 ms.
-Unloading 3765 Unused Serialized files (Serialized files now loaded: 0)
-System memory in use before: 166.4 MB.
-System memory in use after: 166.3 MB.
+Unloading 3771 Unused Serialized files (Serialized files now loaded: 0)
+System memory in use before: 181.0 MB.
+System memory in use after: 180.9 MB.
 
-Unloading 31 unused Assets to reduce memory usage. Loaded Objects now: 4199.
-Total: 2.939700 ms (FindLiveObjects: 0.249500 ms CreateObjectMapping: 0.132000 ms MarkObjects: 2.364800 ms  DeleteObjects: 0.192200 ms)
+Unloading 31 unused Assets to reduce memory usage. Loaded Objects now: 4204.
+Total: 3.292600 ms (FindLiveObjects: 0.275000 ms CreateObjectMapping: 0.143900 ms MarkObjects: 2.689200 ms  DeleteObjects: 0.183300 ms)
 
 AssetImportParameters requested are different than current active one (requested -> active):
   custom:framework-win-MediaFoundation: 216162199b28c13a410421893ffa2e32 -> 
@@ -85,360 +85,112 @@ AssetImportParameters requested are different than current active one (requested
   custom:audio-encoder-webm-vorbis: bf7c407c2cedff20999df2af8eb42d56 -> 
 ========================================================================
 Received Import Request.
-  path: Assets/Shaders/LitTillingFlat.shadergraph
-  artifactKey: Guid(ec4e641337712e246baab48a262da279) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Shaders/LitTillingFlat.shadergraph using Guid(ec4e641337712e246baab48a262da279) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '50865511fd705d885f6272745321c39a') in 0.064927 seconds 
-  Import took 0.152989 seconds .
+  path: Assets/Shaders/Graphs/NewSurfaceShader.shader
+  artifactKey: Guid(3f609de9bb9a19d458069c1b904efe62) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Shaders/Graphs/NewSurfaceShader.shader using Guid(3f609de9bb9a19d458069c1b904efe62) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'c5afc7ea72d7de10d639705f5eaa931e') in 0.060295 seconds 
+  Import took 0.089765 seconds .
 
 ========================================================================
 Received Import Request.
-  Time since last request: 80.625242 seconds.
-  path: Assets/Materials/LitTillingFlat1.mat
-  artifactKey: Guid(16bac77b35281cd4f8d241d61036ff8c) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Materials/LitTillingFlat1.mat using Guid(16bac77b35281cd4f8d241d61036ff8c) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'd8749af086e74b65c90ea6e5caef6f8b') in 0.226141 seconds 
-  Import took 0.246773 seconds .
+  Time since last request: 109.676474 seconds.
+  path: Assets/Shaders/Graphs/LitGrid.shadergraph
+  artifactKey: Guid(1bade006f92303e4aa53e3a0b6f18041) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Shaders/Graphs/LitGrid.shadergraph using Guid(1bade006f92303e4aa53e3a0b6f18041) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'aa30170591c2e3cf23348b0551e2624a') in 0.005118 seconds 
+  Import took 0.056988 seconds .
 
 ========================================================================
 Received Import Request.
-  Time since last request: 8377.606188 seconds.
-  path: Assets/Shaders/LitShader.shader
-  artifactKey: Guid(acb08fc7caf27ea4c9229a32b694cf27) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Shaders/LitShader.shader using Guid(acb08fc7caf27ea4c9229a32b694cf27) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'eea972f67727a06804b8d6c87f5d7cbe') in 0.033752 seconds 
-  Import took 0.100499 seconds .
+  Time since last request: 192.121149 seconds.
+  path: Assets/Shaders/Graphs/LitGrid.shadergraph
+  artifactKey: Guid(1bade006f92303e4aa53e3a0b6f18041) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Shaders/Graphs/LitGrid.shadergraph using Guid(1bade006f92303e4aa53e3a0b6f18041) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'cae1bfd1858cd1527059e2800adb6871') in 0.003433 seconds 
+  Import took 0.018659 seconds .
 
 ========================================================================
 Received Import Request.
-  Time since last request: 190.752169 seconds.
-  path: Assets/Shaders/LitShader.shader
-  artifactKey: Guid(acb08fc7caf27ea4c9229a32b694cf27) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Shaders/LitShader.shader using Guid(acb08fc7caf27ea4c9229a32b694cf27) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'dab0a55afe387a2bbdbc411900a4f994') in 0.003411 seconds 
-  Import took 0.027388 seconds .
+  Time since last request: 1165.524641 seconds.
+  path: Assets/Shaders/Graphs/LitGrid.shadergraph
+  artifactKey: Guid(1bade006f92303e4aa53e3a0b6f18041) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Shaders/Graphs/LitGrid.shadergraph using Guid(1bade006f92303e4aa53e3a0b6f18041) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '0f6db2d207a53ff1748542028f668e96') in 0.004199 seconds 
+  Import took 0.021471 seconds .
 
 ========================================================================
 Received Import Request.
-  Time since last request: 0.158710 seconds.
-  path: Assets/Shaders/LitShader.shader
-  artifactKey: Guid(acb08fc7caf27ea4c9229a32b694cf27) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Shaders/LitShader.shader using Guid(acb08fc7caf27ea4c9229a32b694cf27) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'dab0a55afe387a2bbdbc411900a4f994') in 0.002649 seconds 
-  Import took 0.008839 seconds .
+  Time since last request: 968.166745 seconds.
+  path: Assets/Textures/PencilCrayon.tga
+  artifactKey: Guid(a4139ff724568524a991db260a0f7744) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Textures/PencilCrayon.tga using Guid(a4139ff724568524a991db260a0f7744) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '1dae436aba3512792780a327f2d0bc21') in 0.044073 seconds 
+  Import took 0.062577 seconds .
 
 ========================================================================
 Received Import Request.
-  Time since last request: 10.613265 seconds.
-  path: Assets/Materials/LitTest.mat
-  artifactKey: Guid(53e995b282d4e874d9608a08ad7e44a3) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Materials/LitTest.mat using Guid(53e995b282d4e874d9608a08ad7e44a3) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '1660dfde019da23a357707a28e572b63') in 0.051832 seconds 
-  Import took 0.067798 seconds .
+  Time since last request: 0.000181 seconds.
+  path: Assets/Textures/TexturesCom_PaperCloseup0007_1_seamless_S.tga
+  artifactKey: Guid(185e83403bfcd9442b1d80fdcac3159c) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Textures/TexturesCom_PaperCloseup0007_1_seamless_S.tga using Guid(185e83403bfcd9442b1d80fdcac3159c) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '772c1136524bce09b390b53a9110d964') in 0.006487 seconds 
+  Import took 0.025388 seconds .
 
 ========================================================================
 Received Import Request.
-  Time since last request: 29.218171 seconds.
-  path: Assets/Shaders/UnlitOutline.shader
-  artifactKey: Guid(e4f1abe7a5358a14e8f315038bf3956c) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Shaders/UnlitOutline.shader using Guid(e4f1abe7a5358a14e8f315038bf3956c) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'f40f1764779c9dd3973fc7374af312fe') in 0.002135 seconds 
-  Import took 0.029712 seconds .
+  Time since last request: 238.868692 seconds.
+  path: Assets/Textures/PaperTexture.tga
+  artifactKey: Guid(a8cfdf656a0b4c9449501c566e5ef7c7) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Textures/PaperTexture.tga using Guid(a8cfdf656a0b4c9449501c566e5ef7c7) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '926351544cc99785064ffcdaffd6c937') in 0.007381 seconds 
+  Import took 0.042388 seconds .
 
 ========================================================================
 Received Import Request.
-  Time since last request: 0.000858 seconds.
-  path: Assets/Shaders/UnlitOutline.shader
-  artifactKey: Guid(e4f1abe7a5358a14e8f315038bf3956c) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Shaders/UnlitOutline.shader using Guid(e4f1abe7a5358a14e8f315038bf3956c) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'f40f1764779c9dd3973fc7374af312fe') in 0.005082 seconds 
-  Import took 0.010766 seconds .
+  Time since last request: 642.137277 seconds.
+  path: Assets/Materials/Test.mat
+  artifactKey: Guid(a2c57ab3518a5ce4e9b9dc559445536a) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Materials/Test.mat using Guid(a2c57ab3518a5ce4e9b9dc559445536a) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'bbc49cf7a14b72b784531f04be1d86bb') in 0.199252 seconds 
+  Import took 0.211285 seconds .
 
 ========================================================================
 Received Import Request.
-  Time since last request: 2.926479 seconds.
-  path: Assets/Shaders/UnlitTillingOutline.shader
-  artifactKey: Guid(ea8a0b7b68ced594284ef4039fe47fc8) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Shaders/UnlitTillingOutline.shader using Guid(ea8a0b7b68ced594284ef4039fe47fc8) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '906e13dffa6567561139e72a5a4ba1f2') in 0.001839 seconds 
-  Import took 0.028857 seconds .
+  Time since last request: 597.225655 seconds.
+  path: Assets/Textures/PencilCrayon 1.tga
+  artifactKey: Guid(9ba4ce081ada3e54bb228a5d2e0c8712) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Textures/PencilCrayon 1.tga using Guid(9ba4ce081ada3e54bb228a5d2e0c8712) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '684432d7f3949e648cc4ba2bb24f0239') in 0.006995 seconds 
+  Import took 0.024197 seconds .
 
 ========================================================================
 Received Import Request.
-  Time since last request: 0.002736 seconds.
-  path: Assets/Shaders/UnlitTillingOutline.shader
-  artifactKey: Guid(ea8a0b7b68ced594284ef4039fe47fc8) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Shaders/UnlitTillingOutline.shader using Guid(ea8a0b7b68ced594284ef4039fe47fc8) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '906e13dffa6567561139e72a5a4ba1f2') in 0.001722 seconds 
-  Import took 0.006548 seconds .
+  Time since last request: 8.685674 seconds.
+  path: Assets/Textures/PencilCrayon.tga
+  artifactKey: Guid(a4139ff724568524a991db260a0f7744) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Textures/PencilCrayon.tga using Guid(a4139ff724568524a991db260a0f7744) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'f9576c978b649e7723469fe50c37bd4e') in 0.006815 seconds 
+  Import took 0.024859 seconds .
 
 ========================================================================
 Received Import Request.
-  Time since last request: 166.153397 seconds.
-  path: Assets/Shaders/UnlitTillingOutline.shader
-  artifactKey: Guid(ea8a0b7b68ced594284ef4039fe47fc8) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Shaders/UnlitTillingOutline.shader using Guid(ea8a0b7b68ced594284ef4039fe47fc8) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '2631eea155c1f6a277e8ab79b3d57a44') in 0.002819 seconds 
-  Import took 0.054762 seconds .
-
-========================================================================
-Received Import Request.
-  Time since last request: 114.215423 seconds.
-  path: Assets/Shaders/UnlitOutline.shader
-  artifactKey: Guid(e4f1abe7a5358a14e8f315038bf3956c) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Shaders/UnlitOutline.shader using Guid(e4f1abe7a5358a14e8f315038bf3956c) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '4c68c3ed7839a69b8446f264ef71a241') in 0.002063 seconds 
-  Import took 0.030214 seconds .
-
-========================================================================
-Received Import Request.
-  Time since last request: 0.000195 seconds.
-  path: Assets/Shaders/UnlitOutline.shader
-  artifactKey: Guid(e4f1abe7a5358a14e8f315038bf3956c) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Shaders/UnlitOutline.shader using Guid(e4f1abe7a5358a14e8f315038bf3956c) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '4c68c3ed7839a69b8446f264ef71a241') in 0.002323 seconds 
-  Import took 0.008187 seconds .
-
-========================================================================
-Received Import Request.
-  Time since last request: 14.343939 seconds.
-  path: Assets/Shaders/UnlitShader.shader
-  artifactKey: Guid(0aea954c2f211754b95dd5b5d2e4c423) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Shaders/UnlitShader.shader using Guid(0aea954c2f211754b95dd5b5d2e4c423) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'b4a177515eb1fb6a46fa689e4020c893') in 0.002581 seconds 
-  Import took 0.058687 seconds .
-
-========================================================================
-Received Import Request.
-  Time since last request: 0.000569 seconds.
-  path: Assets/Shaders/UnlitShader.shader
-  artifactKey: Guid(0aea954c2f211754b95dd5b5d2e4c423) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Shaders/UnlitShader.shader using Guid(0aea954c2f211754b95dd5b5d2e4c423) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'b4a177515eb1fb6a46fa689e4020c893') in 0.002587 seconds 
-  Import took 0.008561 seconds .
-
-========================================================================
-Received Import Request.
-  Time since last request: 42.392921 seconds.
-  path: Assets/Shaders/UnlitShader.shader
-  artifactKey: Guid(0aea954c2f211754b95dd5b5d2e4c423) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Shaders/UnlitShader.shader using Guid(0aea954c2f211754b95dd5b5d2e4c423) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'aabcd1e794aa85c4e3b40b7f411e1274') in 0.002583 seconds 
-  Import took 0.069995 seconds .
-
-========================================================================
-Received Import Request.
-  Time since last request: 109.208908 seconds.
-  path: Assets/Shaders/NewSurfaceShader.shader
-  artifactKey: Guid(7ddaa7995ae704b49aff967b442bbb9f) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Shaders/NewSurfaceShader.shader using Guid(7ddaa7995ae704b49aff967b442bbb9f) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'ddfeedda4b7c519bf3a2d81c9f7557c2') in 0.003648 seconds 
-  Import took 0.066305 seconds .
-
-========================================================================
-Received Import Request.
-  Time since last request: 3646.097475 seconds.
-  path: Assets/Shaders/LitShader.shader
-  artifactKey: Guid(acb08fc7caf27ea4c9229a32b694cf27) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Shaders/LitShader.shader using Guid(acb08fc7caf27ea4c9229a32b694cf27) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '19ac372f6663546d0cb1258be75087f2') in 0.002860 seconds 
-  Import took 0.108916 seconds .
-
-========================================================================
-Received Import Request.
-  Time since last request: 0.063981 seconds.
-  path: Assets/Shaders/LitShader.shader
-  artifactKey: Guid(acb08fc7caf27ea4c9229a32b694cf27) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Shaders/LitShader.shader using Guid(acb08fc7caf27ea4c9229a32b694cf27) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '19ac372f6663546d0cb1258be75087f2') in 0.002605 seconds 
-  Import took 0.007782 seconds .
-
-========================================================================
-Received Import Request.
-  Time since last request: 4.418607 seconds.
-  path: Assets/Shaders/UnlitShader.shader
-  artifactKey: Guid(0aea954c2f211754b95dd5b5d2e4c423) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Shaders/UnlitShader.shader using Guid(0aea954c2f211754b95dd5b5d2e4c423) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '3550182ab5df39f1620227c445bf0970') in 0.002546 seconds 
-  Import took 0.034356 seconds .
-
-========================================================================
-Received Import Request.
-  Time since last request: 0.001884 seconds.
-  path: Assets/Shaders/UnlitShader.shader
-  artifactKey: Guid(0aea954c2f211754b95dd5b5d2e4c423) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Shaders/UnlitShader.shader using Guid(0aea954c2f211754b95dd5b5d2e4c423) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '3550182ab5df39f1620227c445bf0970') in 0.002830 seconds 
-  Import took 0.010397 seconds .
-
-========================================================================
-Received Import Request.
-  Time since last request: 306.157858 seconds.
-  path: Assets/Shaders/Unlit.shader
-  artifactKey: Guid(c7ebe2c4ad2e186478066038ae61463c) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Shaders/Unlit.shader using Guid(c7ebe2c4ad2e186478066038ae61463c) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '164854224bae5a3aa390f3029579e385') in 0.041274 seconds 
-  Import took 0.064393 seconds .
-
-========================================================================
-Received Import Request.
-  Time since last request: 34.238727 seconds.
-  path: Assets/Shaders/UnlitOutlineOld.shader
-  artifactKey: Guid(e4f1abe7a5358a14e8f315038bf3956c) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Shaders/UnlitOutlineOld.shader using Guid(e4f1abe7a5358a14e8f315038bf3956c) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '7fbca9c2e50ce7f3e63f38e374c4845b') in 0.001888 seconds 
-  Import took 0.027020 seconds .
-
-========================================================================
-Received Import Request.
-  Time since last request: 5.629638 seconds.
-  path: Assets/Shaders/UnlitTillingOutlineOld.shader
-  artifactKey: Guid(ea8a0b7b68ced594284ef4039fe47fc8) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Shaders/UnlitTillingOutlineOld.shader using Guid(ea8a0b7b68ced594284ef4039fe47fc8) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '2857c73c597eb38d0320659258e70155') in 0.002164 seconds 
-  Import took 0.009096 seconds .
-
-========================================================================
-Received Import Request.
-  Time since last request: 28.946702 seconds.
-  path: Assets/Shaders/UnlitTillingOutline.shader
-  artifactKey: Guid(c7ebe2c4ad2e186478066038ae61463c) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Shaders/UnlitTillingOutline.shader using Guid(c7ebe2c4ad2e186478066038ae61463c) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '32ae0f85a9e541bea9c1637c1cde8c6c') in 0.002252 seconds 
-  Import took 0.029084 seconds .
-
-========================================================================
-Received Import Request.
-  Time since last request: 604.409710 seconds.
-  path: Assets/Shaders/UnlitOutlineOld.shader
-  artifactKey: Guid(e4f1abe7a5358a14e8f315038bf3956c) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Shaders/UnlitOutlineOld.shader using Guid(e4f1abe7a5358a14e8f315038bf3956c) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '01539ca7cbcdac5acc8d5911f2a0e903') in 0.002393 seconds 
-  Import took 0.008864 seconds .
-
-========================================================================
-Received Import Request.
-  Time since last request: 0.018370 seconds.
-  path: Assets/Shaders/UnlitOutlineOld.shader
-  artifactKey: Guid(e4f1abe7a5358a14e8f315038bf3956c) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Shaders/UnlitOutlineOld.shader using Guid(e4f1abe7a5358a14e8f315038bf3956c) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '01539ca7cbcdac5acc8d5911f2a0e903') in 0.002031 seconds 
-  Import took 0.008210 seconds .
-
-========================================================================
-Received Import Request.
-  Time since last request: 11.855464 seconds.
-  path: Assets/Shaders/UnlitTillingOutline.shader
-  artifactKey: Guid(c7ebe2c4ad2e186478066038ae61463c) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Shaders/UnlitTillingOutline.shader using Guid(c7ebe2c4ad2e186478066038ae61463c) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'e7edf4b8dd3623b680f252667a1c476b') in 0.002585 seconds 
-  Import took 0.029606 seconds .
-
-========================================================================
-Received Import Request.
-  Time since last request: 0.845348 seconds.
-  path: Assets/Shaders/UnlitTillingOutlineOld.shader
-  artifactKey: Guid(ea8a0b7b68ced594284ef4039fe47fc8) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Shaders/UnlitTillingOutlineOld.shader using Guid(ea8a0b7b68ced594284ef4039fe47fc8) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'c17b3a7b229e221a39a2c1c431a104cc') in 0.002338 seconds 
-  Import took 0.025531 seconds .
-
-========================================================================
-Received Import Request.
-  Time since last request: 50.690601 seconds.
-  path: Assets/Shaders/BackFaceOutlines.hlsl
-  artifactKey: Guid(ac39be838305d584f92d8055da8d5af2) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Shaders/BackFaceOutlines.hlsl using Guid(ac39be838305d584f92d8055da8d5af2) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'b7cb719b22953ad3ae7d42d5c808dcde') in 0.003348 seconds 
-  Import took 0.021948 seconds .
-
-========================================================================
-Received Import Request.
-  Time since last request: 0.000480 seconds.
-  path: Assets/Shaders/BackFaceOutlines.hlsl
-  artifactKey: Guid(ac39be838305d584f92d8055da8d5af2) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Shaders/BackFaceOutlines.hlsl using Guid(ac39be838305d584f92d8055da8d5af2) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'b7cb719b22953ad3ae7d42d5c808dcde') in 0.002056 seconds 
-  Import took 0.007229 seconds .
-
-========================================================================
-Received Import Request.
-  Time since last request: 68.685615 seconds.
-  path: Assets/Shaders/UnlitTillingOutline.shader
-  artifactKey: Guid(c7ebe2c4ad2e186478066038ae61463c) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Shaders/UnlitTillingOutline.shader using Guid(c7ebe2c4ad2e186478066038ae61463c) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '88a817643b74ff567b98b85a6f8e3152') in 0.002925 seconds 
-  Import took 0.011226 seconds .
-
-========================================================================
-Received Import Request.
-  Time since last request: 8573.777343 seconds.
-  path: Assets/Shaders/UnlitOutlineOld.shader
-  artifactKey: Guid(e4f1abe7a5358a14e8f315038bf3956c) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Shaders/UnlitOutlineOld.shader using Guid(e4f1abe7a5358a14e8f315038bf3956c) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'ed59ea1865adc6fbd6944da9204be10b') in 0.001887 seconds 
-  Import took 0.021792 seconds .
-
-========================================================================
-Received Import Request.
-  Time since last request: 0.006322 seconds.
-  path: Assets/Shaders/UnlitOutlineOld.shader
-  artifactKey: Guid(e4f1abe7a5358a14e8f315038bf3956c) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Shaders/UnlitOutlineOld.shader using Guid(e4f1abe7a5358a14e8f315038bf3956c) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'ed59ea1865adc6fbd6944da9204be10b') in 0.001935 seconds 
-  Import took 0.007422 seconds .
-
-========================================================================
-Received Import Request.
-  Time since last request: 11.194808 seconds.
-  path: Assets/Shaders/UnlitTillingOutline.shader
-  artifactKey: Guid(c7ebe2c4ad2e186478066038ae61463c) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Shaders/UnlitTillingOutline.shader using Guid(c7ebe2c4ad2e186478066038ae61463c) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'f7b53a1681db3c10630a3a9dee0d9d19') in 0.003174 seconds 
-  Import took 0.048205 seconds .
-
-========================================================================
-Received Import Request.
-  Time since last request: 33.870357 seconds.
-  path: Assets/Shaders/UnlitTillingOutline.shader
-  artifactKey: Guid(c7ebe2c4ad2e186478066038ae61463c) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Shaders/UnlitTillingOutline.shader using Guid(c7ebe2c4ad2e186478066038ae61463c) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '64ae9adfba505ffcc2063759d89627cb') in 0.002662 seconds 
-  Import took 0.054499 seconds .
-
-========================================================================
-Received Import Request.
-  Time since last request: 18.406830 seconds.
-  path: Assets/Shaders/UnlitTillingOutline.shader
-  artifactKey: Guid(c7ebe2c4ad2e186478066038ae61463c) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Shaders/UnlitTillingOutline.shader using Guid(c7ebe2c4ad2e186478066038ae61463c) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '426d4db3222bf77fc91eaccea346a0e3') in 0.002656 seconds 
-  Import took 1.168741 seconds .
-
-========================================================================
-Received Import Request.
-  Time since last request: 203.191804 seconds.
-  path: Assets/Materials/LitTest.mat
-  artifactKey: Guid(53e995b282d4e874d9608a08ad7e44a3) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Materials/LitTest.mat using Guid(53e995b282d4e874d9608a08ad7e44a3) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'cf14ebfbbd514749b6f7342d6505a247') in 0.026857 seconds 
-  Import took 0.036710 seconds .
-
-========================================================================
-Received Import Request.
-  Time since last request: 0.000142 seconds.
-  path: Assets/Materials/UnlitTillingOutline2.mat
-  artifactKey: Guid(7bef6b0c74643d14c9c79a5dd9b872b7) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Materials/UnlitTillingOutline2.mat using Guid(7bef6b0c74643d14c9c79a5dd9b872b7) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'b72848aefc96591d076f1fd5308b14f6') in 0.023396 seconds 
-  Import took 0.029036 seconds .
-
-========================================================================
-Received Import Request.
-  Time since last request: 0.000140 seconds.
-  path: Assets/Materials/UnlitTillingOutline.mat
-  artifactKey: Guid(2d932dd777a67734d85c7963537a761d) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Materials/UnlitTillingOutline.mat using Guid(2d932dd777a67734d85c7963537a761d) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'd78332cb530561c7e2f2c27f8981199f') in 0.020635 seconds 
-  Import took 0.087801 seconds .
-
-========================================================================
-Received Import Request.
-  Time since last request: 103.043095 seconds.
-  path: Assets/Materials/UnlitTillingOutline2.mat
-  artifactKey: Guid(7bef6b0c74643d14c9c79a5dd9b872b7) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Materials/UnlitTillingOutline2.mat using Guid(7bef6b0c74643d14c9c79a5dd9b872b7) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'e92cb4caaf8f93d2500b6efa29d5c029') in 0.015885 seconds 
-  Import took 0.085584 seconds .
-
-========================================================================
-Received Import Request.
-  Time since last request: 16693.244960 seconds.
-  path: Assets/Shaders/LitTillingOutline.cs
-  artifactKey: Guid(8dea2cafced80594bacf5375f53b2c1a) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Shaders/LitTillingOutline.cs using Guid(8dea2cafced80594bacf5375f53b2c1a) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '6bc1ee6abc97141037ca3ec4126d5367') in 0.011850 seconds 
-  Import took 0.123320 seconds .
+  Time since last request: 71.326610 seconds.
+  path: Assets/Materials/Test.mat
+  artifactKey: Guid(a2c57ab3518a5ce4e9b9dc559445536a) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Materials/Test.mat using Guid(a2c57ab3518a5ce4e9b9dc559445536a) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'e7f895c2cd8678385b378baee5cd893a') in 0.021458 seconds 
+  Import took 0.038646 seconds .
 
 ========================================================================
 Received Prepare
 Registering precompiled user dll's ...
-Registered in 0.159626 seconds.
+Registered in 0.008183 seconds.
 Begin MonoManager ReloadAssembly
 Native extension for LinuxStandalone target not found
 Native extension for WindowsStandalone target not found
-Refreshing native plugins compatible for Editor in 1.48 ms, found 2 plugins.
+Refreshing native plugins compatible for Editor in 0.68 ms, found 2 plugins.
 Preloading 0 native plugins for Editor in 0.00 ms.
 Mono: successfully reloaded assembly
-- Completed reload, in  2.994 seconds
+- Completed reload, in  1.649 seconds
 Platform modules already initialized, skipping
 Shader 'Universal Render Pipeline/Particles/Lit': fallback shader 'Universal Render Pipeline/Particles/SimpleLit' not found
-Refreshing native plugins compatible for Editor in 0.56 ms, found 2 plugins.
+Refreshing native plugins compatible for Editor in 0.57 ms, found 2 plugins.
 Preloading 0 native plugins for Editor in 0.00 ms.
-Unloading 3634 Unused Serialized files (Serialized files now loaded: 0)
-System memory in use before: 163.4 MB.
-System memory in use after: 163.3 MB.
+Unloading 3636 Unused Serialized files (Serialized files now loaded: 0)
+System memory in use before: 177.9 MB.
+System memory in use after: 177.8 MB.
 
-Unloading 25 unused Assets to reduce memory usage. Loaded Objects now: 4281.
-Total: 3.423100 ms (FindLiveObjects: 0.288300 ms CreateObjectMapping: 0.149100 ms MarkObjects: 2.801000 ms  DeleteObjects: 0.183800 ms)
+Unloading 24 unused Assets to reduce memory usage. Loaded Objects now: 4287.
+Total: 4.653800 ms (FindLiveObjects: 0.443700 ms CreateObjectMapping: 0.347300 ms MarkObjects: 3.384500 ms  DeleteObjects: 0.477000 ms)
 
 AssetImportParameters requested are different than current active one (requested -> active):
   custom:framework-win-MediaFoundation: 216162199b28c13a410421893ffa2e32 -> 
@@ -453,50 +205,267 @@ AssetImportParameters requested are different than current active one (requested
   custom:audio-encoder-webm-vorbis: bf7c407c2cedff20999df2af8eb42d56 -> 
 ========================================================================
 Received Import Request.
-  Time since last request: 314.967961 seconds.
-  path: Assets/Shaders/LitTillingOutline.shader
-  artifactKey: Guid(104b42525ed525b439c76feac911372b) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Shaders/LitTillingOutline.shader using Guid(104b42525ed525b439c76feac911372b) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '722511200c5e5b5be5dbb7d3f298276b') in 0.073863 seconds 
-  Import took 0.134460 seconds .
+  Time since last request: 289.582671 seconds.
+  path: Assets/Materials/UnlitTilling.mat
+  artifactKey: Guid(e402f4db027cc5e4cbd8374c7680b438) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Materials/UnlitTilling.mat using Guid(e402f4db027cc5e4cbd8374c7680b438) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '15d8b16f5bd60ee30de3145f49bc5030') in 0.192522 seconds 
+  Import took 0.215124 seconds .
 
 ========================================================================
 Received Import Request.
-  Time since last request: 240.860284 seconds.
-  path: Assets/Shaders/LitTillingOutline.shader
-  artifactKey: Guid(104b42525ed525b439c76feac911372b) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Shaders/LitTillingOutline.shader using Guid(104b42525ed525b439c76feac911372b) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'd33c11846812c9217eebecc012dec5ae') in 0.003920 seconds 
-  Import took 0.069108 seconds .
+  Time since last request: 0.000200 seconds.
+  path: Assets/Materials/UnlitTillingOutline2.mat
+  artifactKey: Guid(7bef6b0c74643d14c9c79a5dd9b872b7) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Materials/UnlitTillingOutline2.mat using Guid(7bef6b0c74643d14c9c79a5dd9b872b7) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '5a0f64cc792194b9599ae7b17a05d871') in 0.037479 seconds 
+  Import took 0.070443 seconds .
 
 ========================================================================
 Received Import Request.
-  Time since last request: 8.280782 seconds.
-  path: Assets/Shaders/UnlitTillingOutline.shader
-  artifactKey: Guid(c7ebe2c4ad2e186478066038ae61463c) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Shaders/UnlitTillingOutline.shader using Guid(c7ebe2c4ad2e186478066038ae61463c) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'a6ed0293807bf3f83d94832a71201e28') in 0.001861 seconds 
-  Import took 0.028506 seconds .
+  Time since last request: 0.000188 seconds.
+  path: Assets/Materials/UnlitTillingOutline.mat
+  artifactKey: Guid(2d932dd777a67734d85c7963537a761d) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Materials/UnlitTillingOutline.mat using Guid(2d932dd777a67734d85c7963537a761d) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '19f2bf382ce5ee2f10ce3d2104316176') in 0.027334 seconds 
+  Import took 0.056114 seconds .
 
 ========================================================================
 Received Import Request.
-  Time since last request: 216.657269 seconds.
-  path: Assets/Shaders/LitTillingOutline.shader
-  artifactKey: Guid(104b42525ed525b439c76feac911372b) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Shaders/LitTillingOutline.shader using Guid(104b42525ed525b439c76feac911372b) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'e561490dd5734f40a593c89cd45312b9') in 0.002856 seconds 
-  Import took 0.065847 seconds .
+  Time since last request: 0.000173 seconds.
+  path: Assets/Materials/UnlitTillingShadow.mat
+  artifactKey: Guid(6ab651c4fb31f4c43ac2ce1776762c95) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Materials/UnlitTillingShadow.mat using Guid(6ab651c4fb31f4c43ac2ce1776762c95) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'a28d5a7e0f79147dc1f1e3aaedb01896') in 0.031491 seconds 
+  Import took 0.061730 seconds .
 
 ========================================================================
 Received Import Request.
-  Time since last request: 332.120020 seconds.
-  path: Assets/Settings/UniversalRP-HighQuality.asset
-  artifactKey: Guid(19ba41d7c0026c3459d37c2fe90c55a0) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Settings/UniversalRP-HighQuality.asset using Guid(19ba41d7c0026c3459d37c2fe90c55a0) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'f634f3b006bf07950b859567e103ee87') in 0.022203 seconds 
-  Import took 0.046508 seconds .
+  Time since last request: 25.839621 seconds.
+  path: Assets/Shaders/Graphs/LitGrid.shadergraph
+  artifactKey: Guid(1bade006f92303e4aa53e3a0b6f18041) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Shaders/Graphs/LitGrid.shadergraph using Guid(1bade006f92303e4aa53e3a0b6f18041) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '90de00a67fadc6929ae7efe7ccaebb45') in 0.002698 seconds 
+  Import took 0.010790 seconds .
 
 ========================================================================
 Received Import Request.
-  Time since last request: 35.039500 seconds.
-  path: Assets/Settings/UniversalRP-HighQuality.asset
-  artifactKey: Guid(19ba41d7c0026c3459d37c2fe90c55a0) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Settings/UniversalRP-HighQuality.asset using Guid(19ba41d7c0026c3459d37c2fe90c55a0) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '58a1a015ff162ea294c8675644b6b226') in 0.003727 seconds 
-  Import took 0.023886 seconds .
+  Time since last request: 0.000265 seconds.
+  path: Assets/Shaders/Graphs/LitGrid.shadergraph
+  artifactKey: Guid(1bade006f92303e4aa53e3a0b6f18041) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Shaders/Graphs/LitGrid.shadergraph using Guid(1bade006f92303e4aa53e3a0b6f18041) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '90de00a67fadc6929ae7efe7ccaebb45') in 0.002410 seconds 
+  Import took 0.008578 seconds .
 
-AssetImportWorkerClient::OnTransportError - code=2 error=End of file
+========================================================================
+Received Import Request.
+  Time since last request: 19.588543 seconds.
+  path: Assets/Shaders/Graphs/LitGrid.shadergraph
+  artifactKey: Guid(1bade006f92303e4aa53e3a0b6f18041) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Shaders/Graphs/LitGrid.shadergraph using Guid(1bade006f92303e4aa53e3a0b6f18041) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'c6c4fb941f062dfd02f204aee1cdb0b2') in 0.002090 seconds 
+  Import took 0.008086 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 2458.464821 seconds.
+  path: Assets/Materials/Test.mat
+  artifactKey: Guid(a2c57ab3518a5ce4e9b9dc559445536a) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Materials/Test.mat using Guid(a2c57ab3518a5ce4e9b9dc559445536a) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'a65bea71f163b9889df433e06f33bbc2') in 0.628143 seconds 
+  Import took 0.635262 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 269.699925 seconds.
+  path: Packages/com.unity.animation.rigging/Editor/Shapes/BallEffector.asset
+  artifactKey: Guid(e050c2b16fe384bd994474655a4b4968) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Packages/com.unity.animation.rigging/Editor/Shapes/BallEffector.asset using Guid(e050c2b16fe384bd994474655a4b4968) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '28182a66dfd2bd9121303e1abfb8e2db') in 0.056938 seconds 
+  Import took 0.071059 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000193 seconds.
+  path: Packages/com.unity.animation.rigging/Editor/Shapes/LocatorEffector.asset
+  artifactKey: Guid(c6793350c150f456688e39a81f97364a) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Packages/com.unity.animation.rigging/Editor/Shapes/LocatorEffector.asset using Guid(c6793350c150f456688e39a81f97364a) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '14799fbdc5fdf8752a3ac7857a5ece2b') in 0.014740 seconds 
+  Import took 0.025882 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000196 seconds.
+  path: Packages/com.unity.animation.rigging/Editor/Shapes/CircleEffector.asset
+  artifactKey: Guid(b43e6ef97ee1b4e31be1a0187b9f4495) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Packages/com.unity.animation.rigging/Editor/Shapes/CircleEffector.asset using Guid(b43e6ef97ee1b4e31be1a0187b9f4495) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '2acc11313710b936d17f1676e57b732a') in 0.017839 seconds 
+  Import took 0.043623 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000210 seconds.
+  path: Packages/com.unity.animation.rigging/Editor/Shapes/SquareEffector.asset
+  artifactKey: Guid(707439f5f179a460987ecbb96364c8a9) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Packages/com.unity.animation.rigging/Editor/Shapes/SquareEffector.asset using Guid(707439f5f179a460987ecbb96364c8a9) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '102c05204e14d32402498dc7d2e7ebb5') in 0.017893 seconds 
+  Import took 0.029502 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000180 seconds.
+  path: Packages/com.unity.animation.rigging/Editor/Shapes/BoxEffector.asset
+  artifactKey: Guid(687b70eb9c49243639f9379f6965034f) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Packages/com.unity.animation.rigging/Editor/Shapes/BoxEffector.asset using Guid(687b70eb9c49243639f9379f6965034f) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '1a678aac9b0d2fcc793516e59c70601a') in 0.007723 seconds 
+  Import took 0.014643 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 253.435422 seconds.
+  path: Assets/Materials/Test.mat
+  artifactKey: Guid(a2c57ab3518a5ce4e9b9dc559445536a) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Materials/Test.mat using Guid(a2c57ab3518a5ce4e9b9dc559445536a) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'e083385ea92450cdfba528fb5084d638') in 0.019309 seconds 
+  Import took 0.035572 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 170.084095 seconds.
+  path: Assets/Models/Character
+  artifactKey: Guid(af0a220edcc0acf4f81907e762a15cdb) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Models/Character using Guid(af0a220edcc0acf4f81907e762a15cdb) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '99831c25050f637bd074a41e029cbaf0') in 0.001699 seconds 
+  Import took 0.012302 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 6.079174 seconds.
+  path: Assets/Models/Character/Player
+  artifactKey: Guid(0dd23b24ce997764b894a585e3f1d2a1) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Models/Character/Player using Guid(0dd23b24ce997764b894a585e3f1d2a1) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '1ae1631f00ba5527b0765643847a376d') in 0.002954 seconds 
+  Import took 0.008564 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 2807.472771 seconds.
+  path: Assets/Models/Character/Player_TPose.fbx
+  artifactKey: Guid(0671754f3da68754cb958d4bffc9f764) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Models/Character/Player_TPose.fbx using Guid(0671754f3da68754cb958d4bffc9f764) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'cff09b2a03e19d824558f65487ad0558') in 0.095885 seconds 
+  Import took 0.156707 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 26.762646 seconds.
+  path: Assets/Models/Character/Player_TPose.fbx
+  artifactKey: Guid(0671754f3da68754cb958d4bffc9f764) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Models/Character/Player_TPose.fbx using Guid(0671754f3da68754cb958d4bffc9f764) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'c881f4b855c4425b77a92114ef580684') in 0.030451 seconds 
+  Import took 0.047903 seconds .
+
+========================================================================
+Received Prepare
+Registering precompiled user dll's ...
+Registered in 0.005228 seconds.
+Begin MonoManager ReloadAssembly
+Native extension for LinuxStandalone target not found
+Native extension for WindowsStandalone target not found
+Refreshing native plugins compatible for Editor in 0.64 ms, found 2 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Mono: successfully reloaded assembly
+- Completed reload, in  1.632 seconds
+Platform modules already initialized, skipping
+Shader 'Universal Render Pipeline/Particles/Lit': fallback shader 'Universal Render Pipeline/Particles/SimpleLit' not found
+Refreshing native plugins compatible for Editor in 0.91 ms, found 2 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 3635 Unused Serialized files (Serialized files now loaded: 0)
+System memory in use before: 178.3 MB.
+System memory in use after: 178.2 MB.
+
+Unloading 24 unused Assets to reduce memory usage. Loaded Objects now: 4328.
+Total: 3.793300 ms (FindLiveObjects: 0.600700 ms CreateObjectMapping: 0.435700 ms MarkObjects: 2.572800 ms  DeleteObjects: 0.183000 ms)
+
+AssetImportParameters requested are different than current active one (requested -> active):
+  custom:framework-win-MediaFoundation: 216162199b28c13a410421893ffa2e32 -> 
+  custom:video-decoder-ogg-theora: a1e56fd34408186e4bbccfd4996cb3dc -> 
+  custom:container-muxer-webm: aa71ff27fc2769a1b78a27578f13a17b -> 
+  custom:container-demuxer-webm: 4f35f7cbe854078d1ac9338744f61a02 -> 
+  custom:container-demuxer-ogg: 62fdf1f143b41e24485cea50d1cbac27 -> 
+  custom:video-encoder-webm-vp8: eb34c28f22e8b96e1ab97ce403110664 -> 
+  custom:video-codec-MediaFoundation-h265: 746d11721c4dcdbdad8f713fa42b33f4 -> 
+  custom:video-decoder-webm-vp8: 9c59270c3fd7afecdb556c50c9e8de78 -> 
+  custom:audio-decoder-ogg-vorbis: bf7c407c2cedff20999df2af8eb42d56 -> 
+  custom:audio-encoder-webm-vorbis: bf7c407c2cedff20999df2af8eb42d56 -> 
+========================================================================
+Received Import Request.
+  Time since last request: 291.389736 seconds.
+  path: Assets/Models/Character/Player_TPose.fbx
+  artifactKey: Guid(0671754f3da68754cb958d4bffc9f764) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Models/Character/Player_TPose.fbx using Guid(0671754f3da68754cb958d4bffc9f764) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '3e824d6119f88dbc8202d1b68165977f') in 0.231993 seconds 
+  Import took 0.249715 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 6.648716 seconds.
+  path: Assets/Models/Character/Player_TPose.fbx
+  artifactKey: Guid(0671754f3da68754cb958d4bffc9f764) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Models/Character/Player_TPose.fbx using Guid(0671754f3da68754cb958d4bffc9f764) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'd61de84e65e63f79ddb380685b9a69a0') in 0.031318 seconds 
+  Import took 0.047374 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 38.138880 seconds.
+  path: Assets/Models/Character/Player_TPose.fbx
+  artifactKey: Guid(0671754f3da68754cb958d4bffc9f764) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Models/Character/Player_TPose.fbx using Guid(0671754f3da68754cb958d4bffc9f764) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '70916b787552d8c81b9eafe2a703203b') in 0.033398 seconds 
+  Import took 0.041509 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.003971 seconds.
+  path: Assets/Models/Character/Player_TPose.fbx
+  artifactKey: Guid(0671754f3da68754cb958d4bffc9f764) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Models/Character/Player_TPose.fbx using Guid(0671754f3da68754cb958d4bffc9f764) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '70916b787552d8c81b9eafe2a703203b') in 0.030338 seconds 
+  Import took 0.035433 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 389.691556 seconds.
+  path: Assets/Models/Character/Player_TPose.fbx
+  artifactKey: Guid(0671754f3da68754cb958d4bffc9f764) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Models/Character/Player_TPose.fbx using Guid(0671754f3da68754cb958d4bffc9f764) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '772e82220d41ce1369167140704b4581') in 0.033073 seconds 
+  Import took 0.041549 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 24.026571 seconds.
+  path: Assets/Models/Character/Player_TPose.fbx
+  artifactKey: Guid(0671754f3da68754cb958d4bffc9f764) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Models/Character/Player_TPose.fbx using Guid(0671754f3da68754cb958d4bffc9f764) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '7245013f4eae235c1380e516d8869e21') in 0.031398 seconds 
+  Import took 0.043966 seconds .
+
+========================================================================
+Received Import Request.
+  Time since last request: 33.002793 seconds.
+  path: Assets/Models/Character/Player_TPose.fbx
+  artifactKey: Guid(0671754f3da68754cb958d4bffc9f764) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Models/Character/Player_TPose.fbx using Guid(0671754f3da68754cb958d4bffc9f764) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'b2d244077cc20c4efecfac35db3296ed') in 0.030791 seconds 
+  Import took 0.059366 seconds .
+
+========================================================================
+Received Prepare
+Registering precompiled user dll's ...
+Registered in 0.010369 seconds.
+Begin MonoManager ReloadAssembly
+Native extension for LinuxStandalone target not found
+Native extension for WindowsStandalone target not found
+Refreshing native plugins compatible for Editor in 1.10 ms, found 2 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Mono: successfully reloaded assembly
+- Completed reload, in  1.739 seconds
+Platform modules already initialized, skipping
+Shader 'Universal Render Pipeline/Particles/Lit': fallback shader 'Universal Render Pipeline/Particles/SimpleLit' not found
+Refreshing native plugins compatible for Editor in 0.57 ms, found 2 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 3635 Unused Serialized files (Serialized files now loaded: 0)
+System memory in use before: 192.0 MB.
+System memory in use after: 191.9 MB.
+
+Unloading 24 unused Assets to reduce memory usage. Loaded Objects now: 4367.
+Total: 4.577300 ms (FindLiveObjects: 0.354400 ms CreateObjectMapping: 0.284200 ms MarkObjects: 3.763000 ms  DeleteObjects: 0.174600 ms)
+
+AssetImportParameters requested are different than current active one (requested -> active):
+  custom:framework-win-MediaFoundation: 216162199b28c13a410421893ffa2e32 -> 
+  custom:video-decoder-ogg-theora: a1e56fd34408186e4bbccfd4996cb3dc -> 
+  custom:container-muxer-webm: aa71ff27fc2769a1b78a27578f13a17b -> 
+  custom:container-demuxer-webm: 4f35f7cbe854078d1ac9338744f61a02 -> 
+  custom:container-demuxer-ogg: 62fdf1f143b41e24485cea50d1cbac27 -> 
+  custom:video-encoder-webm-vp8: eb34c28f22e8b96e1ab97ce403110664 -> 
+  custom:video-codec-MediaFoundation-h265: 746d11721c4dcdbdad8f713fa42b33f4 -> 
+  custom:video-decoder-webm-vp8: 9c59270c3fd7afecdb556c50c9e8de78 -> 
+  custom:audio-decoder-ogg-vorbis: bf7c407c2cedff20999df2af8eb42d56 -> 
+  custom:audio-encoder-webm-vorbis: bf7c407c2cedff20999df2af8eb42d56 -> 

@@ -9,7 +9,8 @@ Material:
   m_PrefabAsset: {fileID: 0}
   m_Name: UnlitTillingOutline
   m_Shader: {fileID: 4800000, guid: c7ebe2c4ad2e186478066038ae61463c, type: 3}
-  m_ShaderKeywords: BLEND_COLOR _AXIS1_X _AXIS2_Z _XAXISNONZERO_X _YAXISNONZERO_Z
+  m_ShaderKeywords: BLEND_COLOR BOOLEAN_12D6B5BAC9D14E13807B0E3AA95C7971_ON BOOLEAN_DECE56CF81F641ED84B05B3842C04620_ON
+    _AXIS1_X _AXIS2_Z _XAXISNONZERO_X _YAXISNONZERO_Z
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -63,6 +64,10 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _Texture:
+        m_Texture: {fileID: 2800000, guid: a8cfdf656a0b4c9449501c566e5ef7c7, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - unity_Lightmaps:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
@@ -76,6 +81,12 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Floats:
+    - BOOLEAN_12D6B5BAC9D14E13807B0E3AA95C7971: 1
+    - BOOLEAN_CB2BC336E5AC4F0CA6210C0EBF27A33C: 0
+    - BOOLEAN_DECE56CF81F641ED84B05B3842C04620: 1
+    - BOOLEAN_F86DDD5B9F1448558F1546BF21045206: 0
+    - USE_PRECALCULATED_OUTLINE_NORMALS: 0
+    - USE_VIEW_DIRECTION: 0
     - _AlphaClip: 0
     - _Axis1: 0
     - _Axis2: 2
@@ -91,10 +102,13 @@ Material:
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
     - _EnableAlphaTest: 0
+    - _EndColorIntensity: 1
     - _EnvironmentReflections: 1
     - _GlossMapScale: 0
     - _Glossiness: 0
     - _GlossyReflections: 0
+    - _GridLineSize: 0.1
+    - _GridSize: 1
     - _ID: 1
     - _Metallic: 0
     - _OcclusionStrength: 1
@@ -103,6 +117,7 @@ Material:
     - _PrecalculateNormals: 0
     - _QueueOffset: 0
     - _ReceiveShadows: 1
+    - _ShadowIntensity: 1
     - _Smoothness: 0.5
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
@@ -116,10 +131,14 @@ Material:
     - _ZWrite: 1
     m_Colors:
     - _BaseColor: {r: 0.9254902, g: 0.039215688, b: 0.039215688, a: 1}
-    - _Color: {r: 0, g: 0, b: 0, a: 1}
+    - _Color: {r: 0.85882354, g: 0.09411765, b: 0.09411765, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
+    - _GridColor: {r: 0, g: 0, b: 0, a: 0.5019608}
+    - _GridOffset: {r: -0.05, g: -0.05, b: 0, a: 0}
+    - _Offset: {r: 0, g: 0, b: 0, a: 0}
     - _OutlineColor: {r: 0, g: 0, b: 0, a: 1}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
+    - _Tilling: {r: 0.125, g: 0.125, b: 0, a: 0}
     - _ViewDirection: {r: 0, g: -1, b: 0, a: 0}
     - _XAxis: {r: 1, g: 0, b: 0, a: 0}
     - _YAxis: {r: 0, g: -1, b: 1, a: 0}

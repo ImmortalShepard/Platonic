@@ -6,7 +6,7 @@ struct OutlineInput
 {
 	float4 positionOS       : POSITION; // Position in object space
 	float3 normalOS         : NORMAL; // Normal vector in object space
-#ifdef USE_PRECALCULATED_OUTLINE_NORMALS
+#ifdef USE_PRECALCULATED_OUTLINE_NORMALS_ON
 	float3 smoothNormalOS   : TEXCOORD1; // Calculated "smooth" normals to extrude along in object space
 #endif
 };
@@ -17,33 +17,47 @@ struct OutlineOutput
 	float4 positionCS   : SV_POSITION; // Position in clip space
 };
 
+float3 Rotate_About_Axis_Degrees_float(float3 In, float3 Axis, float Rotation)
+{
+	Rotation = radians(Rotation);
+
+	float s = sin(Rotation);
+	float c = cos(Rotation);
+	float one_minus_c = 1.0 - c;
+	
+	Axis = normalize(Axis);
+
+	float3x3 rot_mat = { one_minus_c * Axis.x * Axis.x + c,            one_minus_c * Axis.x * Axis.y - Axis.z * s,     one_minus_c * Axis.z * Axis.x + Axis.y * s,
+							one_minus_c * Axis.x * Axis.y + Axis.z * s,   one_minus_c * Axis.y * Axis.y + c,              one_minus_c * Axis.y * Axis.z - Axis.x * s,
+							one_minus_c * Axis.z * Axis.x - Axis.y * s,   one_minus_c * Axis.y * Axis.z + Axis.x * s,     one_minus_c * Axis.z * Axis.z + c
+							};
+
+	return mul(rot_mat,  In);
+}
+
 OutlineOutput Vertex(OutlineInput input)
 {
 	OutlineOutput output = (OutlineOutput)0;
 
 	float3 normalOS;
-#ifdef USE_PRECALCULATED_OUTLINE_NORMALS
-	normalOS = input.smoothNormalOS;
-#else
-	normalOS = input.normalOS;
-#endif
+	#ifdef USE_PRECALCULATED_OUTLINE_NORMALS_ON
+		normalOS = input.smoothNormalOS;
+	#else
+		normalOS = input.normalOS;
+	#endif
 
-#ifdef USE_SCREEN_SPACE_THICKNESS
-	float4 clipPosition = TransformObjectToHClip(input.positionOS.xyz);
-	float3 clipNormal = mul((float3x3) UNITY_MATRIX_VP, mul((float3x3) UNITY_MATRIX_M, normalOS));
-
-	float2 offset = normalize(clipNormal.xy) / _ScreenParams.xy * _OutlineThickness * clipPosition.w * 200;
-	clipPosition.xy += offset;
-	output.positionCS = clipPosition;
-#else
 	float3 posWS = TransformObjectToWorld(input.positionOS.xyz);
 	float3 normalWS = TransformObjectToWorldNormal(normalOS);
 
 	// Extrude the world space position along a normal vector
 	posWS = posWS + normalWS * _OutlineThickness;
 	// Convert this position to world and clip space
+	#if defined(MAKE_FLAT_ON)
+		posWS = Rotate_About_Axis_Degrees_float(posWS, _FlatRotationAxis, _FlatRotationDegrees);
+		float3 flatVector = float3(0, posWS.y - _FlatHeight, 0);
+		posWS -= flatVector;
+	#endif
 	output.positionCS = TransformWorldToHClip(posWS);
-#endif
 	
 	return output;
 }
