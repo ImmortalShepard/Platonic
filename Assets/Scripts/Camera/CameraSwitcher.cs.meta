@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 36af0598823f9fb4b9e4d7fa4cb1f697
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - _camera: {instanceID: 0}
+  - _virtual2DCamera: {instanceID: 0}
+  - _virtual3DCamera: {instanceID: 0}
+  - _volumeProfile: {fileID: 11400000, guid: 6e12b47755f170c43a67add324d42d56, type: 2}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

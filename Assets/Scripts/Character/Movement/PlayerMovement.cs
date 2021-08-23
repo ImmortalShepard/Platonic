@@ -12,6 +12,8 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField]
     private CharacterMovement _characterMovement;
 
+    private Vector2 _movementInput = Vector2.zero;
+
     private void Reset()
     {
         _cameraTransform = Camera.main.transform;
@@ -32,14 +34,19 @@ public class PlayerMovement : MonoBehaviour
         _inputReader.JumpCancelEvent -= OnJumpCancel;
     }
 
-    //Event Listeners
-    private void OnMove(Vector2 movement)
+    private void FixedUpdate()
     {
-        Vector3 movementInput = new Vector3(movement.x, 0, movement.y);
+        Vector3 movementInput = new Vector3(_movementInput.x, 0, _movementInput.y);
         float cameraAngle = _cameraTransform.eulerAngles.y;
         Quaternion inputRotation = Quaternion.Euler(0, cameraAngle, 0);
         movementInput = inputRotation * movementInput;
-         _characterMovement.Movement = new Vector2(movementInput.x, movementInput.z);
+        _characterMovement.Movement = new Vector2(movementInput.x, movementInput.z);
+    }
+
+    //Event Listeners
+    private void OnMove(Vector2 movement)
+    {
+        _movementInput = movement;
     }
 
     private void OnJump()

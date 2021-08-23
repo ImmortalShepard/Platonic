@@ -1927,7 +1927,7 @@
     "m_Type": "UnityEditor.ShaderGraph.Vector2MaterialSlot",
     "m_ObjectId": "1a63b306732642c39233b178262eeea7",
     "m_Id": 0,
-    "m_DisplayName": "Tilling",
+    "m_DisplayName": "Tiling",
     "m_SlotType": 1,
     "m_Hidden": false,
     "m_ShaderOutputName": "Out",

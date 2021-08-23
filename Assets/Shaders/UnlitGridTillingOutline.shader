@@ -1,4 +1,4 @@
-Shader "UnlitGridTilling"
+Shader "Custom/UnlitGridTilling"
 {
     Properties
     {
