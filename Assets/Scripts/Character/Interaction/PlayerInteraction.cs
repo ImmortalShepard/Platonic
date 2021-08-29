@@ -5,9 +5,9 @@ using UnityEngine;
 public class PlayerInteraction : MonoBehaviour
 {
     [SerializeField]
-    private Vector3 _capsuleCenterOffset = new Vector3(0,1,0);
+    private Vector3 _capsuleCenterOffset = new Vector3(0, 1, 0);
     [SerializeField]
-    private Vector3 _capsuleLengthOffset = new Vector3(0,0.5f,0);
+    private Vector3 _capsuleLengthOffset = new Vector3(0, 0.5f, 0);
     [SerializeField]
     private float _capsuleRadius = 0.25f;
     [SerializeField]
@@ -32,7 +32,13 @@ public class PlayerInteraction : MonoBehaviour
             _interactable = null;
             return;
         }
-        _interactable = raycastHit.transform.GetComponent<Interactable>();
-        _interactable?.Activate();
+
+        Interactable newInteractable = raycastHit.transform.GetComponent<Interactable>();
+        if (_interactable == newInteractable)
+        {
+            return;
+        }
+        _interactable = newInteractable;
+        _interactable?.Activate(this);
     }
 }

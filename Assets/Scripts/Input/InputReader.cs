@@ -19,6 +19,10 @@ public class InputReader : ScriptableObject, GameInput.IGameplayActions
     public UnityAction AttackEvent { get => _attackEvent; set => _attackEvent = value; }
     private event UnityAction _attackCancelEvent = delegate { };
     public UnityAction AttackCancelEvent { get => _attackCancelEvent; set => _attackCancelEvent = value; }
+    private event UnityAction _interactEvent = delegate { };
+    public UnityAction InteractEvent { get => _interactEvent; set => _interactEvent = value; }
+    private event UnityAction _interactCancelEvent = delegate { };
+    public UnityAction InteractCancelEvent { get => _interactCancelEvent; set => _interactCancelEvent = value; }
 
     private GameInput gameInput;
 
@@ -69,6 +73,19 @@ public class InputReader : ScriptableObject, GameInput.IGameplayActions
                 break;
             case InputActionPhase.Canceled:
                 _attackCancelEvent.Invoke();
+                break;
+        }
+    }
+
+    public void OnInteract(InputAction.CallbackContext context)
+    {
+        switch (context.phase)
+        {
+            case InputActionPhase.Performed:
+                _interactEvent.Invoke();
+                break;
+            case InputActionPhase.Canceled:
+                _interactCancelEvent.Invoke();
                 break;
         }
     }
