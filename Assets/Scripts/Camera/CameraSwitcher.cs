@@ -16,6 +16,9 @@ public class CameraSwitcher : MonoBehaviour
 
     [SerializeField]
     private Volume _volume;
+    [SerializeField]
+    private ForwardRendererData _forwardRendererData;
+    private CircleWipePassFeature _circleWipe;
 
     [SerializeField]
     private float _fadeTime = 0.5f;
@@ -39,6 +42,12 @@ public class CameraSwitcher : MonoBehaviour
         if (cinemachineBrain != null)
         {
             _cameraBlendTime = cinemachineBrain.m_DefaultBlend.BlendTime;
+        }
+
+        if (_forwardRendererData)
+        {
+            ScriptableRendererFeature scriptableRendererFeature = _forwardRendererData.rendererFeatures.Find(renderFeature => renderFeature is CircleWipePassFeature);
+            _circleWipe = scriptableRendererFeature as CircleWipePassFeature;
         }
     }
 
@@ -132,13 +141,15 @@ public class CameraSwitcher : MonoBehaviour
     {
         _fadeTimer += Time.deltaTime;
         float lerpT = _fadeTimer / _fadeTime;
-        _volume.weight = Mathf.Lerp(0, 1, lerpT);
+        //_volume.weight = Mathf.Lerp(0, 1, lerpT);
+        _circleWipe.CircleWipeSettings._circleSize = Mathf.Lerp(1, 0, lerpT);
     }
 
     private void FadeIn()
     {
         _fadeTimer += Time.deltaTime;
         float lerpT = _fadeTimer / _fadeTime;
-        _volume.weight = Mathf.Lerp(1, 0, lerpT);
+        //_volume.weight = Mathf.Lerp(1, 0, lerpT);
+        _circleWipe.CircleWipeSettings._circleSize = Mathf.Lerp(0, 1, lerpT);
     }
 }
