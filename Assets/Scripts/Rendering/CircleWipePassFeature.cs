@@ -4,44 +4,22 @@ using UnityEngine.Rendering.Universal;
 
 public class CircleWipePassFeature : ScriptableRendererFeature
 {
-    [System.Serializable]
-    public class PassSettings
-    {
-        public RenderPassEvent _renderPassEvent = RenderPassEvent.BeforeRenderingPostProcessing;
-        public Shader _shader;
-        [Range(0, 1)]
-        public float _circleSize = 0;
-    }
-
     class CustomRenderPass : ScriptableRenderPass
     {
         const string _profilerTag = "Circle Wipe Pass";
 
-        private PassSettings _passSettings;
-
-        public PassSettings CircleWipeSettings
-        {
-            get => _passSettings;
-            set
-            {
-                if (_passSettings._circleSize != value._circleSize)
-                {
-                    _material.SetFloat("_CircleSize", value._circleSize);
-                }
-                _passSettings = value;
-            }
-        }
-
         private Material _material;
         private RenderTargetIdentifier _colorBuffer;
 
-        public CustomRenderPass(PassSettings passSettings)
+        public CustomRenderPass(Shader shader, float circleSize)
         {
-            _passSettings = passSettings;
+            _material = CoreUtils.CreateEngineMaterial(shader);
+            CircleSize = circleSize;
+        }
 
-            renderPassEvent = _passSettings._renderPassEvent;
-            _material = CoreUtils.CreateEngineMaterial(_passSettings._shader);
-            _material.SetFloat("_CircleSize", _passSettings._circleSize);
+        public float CircleSize
+        {
+            set => _material.SetFloat("_CircleSize", value);
         }
 
         // This method is called before executing the render pass.
@@ -80,22 +58,28 @@ public class CircleWipePassFeature : ScriptableRendererFeature
 
     private CustomRenderPass _scriptablePass;
     [SerializeField]
-    private PassSettings _passSettings;
+    private RenderPassEvent _renderPassEvent = RenderPassEvent.BeforeRenderingPostProcessing;
+    [SerializeField]
+    private Shader _shader;
+    [SerializeField]
+    [Range(0, 1)]
+    private float _circleSize = 0;
 
-    public PassSettings CircleWipeSettings
+    public float CircleSize
     {
-        get => _passSettings;
+        get => _circleSize;
         set
         {
-            _passSettings = value;
-            _scriptablePass.CircleWipeSettings = _passSettings;
+            _circleSize = value;
+            _scriptablePass.CircleSize = _circleSize;
         }
     }
 
     /// <inheritdoc/>
     public override void Create()
     {
-        _scriptablePass = new CustomRenderPass(_passSettings);
+        _scriptablePass = new CustomRenderPass(_shader, _circleSize);
+        _scriptablePass.renderPassEvent = _renderPassEvent;
     }
 
     // Here you can inject one or multiple render passes in the renderer.

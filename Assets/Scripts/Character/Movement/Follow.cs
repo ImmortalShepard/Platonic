@@ -9,11 +9,11 @@ public class Follow : MonoBehaviour
     private Rigidbody _rigidbody;
 
     [SerializeField]
-    private float _followDistance = 0.5f;
+    private float _followDistance = 1;
     public float FollowDistance { get => _followDistance; set => _followDistance = value; }
 
-    private Transform _followTransform;
-    public Transform FollowTransform { get => _followTransform; set => _followTransform = value; }
+    private Rigidbody _followRigidbody;
+    public Rigidbody FollowRigidbody { get => _followRigidbody; set => _followRigidbody = value; }
 
     private void Reset()
     {
@@ -23,16 +23,19 @@ public class Follow : MonoBehaviour
 
     private void FixedUpdate()
     {
-        Vector3 toFollow = _followTransform.position - transform.position;
+        _rigidbody.velocity = Vector3.zero;
+        Vector3 toFollow = _followRigidbody.position - _rigidbody.position;
         toFollow.y = 0;
         float distance = toFollow.magnitude;
+
+        _rigidbody.rotation = Quaternion.LookRotation(toFollow);
+
         if (distance <= _followDistance)
         {
             return;
         }
 
         toFollow /= distance;
-        _rigidbody.rotation = Quaternion.LookRotation(toFollow);
         _rigidbody.MovePosition(_rigidbody.position + toFollow * (distance - _followDistance));
     }
 }

@@ -25,6 +25,7 @@ public class PlayerMovement : MonoBehaviour
         _inputReader.MoveEvent += OnMove;
         _inputReader.JumpEvent += OnJump;
         _inputReader.JumpCancelEvent += OnJumpCancel;
+        _characterMovement.enabled = true;
     }
 
     private void OnDisable()
@@ -32,6 +33,7 @@ public class PlayerMovement : MonoBehaviour
         _inputReader.MoveEvent -= OnMove;
         _inputReader.JumpEvent -= OnJump;
         _inputReader.JumpCancelEvent -= OnJumpCancel;
+        _characterMovement.enabled = false;
     }
 
     private void FixedUpdate()

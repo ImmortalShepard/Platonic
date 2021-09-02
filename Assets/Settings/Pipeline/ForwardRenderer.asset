@@ -13,10 +13,9 @@ MonoBehaviour:
   m_Name: CircleWipe
   m_EditorClassIdentifier: 
   m_Active: 1
-  _passSettings:
-    _renderPassEvent: 550
-    _shader: {fileID: -6465566751694194690, guid: 8b11d014feaa5bc43a6c0aa5e3ba730c, type: 3}
-    _circleSize: 1
+  _renderPassEvent: 550
+  _shader: {fileID: -6465566751694194690, guid: 8b11d014feaa5bc43a6c0aa5e3ba730c, type: 3}
+  _circleSize: 1
 --- !u!114 &-5340807762259541126
 MonoBehaviour:
   m_ObjectHideFlags: 0

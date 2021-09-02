@@ -13,6 +13,8 @@ public class Rollable : MonoBehaviour, Interactable
     private Transform _cameraTransform;
     [SerializeField]
     private GameObject _popUp;
+    [SerializeField]
+    private Rigidbody _rigidbody;
 
     private Vector2 _movementInput = Vector2.zero;
     private bool _rolling = false;
@@ -24,6 +26,7 @@ public class Rollable : MonoBehaviour, Interactable
     {
         _rollMovement = GetComponent<RollMovement>();
         _cameraTransform = Camera.main.transform;
+        _rigidbody = GetComponent<Rigidbody>();
     }
 
     private void OnDisable()
@@ -72,7 +75,7 @@ public class Rollable : MonoBehaviour, Interactable
                 _inputReader.MoveEvent += OnMove;
                 _playerMovement.enabled = false;
                 _follow.enabled = true;
-                _follow.FollowTransform = transform;
+                _follow.FollowRigidbody = _rigidbody;
                 _playerInteraction.enabled = false;
                 _popUp.SetActive(false);
                 break;

@@ -14,17 +14,17 @@ public class CameraSwitcher : MonoBehaviour
     [SerializeField]
     private CinemachineVirtualCamera _virtual3DCamera;
 
-    [SerializeField]
-    private Volume _volume;
+    private CinemachineBrain _cinemachineBrain;
+
     [SerializeField]
     private ForwardRendererData _forwardRendererData;
     private CircleWipePassFeature _circleWipe;
 
     [SerializeField]
-    private float _fadeTime = 0.5f;
-    private float _fadeTimer = 0.0f;
-
-    private float _cameraBlendTime = 0.0f;
+    private float _fadeTime = 0.4f;
+    [SerializeField]
+    private float _blackTime = 0.2f;
+    private float _transitionTimer = 0.0f;
 
     [SerializeField]
     private LayerMask _2DLayerMask = 0;
@@ -38,11 +38,7 @@ public class CameraSwitcher : MonoBehaviour
 
     private void Start()
     {
-        CinemachineBrain cinemachineBrain = _camera.GetComponent<CinemachineBrain>();
-        if (cinemachineBrain != null)
-        {
-            _cameraBlendTime = cinemachineBrain.m_DefaultBlend.BlendTime;
-        }
+        _cinemachineBrain = _camera.GetComponent<CinemachineBrain>();
 
         if (_forwardRendererData)
         {
@@ -86,22 +82,29 @@ public class CameraSwitcher : MonoBehaviour
 
     IEnumerator ToPerspective()
     {
-        _fadeTimer = 0;
+        _transitionTimer = 0;
         do
         {
             FadeOut();
             yield return null;
-        } while (_fadeTimer < _fadeTime);
+        } while (_transitionTimer < _fadeTime);
 
         _camera.orthographic = false;
         _camera.cullingMask = _3DLayerMask;
 
-        _fadeTimer = 0;
+        _transitionTimer = 0;
+        while (_transitionTimer < _blackTime || _cinemachineBrain.IsBlending)
+        {
+            _transitionTimer += Time.deltaTime;
+            yield return null;
+        }
+
+        _transitionTimer = 0;
         do
         {
             FadeIn();
             yield return null;
-        } while (_fadeTimer < _fadeTime);
+        } while (_transitionTimer < _fadeTime);
 
         _virtual2DCamera.Priority = 0;
         _virtual3DCamera.Priority = 1;
@@ -112,44 +115,42 @@ public class CameraSwitcher : MonoBehaviour
         _virtual2DCamera.Priority = 1;
         _virtual3DCamera.Priority = 0;
 
-        _fadeTimer = 0;
-        do
-        {
-            _fadeTimer += Time.deltaTime;
-            yield return null;
-        } while (_fadeTimer < _cameraBlendTime);
-
-        _fadeTimer = 0;
+        _transitionTimer = 0;
         do
         {
             FadeOut();
             yield return null;
-        } while (_fadeTimer < _fadeTime);
+        } while (_transitionTimer < _fadeTime);
 
         _camera.orthographic = true;
         _camera.cullingMask = _2DLayerMask;
 
-        _fadeTimer = 0;
+        _transitionTimer = 0;
+        while (_transitionTimer < _blackTime || _cinemachineBrain.IsBlending)
+        {
+            _transitionTimer += Time.deltaTime;
+            yield return null;
+        }
+
+        _transitionTimer = 0;
         do
         {
             FadeIn();
             yield return null;
-        } while (_fadeTimer < _fadeTime);
+        } while (_transitionTimer < _fadeTime);
     }
 
     private void FadeOut()
     {
-        _fadeTimer += Time.deltaTime;
-        float lerpT = _fadeTimer / _fadeTime;
-        //_volume.weight = Mathf.Lerp(0, 1, lerpT);
-        _circleWipe.CircleWipeSettings._circleSize = Mathf.Lerp(1, 0, lerpT);
+        _transitionTimer += Time.deltaTime;
+        float lerpT = _transitionTimer / _fadeTime;
+        _circleWipe.CircleSize = Mathf.Lerp(1, 0, lerpT);
     }
 
     private void FadeIn()
     {
-        _fadeTimer += Time.deltaTime;
-        float lerpT = _fadeTimer / _fadeTime;
-        //_volume.weight = Mathf.Lerp(1, 0, lerpT);
-        _circleWipe.CircleWipeSettings._circleSize = Mathf.Lerp(0, 1, lerpT);
+        _transitionTimer += Time.deltaTime;
+        float lerpT = _transitionTimer / _fadeTime;
+        _circleWipe.CircleSize = Mathf.Lerp(0, 1, lerpT);
     }
 }
