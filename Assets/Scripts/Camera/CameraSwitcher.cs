@@ -44,6 +44,7 @@ public class CameraSwitcher : MonoBehaviour
         {
             ScriptableRendererFeature scriptableRendererFeature = _forwardRendererData.rendererFeatures.Find(renderFeature => renderFeature is CircleWipePassFeature);
             _circleWipe = scriptableRendererFeature as CircleWipePassFeature;
+            _circleWipe?.SetActive(false);
         }
     }
 
@@ -80,8 +81,10 @@ public class CameraSwitcher : MonoBehaviour
         }
     }
 
-    IEnumerator ToPerspective()
+    private IEnumerator ToPerspective()
     {
+        _circleWipe.SetActive(true);
+
         _transitionTimer = 0;
         do
         {
@@ -108,10 +111,14 @@ public class CameraSwitcher : MonoBehaviour
 
         _virtual2DCamera.Priority = 0;
         _virtual3DCamera.Priority = 1;
+
+        _circleWipe.SetActive(false);
     }
 
-    IEnumerator ToOrthographic()
+    private IEnumerator ToOrthographic()
     {
+        _circleWipe.SetActive(true);
+
         _virtual2DCamera.Priority = 1;
         _virtual3DCamera.Priority = 0;
 
@@ -138,6 +145,8 @@ public class CameraSwitcher : MonoBehaviour
             FadeIn();
             yield return null;
         } while (_transitionTimer < _fadeTime);
+
+        _circleWipe.SetActive(false);
     }
 
     private void FadeOut()

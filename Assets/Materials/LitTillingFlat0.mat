@@ -20,6 +20,10 @@ Material:
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
+    - Texture2D_8790a9e04c6a4e70b402b45c5e760cd7:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - Texture2D_a410be8001674d18bf20c8705014441a:
         m_Texture: {fileID: 2800000, guid: f27c1326d8f10ad45881339b6699db6b, type: 3}
         m_Scale: {x: 1, y: 1}
@@ -87,6 +91,7 @@ Material:
     m_Floats:
     - BOOLEAN_002224FC4000476C947E01C823F2C2F7: 0
     - BOOLEAN_F86DDD5B9F1448558F1546BF21045206: 1
+    - ENUM_BC782402F6BE4FA183DEE55887251E18: 0
     - MAKE_FLAT: 1
     - USE_PRECALCULATED_OUTLINE_NORMALS: 0
     - USE_VIEW_DIRECTION: 1
@@ -130,6 +135,8 @@ Material:
     - _ZWrite: 1
     m_Colors:
     - Color_170f81a9327b496380a0f9056a06a640: {r: 0.7239676, g: 0.8207547, b: 0.8207547, a: 0}
+    - Vector2_404fab8435f2423f85f5f8bbc745e531: {r: 0, g: 0, b: 0, a: 0}
+    - Vector2_9a4cda2eb6c64c1ab91cda5fd2713e62: {r: 1, g: 1, b: 0, a: 0}
     - Vector2_dba61eda1c2f4d1786e4b7bfd6cacc7b: {r: 0, g: 0, b: 0, a: 0}
     - Vector2_fc4e278925e94756b8036cf960666584: {r: 0.125, g: 0.125, b: 0, a: 0}
     - Vector3_be7d6598cede4f1d8f20932756d46ad6: {r: 0, g: -1, b: 0, a: 0}
@@ -138,11 +145,13 @@ Material:
     - _Color: {r: 0.80784315, g: 0.8784314, b: 0.8784314, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _FlatRotationAxis: {r: 1, g: 0, b: 0, a: 0}
+    - _FlatRotationOffset: {r: 0, g: 0, b: 0, a: 0}
     - _GridColor: {r: 0, g: 0, b: 0, a: 0.5019608}
     - _GridOffset: {r: -0.05, g: -0.05, b: 0, a: 0}
     - _Offset: {r: 0, g: 0, b: 0, a: 0}
     - _OutlineColor: {r: 0, g: 0, b: 0, a: 1}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
+    - _Tiling: {r: 0.125, g: 0.125, b: 0, a: 0}
     - _Tilling: {r: 0.125, g: 0.125, b: 0, a: 0}
     - _ViewDirection: {r: 0, g: -1, b: 0, a: 0}
   m_BuildTextureStacks: []

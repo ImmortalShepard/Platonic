@@ -7,7 +7,6 @@ public class Follow : MonoBehaviour
 {
     [SerializeField]
     private Rigidbody _rigidbody;
-
     [SerializeField]
     private float _followDistance = 1;
     public float FollowDistance { get => _followDistance; set => _followDistance = value; }
@@ -22,6 +21,10 @@ public class Follow : MonoBehaviour
     }
 
     private void FixedUpdate()
+    {
+        FollowMove();
+    }
+    private void FollowMove()
     {
         _rigidbody.velocity = Vector3.zero;
         Vector3 toFollow = _followRigidbody.position - _rigidbody.position;

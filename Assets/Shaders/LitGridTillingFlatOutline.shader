@@ -3,14 +3,17 @@ Shader "Custom/LitGridTillingFlatOutline"
     Properties
     {
         [NoScaleOffset]_Texture("Texture", 2D) = "white" {}
-        _Tilling("Tilling", Vector) = (1, 1, 0, 0)
+        _Tiling("Tiling", Vector) = (1, 1, 0, 0)
         _Offset("Offset", Vector) = (0, 0, 0, 0)
+        [NoScaleOffset]Texture2D_8790a9e04c6a4e70b402b45c5e760cd7("Color Texture", 2D) = "white" {}
+        Vector2_9a4cda2eb6c64c1ab91cda5fd2713e62("Color Tiling", Vector) = (1, 1, 0, 0)
+        Vector2_404fab8435f2423f85f5f8bbc745e531("Color Offset", Vector) = (0, 0, 0, 0)
         [HDR]_Color("Color", Color) = (1, 1, 1, 1)
-        _BlendRatio("Blend Ratio", Range(0, 1)) = 0
         _ViewDirection("View Direction", Vector) = (0, -1, 0, 0)
         _FlatHeight("Flat Height", Float) = 0.001
         _FlatRotationAxis("Flat Rotation Axis", Vector) = (1, 0, 0, 0)
         _FlatRotationDegrees("Flat Rotation Degrees", Float) = 45
+        _FlatRotationOffset("Flat Rotation Offset", Vector) = (0, 0, 0, 0)
         _GridSize("Grid Size", Float) = 0.5
         _GridLineSize("Grid Line Size", Float) = 0.02
         _GridOffset("Grid Offset", Vector) = (0, 0, 0, 0)
@@ -18,8 +21,8 @@ Shader "Custom/LitGridTillingFlatOutline"
         [HideInInspector][NoScaleOffset]unity_Lightmaps("unity_Lightmaps", 2DArray) = "" {}
         [HideInInspector][NoScaleOffset]unity_LightmapsInd("unity_LightmapsInd", 2DArray) = "" {}
         [HideInInspector][NoScaleOffset]unity_ShadowMasks("unity_ShadowMasks", 2DArray) = "" {}
-        [Toggle]USE_VIEW_DIRECTION("Use View Direction", Float) = 0
-        [Toggle]MAKE_FLAT("Make Flat", Float) = 0
+        [Toggle]MAKE_FLAT("Make Flat", Float) = 1
+        [KeywordEnum(R, G, B)]ENUM_BC782402F6BE4FA183DEE55887251E18("Color Channel", Float) = 0
 
         _OutlineThickness("Outline Thickness", Float) = 0.1
         [HDR]_OutlineColor("Outline Color", Color) = (0, 0, 0, 1)
@@ -395,14 +398,17 @@ Shader "Custom/LitGridTillingFlatOutline"
             // Graph Properties
             CBUFFER_START(UnityPerMaterial)
             float4 _Texture_TexelSize;
-            float2 _Tilling;
+            float2 _Tiling;
             float2 _Offset;
+            float4 Texture2D_8790a9e04c6a4e70b402b45c5e760cd7_TexelSize;
+            float2 Vector2_9a4cda2eb6c64c1ab91cda5fd2713e62;
+            float2 Vector2_404fab8435f2423f85f5f8bbc745e531;
             float4 _Color;
-            float _BlendRatio;
             float3 _ViewDirection;
             float _FlatHeight;
             float3 _FlatRotationAxis;
             float _FlatRotationDegrees;
+            float3 _FlatRotationOffset;
             float _GridSize;
             float _GridLineSize;
             float2 _GridOffset;
@@ -723,58 +729,62 @@ Shader "Custom/LitGridTillingFlatOutline"
         #pragma multi_compile _ _SHADOWS_SOFT
         #pragma multi_compile _ LIGHTMAP_SHADOW_MIXING
         #pragma multi_compile _ SHADOWS_SHADOWMASK
-            #pragma shader_feature_local _ USE_VIEW_DIRECTION_ON
-        #pragma shader_feature_local _ MAKE_FLAT_ON
+            #pragma shader_feature_local _ MAKE_FLAT_ON
+        #pragma shader_feature_local ENUM_BC782402F6BE4FA183DEE55887251E18_R ENUM_BC782402F6BE4FA183DEE55887251E18_G ENUM_BC782402F6BE4FA183DEE55887251E18_B
 
-        #if defined(USE_VIEW_DIRECTION_ON) && defined(MAKE_FLAT_ON)
+        #if defined(MAKE_FLAT_ON) && defined(ENUM_BC782402F6BE4FA183DEE55887251E18_R)
             #define KEYWORD_PERMUTATION_0
-        #elif defined(USE_VIEW_DIRECTION_ON)
+        #elif defined(MAKE_FLAT_ON) && defined(ENUM_BC782402F6BE4FA183DEE55887251E18_G)
             #define KEYWORD_PERMUTATION_1
-        #elif defined(MAKE_FLAT_ON)
+        #elif defined(MAKE_FLAT_ON) && defined(ENUM_BC782402F6BE4FA183DEE55887251E18_B)
             #define KEYWORD_PERMUTATION_2
-        #else
+        #elif defined(ENUM_BC782402F6BE4FA183DEE55887251E18_R)
             #define KEYWORD_PERMUTATION_3
+        #elif defined(ENUM_BC782402F6BE4FA183DEE55887251E18_G)
+            #define KEYWORD_PERMUTATION_4
+        #else
+            #define KEYWORD_PERMUTATION_5
         #endif
 
 
             // Defines
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         #define _NORMALMAP 1
         #endif
 
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         #define _NORMAL_DROPOFF_WS 1
         #endif
 
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         #define ATTRIBUTES_NEED_NORMAL
         #endif
 
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         #define ATTRIBUTES_NEED_TANGENT
         #endif
 
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         #define ATTRIBUTES_NEED_TEXCOORD1
         #endif
 
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         #define VARYINGS_NEED_POSITION_WS
         #endif
 
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         #define VARYINGS_NEED_NORMAL_WS
         #endif
 
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         #define VARYINGS_NEED_TANGENT_WS
         #endif
 
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         #define VARYINGS_NEED_VIEWDIRECTION_WS
         #endif
 
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         #define VARYINGS_NEED_FOG_AND_VERTEX_LIGHT
         #endif
 
@@ -797,170 +807,170 @@ Shader "Custom/LitGridTillingFlatOutline"
 
             struct Attributes
         {
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 positionOS : POSITION;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 normalOS : NORMAL;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float4 tangentOS : TANGENT;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float4 uv1 : TEXCOORD1;
             #endif
             #if UNITY_ANY_INSTANCING_ENABLED
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             uint instanceID : INSTANCEID_SEMANTIC;
             #endif
             #endif
         };
         struct Varyings
         {
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float4 positionCS : SV_POSITION;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 positionWS;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 normalWS;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float4 tangentWS;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 viewDirectionWS;
             #endif
             #if defined(LIGHTMAP_ON)
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float2 lightmapUV;
             #endif
             #endif
             #if !defined(LIGHTMAP_ON)
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 sh;
             #endif
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float4 fogFactorAndVertexLight;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float4 shadowCoord;
             #endif
             #if UNITY_ANY_INSTANCING_ENABLED
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             uint instanceID : CUSTOM_INSTANCE_ID;
             #endif
             #endif
             #if (defined(UNITY_STEREO_MULTIVIEW_ENABLED)) || (defined(UNITY_STEREO_INSTANCING_ENABLED) && (defined(SHADER_API_GLES3) || defined(SHADER_API_GLCORE)))
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             uint stereoTargetEyeIndexAsBlendIdx0 : BLENDINDICES0;
             #endif
             #endif
             #if (defined(UNITY_STEREO_INSTANCING_ENABLED))
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             uint stereoTargetEyeIndexAsRTArrayIdx : SV_RenderTargetArrayIndex;
             #endif
             #endif
             #if defined(SHADER_STAGE_FRAGMENT) && defined(VARYINGS_NEED_CULLFACE)
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             FRONT_FACE_TYPE cullFace : FRONT_FACE_SEMANTIC;
             #endif
             #endif
         };
         struct SurfaceDescriptionInputs
         {
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 WorldSpaceNormal;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 AbsoluteWorldSpacePosition;
             #endif
         };
         struct VertexDescriptionInputs
         {
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 ObjectSpaceNormal;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 WorldSpaceNormal;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 ObjectSpaceTangent;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 WorldSpaceTangent;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 ObjectSpaceBiTangent;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 WorldSpaceBiTangent;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 ObjectSpacePosition;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 AbsoluteWorldSpacePosition;
             #endif
         };
         struct PackedVaryings
         {
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float4 positionCS : SV_POSITION;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 interp0 : TEXCOORD0;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 interp1 : TEXCOORD1;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float4 interp2 : TEXCOORD2;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 interp3 : TEXCOORD3;
             #endif
             #if defined(LIGHTMAP_ON)
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float2 interp4 : TEXCOORD4;
             #endif
             #endif
             #if !defined(LIGHTMAP_ON)
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 interp5 : TEXCOORD5;
             #endif
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float4 interp6 : TEXCOORD6;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float4 interp7 : TEXCOORD7;
             #endif
             #if UNITY_ANY_INSTANCING_ENABLED
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             uint instanceID : CUSTOM_INSTANCE_ID;
             #endif
             #endif
             #if (defined(UNITY_STEREO_MULTIVIEW_ENABLED)) || (defined(UNITY_STEREO_INSTANCING_ENABLED) && (defined(SHADER_API_GLES3) || defined(SHADER_API_GLCORE)))
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             uint stereoTargetEyeIndexAsBlendIdx0 : BLENDINDICES0;
             #endif
             #endif
             #if (defined(UNITY_STEREO_INSTANCING_ENABLED))
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             uint stereoTargetEyeIndexAsRTArrayIdx : SV_RenderTargetArrayIndex;
             #endif
             #endif
             #if defined(SHADER_STAGE_FRAGMENT) && defined(VARYINGS_NEED_CULLFACE)
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             FRONT_FACE_TYPE cullFace : FRONT_FACE_SEMANTIC;
             #endif
             #endif
         };
 
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         PackedVaryings PackVaryings (Varyings input)
         {
             PackedVaryings output;
@@ -1029,14 +1039,17 @@ Shader "Custom/LitGridTillingFlatOutline"
             // Graph Properties
             CBUFFER_START(UnityPerMaterial)
             float4 _Texture_TexelSize;
-            float2 _Tilling;
+            float2 _Tiling;
             float2 _Offset;
+            float4 Texture2D_8790a9e04c6a4e70b402b45c5e760cd7_TexelSize;
+            float2 Vector2_9a4cda2eb6c64c1ab91cda5fd2713e62;
+            float2 Vector2_404fab8435f2423f85f5f8bbc745e531;
             float4 _Color;
-            float _BlendRatio;
             float3 _ViewDirection;
             float _FlatHeight;
             float3 _FlatRotationAxis;
             float _FlatRotationDegrees;
+            float3 _FlatRotationOffset;
             float _GridSize;
             float _GridLineSize;
             float2 _GridOffset;
@@ -1050,9 +1063,16 @@ Shader "Custom/LitGridTillingFlatOutline"
         SAMPLER(SamplerState_Linear_Repeat);
         TEXTURE2D(_Texture);
         SAMPLER(sampler_Texture);
+        TEXTURE2D(Texture2D_8790a9e04c6a4e70b402b45c5e760cd7);
+        SAMPLER(samplerTexture2D_8790a9e04c6a4e70b402b45c5e760cd7);
 
             // Graph Functions
             
+        void Unity_Subtract_float3(float3 A, float3 B, out float3 Out)
+        {
+            Out = A - B;
+        }
+
         void Unity_Rotate_About_Axis_Degrees_float(float3 In, float3 Axis, float Rotation, out float3 Out)
         {
             Rotation = radians(Rotation);
@@ -1071,6 +1091,11 @@ Shader "Custom/LitGridTillingFlatOutline"
             Out = mul(rot_mat,  In);
         }
 
+        void Unity_Add_float3(float3 A, float3 B, out float3 Out)
+        {
+            Out = A + B;
+        }
+
         void Unity_Subtract_float(float A, float B, out float Out)
         {
             Out = A - B;
@@ -1079,11 +1104,6 @@ Shader "Custom/LitGridTillingFlatOutline"
         void Unity_Multiply_float(float3 A, float3 B, out float3 Out)
         {
             Out = A * B;
-        }
-
-        void Unity_Subtract_float3(float3 A, float3 B, out float3 Out)
-        {
-            Out = A - B;
         }
 
         void Unity_DotProduct_float3(float3 A, float3 B, out float Out)
@@ -1111,6 +1131,11 @@ Shader "Custom/LitGridTillingFlatOutline"
         void Unity_Multiply_float(float A, float B, out float Out)
         {
             Out = A * B;
+        }
+
+        void Unity_Comparison_NotEqual_float(float A, float B, out float Out)
+        {
+            Out = A != B ? 1 : 0;
         }
 
         void Unity_Subtract_float2(float2 A, float2 B, out float2 Out)
@@ -1160,12 +1185,20 @@ Shader "Custom/LitGridTillingFlatOutline"
             Out = A || B;
         }
 
+        void Unity_And_float(float A, float B, out float Out)
+        {
+            Out = A && B;
+        }
+
         struct Bindings_GridUVCheck_294d007a503d6d2499de026b4f678348
         {
         };
 
         void SG_GridUVCheck_294d007a503d6d2499de026b4f678348(float2 Vector2_5a56dbf35cba4d4c8a3192a95b776eb9, float Vector1_0a171b7c60dc451dab7b2e69064f24eb, float2 Vector2_d630f5a030b148be8aa8b746e507f89a, float Vector1_7845b62507cb41e1bdeb7da05ba77e88, Bindings_GridUVCheck_294d007a503d6d2499de026b4f678348 IN, out float Out_Vector4_1)
         {
+            float _Property_261aaf889a324bb4ac259d0782d89eb0_Out_0 = Vector1_7845b62507cb41e1bdeb7da05ba77e88;
+            float _Comparison_351fddbc30fb4e358519fa5fcc059dfb_Out_2;
+            Unity_Comparison_NotEqual_float(_Property_261aaf889a324bb4ac259d0782d89eb0_Out_0, 0, _Comparison_351fddbc30fb4e358519fa5fcc059dfb_Out_2);
             float2 _Property_fb6173b513a2442dae002a71d714fb8a_Out_0 = Vector2_5a56dbf35cba4d4c8a3192a95b776eb9;
             float2 _Property_8e21231b95494bfd917e2a63f0311bab_Out_0 = Vector2_d630f5a030b148be8aa8b746e507f89a;
             float2 _Subtract_c86e7a2a84c841e6ace00653ee9c4c00_Out_2;
@@ -1184,7 +1217,9 @@ Shader "Custom/LitGridTillingFlatOutline"
             SG_GridCheck_7e9bb100a3d60a94f94589ab30823025(_Split_68957bd604ac408cb4f40d11f10462e0_G_2, _Property_f9707b40612141e28e92f98117aabb47_Out_0, _Property_82c6c275ad2e4dec864b44c81809a340_Out_0, _GridCheck_ad0e839ef18848968002cfbf3e540a4c, _GridCheck_ad0e839ef18848968002cfbf3e540a4c_OutVector4_1);
             float _Or_b916cb2784d64a6582f6bc7ebadae8e8_Out_2;
             Unity_Or_float(_GridCheck_b8e7d6fe4086451eb52139a6851ccac4_OutVector4_1, _GridCheck_ad0e839ef18848968002cfbf3e540a4c_OutVector4_1, _Or_b916cb2784d64a6582f6bc7ebadae8e8_Out_2);
-            Out_Vector4_1 = _Or_b916cb2784d64a6582f6bc7ebadae8e8_Out_2;
+            float _And_a4eda4421ac742ecb6275e2fa2316a72_Out_2;
+            Unity_And_float(_Comparison_351fddbc30fb4e358519fa5fcc059dfb_Out_2, _Or_b916cb2784d64a6582f6bc7ebadae8e8_Out_2, _And_a4eda4421ac742ecb6275e2fa2316a72_Out_2);
+            Out_Vector4_1 = _And_a4eda4421ac742ecb6275e2fa2316a72_Out_2;
         }
 
         void Unity_TilingAndOffset_float(float2 UV, float2 Tiling, float2 Offset, out float2 Out)
@@ -1203,16 +1238,6 @@ Shader "Custom/LitGridTillingFlatOutline"
             Out = Predicate ? True : False;
         }
 
-        void Unity_Add_float4(float4 A, float4 B, out float4 Out)
-        {
-            Out = A + B;
-        }
-
-        void Unity_Saturate_float4(float4 In, out float4 Out)
-        {
-            Out = saturate(In);
-        }
-
             // Graph Vertex
             struct VertexDescription
         {
@@ -1224,44 +1249,55 @@ Shader "Custom/LitGridTillingFlatOutline"
         VertexDescription VertexDescriptionFunction(VertexDescriptionInputs IN)
         {
             VertexDescription description = (VertexDescription)0;
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
+            float3 _Property_f08c037d6b934269b31af1a394cffb21_Out_0 = _FlatRotationOffset;
+            #endif
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
+            float3 _Subtract_5f2dd89698fb42a89b9c743b5296afc4_Out_2;
+            Unity_Subtract_float3(IN.AbsoluteWorldSpacePosition, _Property_f08c037d6b934269b31af1a394cffb21_Out_0, _Subtract_5f2dd89698fb42a89b9c743b5296afc4_Out_2);
+            #endif
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 _Property_f67616b49efb49a395d991e36d5c2f7d_Out_0 = _FlatRotationAxis;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float _Property_a8d31893f5104bb3bdc008c6144d0a2f_Out_0 = _FlatRotationDegrees;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 _RotateAboutAxis_45b701f026d44f0b9e1314efc1fcdb63_Out_3;
-            Unity_Rotate_About_Axis_Degrees_float(IN.AbsoluteWorldSpacePosition, _Property_f67616b49efb49a395d991e36d5c2f7d_Out_0, _Property_a8d31893f5104bb3bdc008c6144d0a2f_Out_0, _RotateAboutAxis_45b701f026d44f0b9e1314efc1fcdb63_Out_3);
+            Unity_Rotate_About_Axis_Degrees_float(_Subtract_5f2dd89698fb42a89b9c743b5296afc4_Out_2, _Property_f67616b49efb49a395d991e36d5c2f7d_Out_0, _Property_a8d31893f5104bb3bdc008c6144d0a2f_Out_0, _RotateAboutAxis_45b701f026d44f0b9e1314efc1fcdb63_Out_3);
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
-            float _Split_ef2a24bdf255433eb88306bcde4fe4aa_R_1 = _RotateAboutAxis_45b701f026d44f0b9e1314efc1fcdb63_Out_3[0];
-            float _Split_ef2a24bdf255433eb88306bcde4fe4aa_G_2 = _RotateAboutAxis_45b701f026d44f0b9e1314efc1fcdb63_Out_3[1];
-            float _Split_ef2a24bdf255433eb88306bcde4fe4aa_B_3 = _RotateAboutAxis_45b701f026d44f0b9e1314efc1fcdb63_Out_3[2];
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
+            float3 _Add_d3137f4c6ff74e9ea29c69792c4663e5_Out_2;
+            Unity_Add_float3(_RotateAboutAxis_45b701f026d44f0b9e1314efc1fcdb63_Out_3, _Property_f08c037d6b934269b31af1a394cffb21_Out_0, _Add_d3137f4c6ff74e9ea29c69792c4663e5_Out_2);
+            #endif
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
+            float _Split_ef2a24bdf255433eb88306bcde4fe4aa_R_1 = _Add_d3137f4c6ff74e9ea29c69792c4663e5_Out_2[0];
+            float _Split_ef2a24bdf255433eb88306bcde4fe4aa_G_2 = _Add_d3137f4c6ff74e9ea29c69792c4663e5_Out_2[1];
+            float _Split_ef2a24bdf255433eb88306bcde4fe4aa_B_3 = _Add_d3137f4c6ff74e9ea29c69792c4663e5_Out_2[2];
             float _Split_ef2a24bdf255433eb88306bcde4fe4aa_A_4 = 0;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float _Property_6c2e69a260844c7a91bd51ff7e3517cc_Out_0 = _FlatHeight;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float _Subtract_68df9f007bd44fea9df06041fa7120a9_Out_2;
             Unity_Subtract_float(_Split_ef2a24bdf255433eb88306bcde4fe4aa_G_2, _Property_6c2e69a260844c7a91bd51ff7e3517cc_Out_0, _Subtract_68df9f007bd44fea9df06041fa7120a9_Out_2);
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 _Vector3_8dfc68ab95c4422a8396dc15f0376486_Out_0 = float3(0, 1, 0);
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 _Multiply_6b6ee4a2652a4675b8cdc3048866c2f2_Out_2;
             Unity_Multiply_float((_Subtract_68df9f007bd44fea9df06041fa7120a9_Out_2.xxx), _Vector3_8dfc68ab95c4422a8396dc15f0376486_Out_0, _Multiply_6b6ee4a2652a4675b8cdc3048866c2f2_Out_2);
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 _Subtract_08c11516e1dc412b903dfeba38607cd4_Out_2;
-            Unity_Subtract_float3(_RotateAboutAxis_45b701f026d44f0b9e1314efc1fcdb63_Out_3, _Multiply_6b6ee4a2652a4675b8cdc3048866c2f2_Out_2, _Subtract_08c11516e1dc412b903dfeba38607cd4_Out_2);
+            Unity_Subtract_float3(_Add_d3137f4c6ff74e9ea29c69792c4663e5_Out_2, _Multiply_6b6ee4a2652a4675b8cdc3048866c2f2_Out_2, _Subtract_08c11516e1dc412b903dfeba38607cd4_Out_2);
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 _Transform_e0ad5d78a2ae4d5fa740c2e72daa7f9a_Out_1 = TransformWorldToObject(GetCameraRelativePositionWS(_Subtract_08c11516e1dc412b903dfeba38607cd4_Out_2.xyz));
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             #if defined(MAKE_FLAT_ON)
             float3 _MakeFlat_48f396b624134ea9bc2f3c47a31041ed_Out_0 = _Transform_e0ad5d78a2ae4d5fa740c2e72daa7f9a_Out_1;
             #else
@@ -1288,137 +1324,152 @@ Shader "Custom/LitGridTillingFlatOutline"
         SurfaceDescription SurfaceDescriptionFunction(SurfaceDescriptionInputs IN)
         {
             SurfaceDescription surface = (SurfaceDescription)0;
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 _Property_e4769ac03187485fb020eb7088c295ed_Out_0 = _ViewDirection;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
-            #if defined(USE_VIEW_DIRECTION_ON)
-            float3 _UseViewDirection_2608c469ad394b9992f097284919b99f_Out_0 = _Property_e4769ac03187485fb020eb7088c295ed_Out_0;
-            #else
-            float3 _UseViewDirection_2608c469ad394b9992f097284919b99f_Out_0 = -1 * mul((float3x3)UNITY_MATRIX_M, transpose(mul(UNITY_MATRIX_I_M, UNITY_MATRIX_I_V)) [2].xyz);
-            #endif
-            #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float _DotProduct_ed4a360a7a57420c95960f83990050e4_Out_2;
-            Unity_DotProduct_float3(IN.AbsoluteWorldSpacePosition, _UseViewDirection_2608c469ad394b9992f097284919b99f_Out_0, _DotProduct_ed4a360a7a57420c95960f83990050e4_Out_2);
+            Unity_DotProduct_float3(IN.AbsoluteWorldSpacePosition, _Property_e4769ac03187485fb020eb7088c295ed_Out_0, _DotProduct_ed4a360a7a57420c95960f83990050e4_Out_2);
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 _Multiply_85385482bb3846f5a7552ac6c824f094_Out_2;
-            Unity_Multiply_float(_UseViewDirection_2608c469ad394b9992f097284919b99f_Out_0, (_DotProduct_ed4a360a7a57420c95960f83990050e4_Out_2.xxx), _Multiply_85385482bb3846f5a7552ac6c824f094_Out_2);
+            Unity_Multiply_float((_DotProduct_ed4a360a7a57420c95960f83990050e4_Out_2.xxx), _Property_e4769ac03187485fb020eb7088c295ed_Out_0, _Multiply_85385482bb3846f5a7552ac6c824f094_Out_2);
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 _Subtract_1bc7b4078bde43a480621eb2d19ce011_Out_2;
             Unity_Subtract_float3(IN.AbsoluteWorldSpacePosition, _Multiply_85385482bb3846f5a7552ac6c824f094_Out_2, _Subtract_1bc7b4078bde43a480621eb2d19ce011_Out_2);
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float _Split_ede1224a4ca84032bf4b1df871e93e70_R_1 = _Subtract_1bc7b4078bde43a480621eb2d19ce011_Out_2[0];
             float _Split_ede1224a4ca84032bf4b1df871e93e70_G_2 = _Subtract_1bc7b4078bde43a480621eb2d19ce011_Out_2[1];
             float _Split_ede1224a4ca84032bf4b1df871e93e70_B_3 = _Subtract_1bc7b4078bde43a480621eb2d19ce011_Out_2[2];
             float _Split_ede1224a4ca84032bf4b1df871e93e70_A_4 = 0;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float4 _Combine_c544d0baf46547c886465113721b8dc2_RGBA_4;
             float3 _Combine_c544d0baf46547c886465113721b8dc2_RGB_5;
             float2 _Combine_c544d0baf46547c886465113721b8dc2_RG_6;
             Unity_Combine_float(_Split_ede1224a4ca84032bf4b1df871e93e70_G_2, _Split_ede1224a4ca84032bf4b1df871e93e70_B_3, 0, 0, _Combine_c544d0baf46547c886465113721b8dc2_RGBA_4, _Combine_c544d0baf46547c886465113721b8dc2_RGB_5, _Combine_c544d0baf46547c886465113721b8dc2_RG_6);
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float _Length_48a21bd606b84dd8809be4bbd711831d_Out_1;
             Unity_Length_float2(_Combine_c544d0baf46547c886465113721b8dc2_RG_6, _Length_48a21bd606b84dd8809be4bbd711831d_Out_1);
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float _Sign_3a9dd5cc2c7d401abf60568356686fa9_Out_1;
             Unity_Sign_float(_Split_ede1224a4ca84032bf4b1df871e93e70_B_3, _Sign_3a9dd5cc2c7d401abf60568356686fa9_Out_1);
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float _Multiply_3a12640e60a9408d9c50ff83d67b70dd_Out_2;
             Unity_Multiply_float(_Length_48a21bd606b84dd8809be4bbd711831d_Out_1, _Sign_3a9dd5cc2c7d401abf60568356686fa9_Out_1, _Multiply_3a12640e60a9408d9c50ff83d67b70dd_Out_2);
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float4 _Combine_25e50631448749efbb0da292180556ac_RGBA_4;
             float3 _Combine_25e50631448749efbb0da292180556ac_RGB_5;
             float2 _Combine_25e50631448749efbb0da292180556ac_RG_6;
             Unity_Combine_float(_Split_ede1224a4ca84032bf4b1df871e93e70_R_1, _Multiply_3a12640e60a9408d9c50ff83d67b70dd_Out_2, 0, 0, _Combine_25e50631448749efbb0da292180556ac_RGBA_4, _Combine_25e50631448749efbb0da292180556ac_RGB_5, _Combine_25e50631448749efbb0da292180556ac_RG_6);
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float _Property_3ee427d04e2f408aac838c37ac2b2d1c_Out_0 = _GridSize;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float2 _Property_d8a6657237b7495786fadc1e73d14d81_Out_0 = _GridOffset;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float _Property_30cda5be8c7d404e9658c018ae46e704_Out_0 = _GridLineSize;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             Bindings_GridUVCheck_294d007a503d6d2499de026b4f678348 _GridUVCheck_8e141dc40edd45cf86f9583be61f0601;
             float _GridUVCheck_8e141dc40edd45cf86f9583be61f0601_OutVector4_1;
             SG_GridUVCheck_294d007a503d6d2499de026b4f678348(_Combine_25e50631448749efbb0da292180556ac_RG_6, _Property_3ee427d04e2f408aac838c37ac2b2d1c_Out_0, _Property_d8a6657237b7495786fadc1e73d14d81_Out_0, _Property_30cda5be8c7d404e9658c018ae46e704_Out_0, _GridUVCheck_8e141dc40edd45cf86f9583be61f0601, _GridUVCheck_8e141dc40edd45cf86f9583be61f0601_OutVector4_1);
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             UnityTexture2D _Property_900549e618014d46a7aa4b8400b8cd4b_Out_0 = UnityBuildTexture2DStructNoScale(_Texture);
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
-            float2 _Property_26f81c3a8e7b47ef923406f69667d74a_Out_0 = _Tilling;
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
+            float2 _Property_26f81c3a8e7b47ef923406f69667d74a_Out_0 = _Tiling;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float2 _Property_70dc0c9ec432462bbacdd2bd304dbb2e_Out_0 = _Offset;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float2 _TilingAndOffset_881168c7b48240938ea9f413d8f014b6_Out_3;
             Unity_TilingAndOffset_float(_Combine_25e50631448749efbb0da292180556ac_RG_6, _Property_26f81c3a8e7b47ef923406f69667d74a_Out_0, _Property_70dc0c9ec432462bbacdd2bd304dbb2e_Out_0, _TilingAndOffset_881168c7b48240938ea9f413d8f014b6_Out_3);
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float4 _SampleTexture2D_0fd870835aa44780b67f6d4b50de6b40_RGBA_0 = SAMPLE_TEXTURE2D(_Property_900549e618014d46a7aa4b8400b8cd4b_Out_0.tex, _Property_900549e618014d46a7aa4b8400b8cd4b_Out_0.samplerstate, _TilingAndOffset_881168c7b48240938ea9f413d8f014b6_Out_3);
             float _SampleTexture2D_0fd870835aa44780b67f6d4b50de6b40_R_4 = _SampleTexture2D_0fd870835aa44780b67f6d4b50de6b40_RGBA_0.r;
             float _SampleTexture2D_0fd870835aa44780b67f6d4b50de6b40_G_5 = _SampleTexture2D_0fd870835aa44780b67f6d4b50de6b40_RGBA_0.g;
             float _SampleTexture2D_0fd870835aa44780b67f6d4b50de6b40_B_6 = _SampleTexture2D_0fd870835aa44780b67f6d4b50de6b40_RGBA_0.b;
             float _SampleTexture2D_0fd870835aa44780b67f6d4b50de6b40_A_7 = _SampleTexture2D_0fd870835aa44780b67f6d4b50de6b40_RGBA_0.a;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float4 _Property_5f4aa42568f74facb8a0fc03902bafec_Out_0 = IsGammaSpace() ? LinearToSRGB(_GridColor) : _GridColor;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float _Split_3fb6c7796dd34604bc473fd730674b8f_R_1 = _Property_5f4aa42568f74facb8a0fc03902bafec_Out_0[0];
             float _Split_3fb6c7796dd34604bc473fd730674b8f_G_2 = _Property_5f4aa42568f74facb8a0fc03902bafec_Out_0[1];
             float _Split_3fb6c7796dd34604bc473fd730674b8f_B_3 = _Property_5f4aa42568f74facb8a0fc03902bafec_Out_0[2];
             float _Split_3fb6c7796dd34604bc473fd730674b8f_A_4 = _Property_5f4aa42568f74facb8a0fc03902bafec_Out_0[3];
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float4 _Blend_6fb1d10a173e4923b5c6c51b2ee9cfd0_Out_2;
             Unity_Blend_Multiply_float4(_SampleTexture2D_0fd870835aa44780b67f6d4b50de6b40_RGBA_0, _Property_5f4aa42568f74facb8a0fc03902bafec_Out_0, _Blend_6fb1d10a173e4923b5c6c51b2ee9cfd0_Out_2, _Split_3fb6c7796dd34604bc473fd730674b8f_A_4);
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float4 _Branch_cf6de22576ad412293d963d30af6cdc8_Out_3;
             Unity_Branch_float4(_GridUVCheck_8e141dc40edd45cf86f9583be61f0601_OutVector4_1, _Blend_6fb1d10a173e4923b5c6c51b2ee9cfd0_Out_2, _SampleTexture2D_0fd870835aa44780b67f6d4b50de6b40_RGBA_0, _Branch_cf6de22576ad412293d963d30af6cdc8_Out_3);
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
-            float _Property_bbe3c70cde1d42edba6694b747ffbc19_Out_0 = _BlendRatio;
-            #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
-            float4 _Combine_6d0dc3aeb5ce416b848b18e29ac082f7_RGBA_4;
-            float3 _Combine_6d0dc3aeb5ce416b848b18e29ac082f7_RGB_5;
-            float2 _Combine_6d0dc3aeb5ce416b848b18e29ac082f7_RG_6;
-            Unity_Combine_float(_Property_bbe3c70cde1d42edba6694b747ffbc19_Out_0, _Property_bbe3c70cde1d42edba6694b747ffbc19_Out_0, _Property_bbe3c70cde1d42edba6694b747ffbc19_Out_0, 0, _Combine_6d0dc3aeb5ce416b848b18e29ac082f7_RGBA_4, _Combine_6d0dc3aeb5ce416b848b18e29ac082f7_RGB_5, _Combine_6d0dc3aeb5ce416b848b18e29ac082f7_RG_6);
-            #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
-            float4 _Add_a65535dcb45144b5b19ae02c22841015_Out_2;
-            Unity_Add_float4(_Branch_cf6de22576ad412293d963d30af6cdc8_Out_3, _Combine_6d0dc3aeb5ce416b848b18e29ac082f7_RGBA_4, _Add_a65535dcb45144b5b19ae02c22841015_Out_2);
-            #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
-            float4 _Saturate_e2c66aff0a8045cfb3c5c91605f527f8_Out_1;
-            Unity_Saturate_float4(_Add_a65535dcb45144b5b19ae02c22841015_Out_2, _Saturate_e2c66aff0a8045cfb3c5c91605f527f8_Out_1);
-            #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float4 _Property_c1801e9519f64f7f936a670ecbe7136e_Out_0 = IsGammaSpace() ? LinearToSRGB(_Color) : _Color;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
-            float4 _Blend_ca36642131a449a0b5e02aa1653d0ca4_Out_2;
-            Unity_Blend_Multiply_float4(_Saturate_e2c66aff0a8045cfb3c5c91605f527f8_Out_1, _Property_c1801e9519f64f7f936a670ecbe7136e_Out_0, _Blend_ca36642131a449a0b5e02aa1653d0ca4_Out_2, 1);
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
+            float _Split_2d15148249864ec68585adec0ae2fed8_R_1 = _Property_c1801e9519f64f7f936a670ecbe7136e_Out_0[0];
+            float _Split_2d15148249864ec68585adec0ae2fed8_G_2 = _Property_c1801e9519f64f7f936a670ecbe7136e_Out_0[1];
+            float _Split_2d15148249864ec68585adec0ae2fed8_B_3 = _Property_c1801e9519f64f7f936a670ecbe7136e_Out_0[2];
+            float _Split_2d15148249864ec68585adec0ae2fed8_A_4 = _Property_c1801e9519f64f7f936a670ecbe7136e_Out_0[3];
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
+            UnityTexture2D _Property_864b169f1c6a43c0b59909b2aec86eb4_Out_0 = UnityBuildTexture2DStructNoScale(Texture2D_8790a9e04c6a4e70b402b45c5e760cd7);
+            #endif
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
+            float2 _Property_c1b8e20cd588445f9dabe524190a2656_Out_0 = Vector2_9a4cda2eb6c64c1ab91cda5fd2713e62;
+            #endif
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
+            float2 _Property_08619587a1384371af8d213876601012_Out_0 = Vector2_404fab8435f2423f85f5f8bbc745e531;
+            #endif
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
+            float2 _TilingAndOffset_3ede2584cc3b4c1ebbb7828e4ba5021a_Out_3;
+            Unity_TilingAndOffset_float(_Combine_25e50631448749efbb0da292180556ac_RG_6, _Property_c1b8e20cd588445f9dabe524190a2656_Out_0, _Property_08619587a1384371af8d213876601012_Out_0, _TilingAndOffset_3ede2584cc3b4c1ebbb7828e4ba5021a_Out_3);
+            #endif
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
+            float4 _SampleTexture2D_00954e9c38ba4eb3b1c85076038ce5cd_RGBA_0 = SAMPLE_TEXTURE2D(_Property_864b169f1c6a43c0b59909b2aec86eb4_Out_0.tex, _Property_864b169f1c6a43c0b59909b2aec86eb4_Out_0.samplerstate, _TilingAndOffset_3ede2584cc3b4c1ebbb7828e4ba5021a_Out_3);
+            float _SampleTexture2D_00954e9c38ba4eb3b1c85076038ce5cd_R_4 = _SampleTexture2D_00954e9c38ba4eb3b1c85076038ce5cd_RGBA_0.r;
+            float _SampleTexture2D_00954e9c38ba4eb3b1c85076038ce5cd_G_5 = _SampleTexture2D_00954e9c38ba4eb3b1c85076038ce5cd_RGBA_0.g;
+            float _SampleTexture2D_00954e9c38ba4eb3b1c85076038ce5cd_B_6 = _SampleTexture2D_00954e9c38ba4eb3b1c85076038ce5cd_RGBA_0.b;
+            float _SampleTexture2D_00954e9c38ba4eb3b1c85076038ce5cd_A_7 = _SampleTexture2D_00954e9c38ba4eb3b1c85076038ce5cd_RGBA_0.a;
+            #endif
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
+            #if defined(ENUM_BC782402F6BE4FA183DEE55887251E18_R)
+            float _ColorChannel_cfe94a227f8945789d08e35e20304d65_Out_0 = _SampleTexture2D_00954e9c38ba4eb3b1c85076038ce5cd_R_4;
+            #elif defined(ENUM_BC782402F6BE4FA183DEE55887251E18_G)
+            float _ColorChannel_cfe94a227f8945789d08e35e20304d65_Out_0 = _SampleTexture2D_00954e9c38ba4eb3b1c85076038ce5cd_G_5;
+            #else
+            float _ColorChannel_cfe94a227f8945789d08e35e20304d65_Out_0 = _SampleTexture2D_00954e9c38ba4eb3b1c85076038ce5cd_B_6;
+            #endif
+            #endif
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
+            float _Multiply_2973ed050a7840c6a931ed8bffb8f82e_Out_2;
+            Unity_Multiply_float(_Split_2d15148249864ec68585adec0ae2fed8_A_4, _ColorChannel_cfe94a227f8945789d08e35e20304d65_Out_0, _Multiply_2973ed050a7840c6a931ed8bffb8f82e_Out_2);
+            #endif
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
+            float4 _Blend_ca36642131a449a0b5e02aa1653d0ca4_Out_2;
+            Unity_Blend_Multiply_float4(_Branch_cf6de22576ad412293d963d30af6cdc8_Out_3, _Property_c1801e9519f64f7f936a670ecbe7136e_Out_0, _Blend_ca36642131a449a0b5e02aa1653d0ca4_Out_2, _Multiply_2973ed050a7840c6a931ed8bffb8f82e_Out_2);
+            #endif
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 _Vector3_00b6f137b569440981229d628d3a1b37_Out_0 = float3(0, 1, 0);
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             #if defined(MAKE_FLAT_ON)
             float3 _MakeFlat_15a66a5e097346b0ab04ed10790f004e_Out_0 = _Vector3_00b6f137b569440981229d628d3a1b37_Out_0;
             #else
@@ -1442,35 +1493,35 @@ Shader "Custom/LitGridTillingFlatOutline"
             VertexDescriptionInputs output;
             ZERO_INITIALIZE(VertexDescriptionInputs, output);
 
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         output.ObjectSpaceNormal =           input.normalOS;
         #endif
 
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         output.WorldSpaceNormal =            TransformObjectToWorldNormal(input.normalOS);
         #endif
 
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         output.ObjectSpaceTangent =          input.tangentOS.xyz;
         #endif
 
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         output.WorldSpaceTangent =           TransformObjectToWorldDir(input.tangentOS.xyz);
         #endif
 
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         output.ObjectSpaceBiTangent =        normalize(cross(input.normalOS, input.tangentOS) * (input.tangentOS.w > 0.0f ? 1.0f : -1.0f) * GetOddNegativeScale());
         #endif
 
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         output.WorldSpaceBiTangent =         TransformObjectToWorldDir(output.ObjectSpaceBiTangent);
         #endif
 
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         output.ObjectSpacePosition =         input.positionOS;
         #endif
 
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         output.AbsoluteWorldSpacePosition =  GetAbsolutePositionWS(TransformObjectToWorld(input.positionOS));
         #endif
 
@@ -1482,27 +1533,27 @@ Shader "Custom/LitGridTillingFlatOutline"
             SurfaceDescriptionInputs output;
             ZERO_INITIALIZE(SurfaceDescriptionInputs, output);
 
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         // must use interpolated tangent, bitangent and normal before they are normalized in the pixel shader.
         #endif
 
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         float3 unnormalizedNormalWS = input.normalWS;
         #endif
 
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         const float renormFactor = 1.0 / length(unnormalizedNormalWS);
         #endif
 
 
 
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         output.WorldSpaceNormal =            renormFactor*input.normalWS.xyz;		// we want a unit length Normal Vector node in shader graph
         #endif
 
 
 
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         output.AbsoluteWorldSpacePosition =  GetAbsolutePositionWS(input.positionWS);
         #endif
 
@@ -1567,58 +1618,62 @@ Shader "Custom/LitGridTillingFlatOutline"
         #pragma multi_compile _ _SHADOWS_SOFT
         #pragma multi_compile _ _MIXED_LIGHTING_SUBTRACTIVE
         #pragma multi_compile _ _GBUFFER_NORMALS_OCT
-            #pragma shader_feature_local _ USE_VIEW_DIRECTION_ON
-        #pragma shader_feature_local _ MAKE_FLAT_ON
+            #pragma shader_feature_local _ MAKE_FLAT_ON
+        #pragma shader_feature_local ENUM_BC782402F6BE4FA183DEE55887251E18_R ENUM_BC782402F6BE4FA183DEE55887251E18_G ENUM_BC782402F6BE4FA183DEE55887251E18_B
 
-        #if defined(USE_VIEW_DIRECTION_ON) && defined(MAKE_FLAT_ON)
+        #if defined(MAKE_FLAT_ON) && defined(ENUM_BC782402F6BE4FA183DEE55887251E18_R)
             #define KEYWORD_PERMUTATION_0
-        #elif defined(USE_VIEW_DIRECTION_ON)
+        #elif defined(MAKE_FLAT_ON) && defined(ENUM_BC782402F6BE4FA183DEE55887251E18_G)
             #define KEYWORD_PERMUTATION_1
-        #elif defined(MAKE_FLAT_ON)
+        #elif defined(MAKE_FLAT_ON) && defined(ENUM_BC782402F6BE4FA183DEE55887251E18_B)
             #define KEYWORD_PERMUTATION_2
-        #else
+        #elif defined(ENUM_BC782402F6BE4FA183DEE55887251E18_R)
             #define KEYWORD_PERMUTATION_3
+        #elif defined(ENUM_BC782402F6BE4FA183DEE55887251E18_G)
+            #define KEYWORD_PERMUTATION_4
+        #else
+            #define KEYWORD_PERMUTATION_5
         #endif
 
 
             // Defines
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         #define _NORMALMAP 1
         #endif
 
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         #define _NORMAL_DROPOFF_WS 1
         #endif
 
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         #define ATTRIBUTES_NEED_NORMAL
         #endif
 
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         #define ATTRIBUTES_NEED_TANGENT
         #endif
 
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         #define ATTRIBUTES_NEED_TEXCOORD1
         #endif
 
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         #define VARYINGS_NEED_POSITION_WS
         #endif
 
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         #define VARYINGS_NEED_NORMAL_WS
         #endif
 
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         #define VARYINGS_NEED_TANGENT_WS
         #endif
 
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         #define VARYINGS_NEED_VIEWDIRECTION_WS
         #endif
 
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         #define VARYINGS_NEED_FOG_AND_VERTEX_LIGHT
         #endif
 
@@ -1641,170 +1696,170 @@ Shader "Custom/LitGridTillingFlatOutline"
 
             struct Attributes
         {
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 positionOS : POSITION;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 normalOS : NORMAL;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float4 tangentOS : TANGENT;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float4 uv1 : TEXCOORD1;
             #endif
             #if UNITY_ANY_INSTANCING_ENABLED
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             uint instanceID : INSTANCEID_SEMANTIC;
             #endif
             #endif
         };
         struct Varyings
         {
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float4 positionCS : SV_POSITION;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 positionWS;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 normalWS;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float4 tangentWS;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 viewDirectionWS;
             #endif
             #if defined(LIGHTMAP_ON)
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float2 lightmapUV;
             #endif
             #endif
             #if !defined(LIGHTMAP_ON)
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 sh;
             #endif
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float4 fogFactorAndVertexLight;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float4 shadowCoord;
             #endif
             #if UNITY_ANY_INSTANCING_ENABLED
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             uint instanceID : CUSTOM_INSTANCE_ID;
             #endif
             #endif
             #if (defined(UNITY_STEREO_MULTIVIEW_ENABLED)) || (defined(UNITY_STEREO_INSTANCING_ENABLED) && (defined(SHADER_API_GLES3) || defined(SHADER_API_GLCORE)))
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             uint stereoTargetEyeIndexAsBlendIdx0 : BLENDINDICES0;
             #endif
             #endif
             #if (defined(UNITY_STEREO_INSTANCING_ENABLED))
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             uint stereoTargetEyeIndexAsRTArrayIdx : SV_RenderTargetArrayIndex;
             #endif
             #endif
             #if defined(SHADER_STAGE_FRAGMENT) && defined(VARYINGS_NEED_CULLFACE)
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             FRONT_FACE_TYPE cullFace : FRONT_FACE_SEMANTIC;
             #endif
             #endif
         };
         struct SurfaceDescriptionInputs
         {
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 WorldSpaceNormal;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 AbsoluteWorldSpacePosition;
             #endif
         };
         struct VertexDescriptionInputs
         {
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 ObjectSpaceNormal;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 WorldSpaceNormal;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 ObjectSpaceTangent;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 WorldSpaceTangent;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 ObjectSpaceBiTangent;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 WorldSpaceBiTangent;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 ObjectSpacePosition;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 AbsoluteWorldSpacePosition;
             #endif
         };
         struct PackedVaryings
         {
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float4 positionCS : SV_POSITION;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 interp0 : TEXCOORD0;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 interp1 : TEXCOORD1;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float4 interp2 : TEXCOORD2;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 interp3 : TEXCOORD3;
             #endif
             #if defined(LIGHTMAP_ON)
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float2 interp4 : TEXCOORD4;
             #endif
             #endif
             #if !defined(LIGHTMAP_ON)
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 interp5 : TEXCOORD5;
             #endif
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float4 interp6 : TEXCOORD6;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float4 interp7 : TEXCOORD7;
             #endif
             #if UNITY_ANY_INSTANCING_ENABLED
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             uint instanceID : CUSTOM_INSTANCE_ID;
             #endif
             #endif
             #if (defined(UNITY_STEREO_MULTIVIEW_ENABLED)) || (defined(UNITY_STEREO_INSTANCING_ENABLED) && (defined(SHADER_API_GLES3) || defined(SHADER_API_GLCORE)))
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             uint stereoTargetEyeIndexAsBlendIdx0 : BLENDINDICES0;
             #endif
             #endif
             #if (defined(UNITY_STEREO_INSTANCING_ENABLED))
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             uint stereoTargetEyeIndexAsRTArrayIdx : SV_RenderTargetArrayIndex;
             #endif
             #endif
             #if defined(SHADER_STAGE_FRAGMENT) && defined(VARYINGS_NEED_CULLFACE)
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             FRONT_FACE_TYPE cullFace : FRONT_FACE_SEMANTIC;
             #endif
             #endif
         };
 
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         PackedVaryings PackVaryings (Varyings input)
         {
             PackedVaryings output;
@@ -1873,14 +1928,17 @@ Shader "Custom/LitGridTillingFlatOutline"
             // Graph Properties
             CBUFFER_START(UnityPerMaterial)
             float4 _Texture_TexelSize;
-            float2 _Tilling;
+            float2 _Tiling;
             float2 _Offset;
+            float4 Texture2D_8790a9e04c6a4e70b402b45c5e760cd7_TexelSize;
+            float2 Vector2_9a4cda2eb6c64c1ab91cda5fd2713e62;
+            float2 Vector2_404fab8435f2423f85f5f8bbc745e531;
             float4 _Color;
-            float _BlendRatio;
             float3 _ViewDirection;
             float _FlatHeight;
             float3 _FlatRotationAxis;
             float _FlatRotationDegrees;
+            float3 _FlatRotationOffset;
             float _GridSize;
             float _GridLineSize;
             float2 _GridOffset;
@@ -1894,9 +1952,16 @@ Shader "Custom/LitGridTillingFlatOutline"
         SAMPLER(SamplerState_Linear_Repeat);
         TEXTURE2D(_Texture);
         SAMPLER(sampler_Texture);
+        TEXTURE2D(Texture2D_8790a9e04c6a4e70b402b45c5e760cd7);
+        SAMPLER(samplerTexture2D_8790a9e04c6a4e70b402b45c5e760cd7);
 
             // Graph Functions
             
+        void Unity_Subtract_float3(float3 A, float3 B, out float3 Out)
+        {
+            Out = A - B;
+        }
+
         void Unity_Rotate_About_Axis_Degrees_float(float3 In, float3 Axis, float Rotation, out float3 Out)
         {
             Rotation = radians(Rotation);
@@ -1915,6 +1980,11 @@ Shader "Custom/LitGridTillingFlatOutline"
             Out = mul(rot_mat,  In);
         }
 
+        void Unity_Add_float3(float3 A, float3 B, out float3 Out)
+        {
+            Out = A + B;
+        }
+
         void Unity_Subtract_float(float A, float B, out float Out)
         {
             Out = A - B;
@@ -1923,11 +1993,6 @@ Shader "Custom/LitGridTillingFlatOutline"
         void Unity_Multiply_float(float3 A, float3 B, out float3 Out)
         {
             Out = A * B;
-        }
-
-        void Unity_Subtract_float3(float3 A, float3 B, out float3 Out)
-        {
-            Out = A - B;
         }
 
         void Unity_DotProduct_float3(float3 A, float3 B, out float Out)
@@ -1955,6 +2020,11 @@ Shader "Custom/LitGridTillingFlatOutline"
         void Unity_Multiply_float(float A, float B, out float Out)
         {
             Out = A * B;
+        }
+
+        void Unity_Comparison_NotEqual_float(float A, float B, out float Out)
+        {
+            Out = A != B ? 1 : 0;
         }
 
         void Unity_Subtract_float2(float2 A, float2 B, out float2 Out)
@@ -2004,12 +2074,20 @@ Shader "Custom/LitGridTillingFlatOutline"
             Out = A || B;
         }
 
+        void Unity_And_float(float A, float B, out float Out)
+        {
+            Out = A && B;
+        }
+
         struct Bindings_GridUVCheck_294d007a503d6d2499de026b4f678348
         {
         };
 
         void SG_GridUVCheck_294d007a503d6d2499de026b4f678348(float2 Vector2_5a56dbf35cba4d4c8a3192a95b776eb9, float Vector1_0a171b7c60dc451dab7b2e69064f24eb, float2 Vector2_d630f5a030b148be8aa8b746e507f89a, float Vector1_7845b62507cb41e1bdeb7da05ba77e88, Bindings_GridUVCheck_294d007a503d6d2499de026b4f678348 IN, out float Out_Vector4_1)
         {
+            float _Property_261aaf889a324bb4ac259d0782d89eb0_Out_0 = Vector1_7845b62507cb41e1bdeb7da05ba77e88;
+            float _Comparison_351fddbc30fb4e358519fa5fcc059dfb_Out_2;
+            Unity_Comparison_NotEqual_float(_Property_261aaf889a324bb4ac259d0782d89eb0_Out_0, 0, _Comparison_351fddbc30fb4e358519fa5fcc059dfb_Out_2);
             float2 _Property_fb6173b513a2442dae002a71d714fb8a_Out_0 = Vector2_5a56dbf35cba4d4c8a3192a95b776eb9;
             float2 _Property_8e21231b95494bfd917e2a63f0311bab_Out_0 = Vector2_d630f5a030b148be8aa8b746e507f89a;
             float2 _Subtract_c86e7a2a84c841e6ace00653ee9c4c00_Out_2;
@@ -2028,7 +2106,9 @@ Shader "Custom/LitGridTillingFlatOutline"
             SG_GridCheck_7e9bb100a3d60a94f94589ab30823025(_Split_68957bd604ac408cb4f40d11f10462e0_G_2, _Property_f9707b40612141e28e92f98117aabb47_Out_0, _Property_82c6c275ad2e4dec864b44c81809a340_Out_0, _GridCheck_ad0e839ef18848968002cfbf3e540a4c, _GridCheck_ad0e839ef18848968002cfbf3e540a4c_OutVector4_1);
             float _Or_b916cb2784d64a6582f6bc7ebadae8e8_Out_2;
             Unity_Or_float(_GridCheck_b8e7d6fe4086451eb52139a6851ccac4_OutVector4_1, _GridCheck_ad0e839ef18848968002cfbf3e540a4c_OutVector4_1, _Or_b916cb2784d64a6582f6bc7ebadae8e8_Out_2);
-            Out_Vector4_1 = _Or_b916cb2784d64a6582f6bc7ebadae8e8_Out_2;
+            float _And_a4eda4421ac742ecb6275e2fa2316a72_Out_2;
+            Unity_And_float(_Comparison_351fddbc30fb4e358519fa5fcc059dfb_Out_2, _Or_b916cb2784d64a6582f6bc7ebadae8e8_Out_2, _And_a4eda4421ac742ecb6275e2fa2316a72_Out_2);
+            Out_Vector4_1 = _And_a4eda4421ac742ecb6275e2fa2316a72_Out_2;
         }
 
         void Unity_TilingAndOffset_float(float2 UV, float2 Tiling, float2 Offset, out float2 Out)
@@ -2047,16 +2127,6 @@ Shader "Custom/LitGridTillingFlatOutline"
             Out = Predicate ? True : False;
         }
 
-        void Unity_Add_float4(float4 A, float4 B, out float4 Out)
-        {
-            Out = A + B;
-        }
-
-        void Unity_Saturate_float4(float4 In, out float4 Out)
-        {
-            Out = saturate(In);
-        }
-
             // Graph Vertex
             struct VertexDescription
         {
@@ -2068,44 +2138,55 @@ Shader "Custom/LitGridTillingFlatOutline"
         VertexDescription VertexDescriptionFunction(VertexDescriptionInputs IN)
         {
             VertexDescription description = (VertexDescription)0;
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
+            float3 _Property_f08c037d6b934269b31af1a394cffb21_Out_0 = _FlatRotationOffset;
+            #endif
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
+            float3 _Subtract_5f2dd89698fb42a89b9c743b5296afc4_Out_2;
+            Unity_Subtract_float3(IN.AbsoluteWorldSpacePosition, _Property_f08c037d6b934269b31af1a394cffb21_Out_0, _Subtract_5f2dd89698fb42a89b9c743b5296afc4_Out_2);
+            #endif
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 _Property_f67616b49efb49a395d991e36d5c2f7d_Out_0 = _FlatRotationAxis;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float _Property_a8d31893f5104bb3bdc008c6144d0a2f_Out_0 = _FlatRotationDegrees;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 _RotateAboutAxis_45b701f026d44f0b9e1314efc1fcdb63_Out_3;
-            Unity_Rotate_About_Axis_Degrees_float(IN.AbsoluteWorldSpacePosition, _Property_f67616b49efb49a395d991e36d5c2f7d_Out_0, _Property_a8d31893f5104bb3bdc008c6144d0a2f_Out_0, _RotateAboutAxis_45b701f026d44f0b9e1314efc1fcdb63_Out_3);
+            Unity_Rotate_About_Axis_Degrees_float(_Subtract_5f2dd89698fb42a89b9c743b5296afc4_Out_2, _Property_f67616b49efb49a395d991e36d5c2f7d_Out_0, _Property_a8d31893f5104bb3bdc008c6144d0a2f_Out_0, _RotateAboutAxis_45b701f026d44f0b9e1314efc1fcdb63_Out_3);
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
-            float _Split_ef2a24bdf255433eb88306bcde4fe4aa_R_1 = _RotateAboutAxis_45b701f026d44f0b9e1314efc1fcdb63_Out_3[0];
-            float _Split_ef2a24bdf255433eb88306bcde4fe4aa_G_2 = _RotateAboutAxis_45b701f026d44f0b9e1314efc1fcdb63_Out_3[1];
-            float _Split_ef2a24bdf255433eb88306bcde4fe4aa_B_3 = _RotateAboutAxis_45b701f026d44f0b9e1314efc1fcdb63_Out_3[2];
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
+            float3 _Add_d3137f4c6ff74e9ea29c69792c4663e5_Out_2;
+            Unity_Add_float3(_RotateAboutAxis_45b701f026d44f0b9e1314efc1fcdb63_Out_3, _Property_f08c037d6b934269b31af1a394cffb21_Out_0, _Add_d3137f4c6ff74e9ea29c69792c4663e5_Out_2);
+            #endif
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
+            float _Split_ef2a24bdf255433eb88306bcde4fe4aa_R_1 = _Add_d3137f4c6ff74e9ea29c69792c4663e5_Out_2[0];
+            float _Split_ef2a24bdf255433eb88306bcde4fe4aa_G_2 = _Add_d3137f4c6ff74e9ea29c69792c4663e5_Out_2[1];
+            float _Split_ef2a24bdf255433eb88306bcde4fe4aa_B_3 = _Add_d3137f4c6ff74e9ea29c69792c4663e5_Out_2[2];
             float _Split_ef2a24bdf255433eb88306bcde4fe4aa_A_4 = 0;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float _Property_6c2e69a260844c7a91bd51ff7e3517cc_Out_0 = _FlatHeight;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float _Subtract_68df9f007bd44fea9df06041fa7120a9_Out_2;
             Unity_Subtract_float(_Split_ef2a24bdf255433eb88306bcde4fe4aa_G_2, _Property_6c2e69a260844c7a91bd51ff7e3517cc_Out_0, _Subtract_68df9f007bd44fea9df06041fa7120a9_Out_2);
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 _Vector3_8dfc68ab95c4422a8396dc15f0376486_Out_0 = float3(0, 1, 0);
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 _Multiply_6b6ee4a2652a4675b8cdc3048866c2f2_Out_2;
             Unity_Multiply_float((_Subtract_68df9f007bd44fea9df06041fa7120a9_Out_2.xxx), _Vector3_8dfc68ab95c4422a8396dc15f0376486_Out_0, _Multiply_6b6ee4a2652a4675b8cdc3048866c2f2_Out_2);
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 _Subtract_08c11516e1dc412b903dfeba38607cd4_Out_2;
-            Unity_Subtract_float3(_RotateAboutAxis_45b701f026d44f0b9e1314efc1fcdb63_Out_3, _Multiply_6b6ee4a2652a4675b8cdc3048866c2f2_Out_2, _Subtract_08c11516e1dc412b903dfeba38607cd4_Out_2);
+            Unity_Subtract_float3(_Add_d3137f4c6ff74e9ea29c69792c4663e5_Out_2, _Multiply_6b6ee4a2652a4675b8cdc3048866c2f2_Out_2, _Subtract_08c11516e1dc412b903dfeba38607cd4_Out_2);
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 _Transform_e0ad5d78a2ae4d5fa740c2e72daa7f9a_Out_1 = TransformWorldToObject(GetCameraRelativePositionWS(_Subtract_08c11516e1dc412b903dfeba38607cd4_Out_2.xyz));
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             #if defined(MAKE_FLAT_ON)
             float3 _MakeFlat_48f396b624134ea9bc2f3c47a31041ed_Out_0 = _Transform_e0ad5d78a2ae4d5fa740c2e72daa7f9a_Out_1;
             #else
@@ -2132,137 +2213,152 @@ Shader "Custom/LitGridTillingFlatOutline"
         SurfaceDescription SurfaceDescriptionFunction(SurfaceDescriptionInputs IN)
         {
             SurfaceDescription surface = (SurfaceDescription)0;
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 _Property_e4769ac03187485fb020eb7088c295ed_Out_0 = _ViewDirection;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
-            #if defined(USE_VIEW_DIRECTION_ON)
-            float3 _UseViewDirection_2608c469ad394b9992f097284919b99f_Out_0 = _Property_e4769ac03187485fb020eb7088c295ed_Out_0;
-            #else
-            float3 _UseViewDirection_2608c469ad394b9992f097284919b99f_Out_0 = -1 * mul((float3x3)UNITY_MATRIX_M, transpose(mul(UNITY_MATRIX_I_M, UNITY_MATRIX_I_V)) [2].xyz);
-            #endif
-            #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float _DotProduct_ed4a360a7a57420c95960f83990050e4_Out_2;
-            Unity_DotProduct_float3(IN.AbsoluteWorldSpacePosition, _UseViewDirection_2608c469ad394b9992f097284919b99f_Out_0, _DotProduct_ed4a360a7a57420c95960f83990050e4_Out_2);
+            Unity_DotProduct_float3(IN.AbsoluteWorldSpacePosition, _Property_e4769ac03187485fb020eb7088c295ed_Out_0, _DotProduct_ed4a360a7a57420c95960f83990050e4_Out_2);
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 _Multiply_85385482bb3846f5a7552ac6c824f094_Out_2;
-            Unity_Multiply_float(_UseViewDirection_2608c469ad394b9992f097284919b99f_Out_0, (_DotProduct_ed4a360a7a57420c95960f83990050e4_Out_2.xxx), _Multiply_85385482bb3846f5a7552ac6c824f094_Out_2);
+            Unity_Multiply_float((_DotProduct_ed4a360a7a57420c95960f83990050e4_Out_2.xxx), _Property_e4769ac03187485fb020eb7088c295ed_Out_0, _Multiply_85385482bb3846f5a7552ac6c824f094_Out_2);
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 _Subtract_1bc7b4078bde43a480621eb2d19ce011_Out_2;
             Unity_Subtract_float3(IN.AbsoluteWorldSpacePosition, _Multiply_85385482bb3846f5a7552ac6c824f094_Out_2, _Subtract_1bc7b4078bde43a480621eb2d19ce011_Out_2);
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float _Split_ede1224a4ca84032bf4b1df871e93e70_R_1 = _Subtract_1bc7b4078bde43a480621eb2d19ce011_Out_2[0];
             float _Split_ede1224a4ca84032bf4b1df871e93e70_G_2 = _Subtract_1bc7b4078bde43a480621eb2d19ce011_Out_2[1];
             float _Split_ede1224a4ca84032bf4b1df871e93e70_B_3 = _Subtract_1bc7b4078bde43a480621eb2d19ce011_Out_2[2];
             float _Split_ede1224a4ca84032bf4b1df871e93e70_A_4 = 0;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float4 _Combine_c544d0baf46547c886465113721b8dc2_RGBA_4;
             float3 _Combine_c544d0baf46547c886465113721b8dc2_RGB_5;
             float2 _Combine_c544d0baf46547c886465113721b8dc2_RG_6;
             Unity_Combine_float(_Split_ede1224a4ca84032bf4b1df871e93e70_G_2, _Split_ede1224a4ca84032bf4b1df871e93e70_B_3, 0, 0, _Combine_c544d0baf46547c886465113721b8dc2_RGBA_4, _Combine_c544d0baf46547c886465113721b8dc2_RGB_5, _Combine_c544d0baf46547c886465113721b8dc2_RG_6);
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float _Length_48a21bd606b84dd8809be4bbd711831d_Out_1;
             Unity_Length_float2(_Combine_c544d0baf46547c886465113721b8dc2_RG_6, _Length_48a21bd606b84dd8809be4bbd711831d_Out_1);
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float _Sign_3a9dd5cc2c7d401abf60568356686fa9_Out_1;
             Unity_Sign_float(_Split_ede1224a4ca84032bf4b1df871e93e70_B_3, _Sign_3a9dd5cc2c7d401abf60568356686fa9_Out_1);
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float _Multiply_3a12640e60a9408d9c50ff83d67b70dd_Out_2;
             Unity_Multiply_float(_Length_48a21bd606b84dd8809be4bbd711831d_Out_1, _Sign_3a9dd5cc2c7d401abf60568356686fa9_Out_1, _Multiply_3a12640e60a9408d9c50ff83d67b70dd_Out_2);
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float4 _Combine_25e50631448749efbb0da292180556ac_RGBA_4;
             float3 _Combine_25e50631448749efbb0da292180556ac_RGB_5;
             float2 _Combine_25e50631448749efbb0da292180556ac_RG_6;
             Unity_Combine_float(_Split_ede1224a4ca84032bf4b1df871e93e70_R_1, _Multiply_3a12640e60a9408d9c50ff83d67b70dd_Out_2, 0, 0, _Combine_25e50631448749efbb0da292180556ac_RGBA_4, _Combine_25e50631448749efbb0da292180556ac_RGB_5, _Combine_25e50631448749efbb0da292180556ac_RG_6);
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float _Property_3ee427d04e2f408aac838c37ac2b2d1c_Out_0 = _GridSize;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float2 _Property_d8a6657237b7495786fadc1e73d14d81_Out_0 = _GridOffset;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float _Property_30cda5be8c7d404e9658c018ae46e704_Out_0 = _GridLineSize;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             Bindings_GridUVCheck_294d007a503d6d2499de026b4f678348 _GridUVCheck_8e141dc40edd45cf86f9583be61f0601;
             float _GridUVCheck_8e141dc40edd45cf86f9583be61f0601_OutVector4_1;
             SG_GridUVCheck_294d007a503d6d2499de026b4f678348(_Combine_25e50631448749efbb0da292180556ac_RG_6, _Property_3ee427d04e2f408aac838c37ac2b2d1c_Out_0, _Property_d8a6657237b7495786fadc1e73d14d81_Out_0, _Property_30cda5be8c7d404e9658c018ae46e704_Out_0, _GridUVCheck_8e141dc40edd45cf86f9583be61f0601, _GridUVCheck_8e141dc40edd45cf86f9583be61f0601_OutVector4_1);
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             UnityTexture2D _Property_900549e618014d46a7aa4b8400b8cd4b_Out_0 = UnityBuildTexture2DStructNoScale(_Texture);
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
-            float2 _Property_26f81c3a8e7b47ef923406f69667d74a_Out_0 = _Tilling;
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
+            float2 _Property_26f81c3a8e7b47ef923406f69667d74a_Out_0 = _Tiling;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float2 _Property_70dc0c9ec432462bbacdd2bd304dbb2e_Out_0 = _Offset;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float2 _TilingAndOffset_881168c7b48240938ea9f413d8f014b6_Out_3;
             Unity_TilingAndOffset_float(_Combine_25e50631448749efbb0da292180556ac_RG_6, _Property_26f81c3a8e7b47ef923406f69667d74a_Out_0, _Property_70dc0c9ec432462bbacdd2bd304dbb2e_Out_0, _TilingAndOffset_881168c7b48240938ea9f413d8f014b6_Out_3);
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float4 _SampleTexture2D_0fd870835aa44780b67f6d4b50de6b40_RGBA_0 = SAMPLE_TEXTURE2D(_Property_900549e618014d46a7aa4b8400b8cd4b_Out_0.tex, _Property_900549e618014d46a7aa4b8400b8cd4b_Out_0.samplerstate, _TilingAndOffset_881168c7b48240938ea9f413d8f014b6_Out_3);
             float _SampleTexture2D_0fd870835aa44780b67f6d4b50de6b40_R_4 = _SampleTexture2D_0fd870835aa44780b67f6d4b50de6b40_RGBA_0.r;
             float _SampleTexture2D_0fd870835aa44780b67f6d4b50de6b40_G_5 = _SampleTexture2D_0fd870835aa44780b67f6d4b50de6b40_RGBA_0.g;
             float _SampleTexture2D_0fd870835aa44780b67f6d4b50de6b40_B_6 = _SampleTexture2D_0fd870835aa44780b67f6d4b50de6b40_RGBA_0.b;
             float _SampleTexture2D_0fd870835aa44780b67f6d4b50de6b40_A_7 = _SampleTexture2D_0fd870835aa44780b67f6d4b50de6b40_RGBA_0.a;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float4 _Property_5f4aa42568f74facb8a0fc03902bafec_Out_0 = IsGammaSpace() ? LinearToSRGB(_GridColor) : _GridColor;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float _Split_3fb6c7796dd34604bc473fd730674b8f_R_1 = _Property_5f4aa42568f74facb8a0fc03902bafec_Out_0[0];
             float _Split_3fb6c7796dd34604bc473fd730674b8f_G_2 = _Property_5f4aa42568f74facb8a0fc03902bafec_Out_0[1];
             float _Split_3fb6c7796dd34604bc473fd730674b8f_B_3 = _Property_5f4aa42568f74facb8a0fc03902bafec_Out_0[2];
             float _Split_3fb6c7796dd34604bc473fd730674b8f_A_4 = _Property_5f4aa42568f74facb8a0fc03902bafec_Out_0[3];
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float4 _Blend_6fb1d10a173e4923b5c6c51b2ee9cfd0_Out_2;
             Unity_Blend_Multiply_float4(_SampleTexture2D_0fd870835aa44780b67f6d4b50de6b40_RGBA_0, _Property_5f4aa42568f74facb8a0fc03902bafec_Out_0, _Blend_6fb1d10a173e4923b5c6c51b2ee9cfd0_Out_2, _Split_3fb6c7796dd34604bc473fd730674b8f_A_4);
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float4 _Branch_cf6de22576ad412293d963d30af6cdc8_Out_3;
             Unity_Branch_float4(_GridUVCheck_8e141dc40edd45cf86f9583be61f0601_OutVector4_1, _Blend_6fb1d10a173e4923b5c6c51b2ee9cfd0_Out_2, _SampleTexture2D_0fd870835aa44780b67f6d4b50de6b40_RGBA_0, _Branch_cf6de22576ad412293d963d30af6cdc8_Out_3);
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
-            float _Property_bbe3c70cde1d42edba6694b747ffbc19_Out_0 = _BlendRatio;
-            #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
-            float4 _Combine_6d0dc3aeb5ce416b848b18e29ac082f7_RGBA_4;
-            float3 _Combine_6d0dc3aeb5ce416b848b18e29ac082f7_RGB_5;
-            float2 _Combine_6d0dc3aeb5ce416b848b18e29ac082f7_RG_6;
-            Unity_Combine_float(_Property_bbe3c70cde1d42edba6694b747ffbc19_Out_0, _Property_bbe3c70cde1d42edba6694b747ffbc19_Out_0, _Property_bbe3c70cde1d42edba6694b747ffbc19_Out_0, 0, _Combine_6d0dc3aeb5ce416b848b18e29ac082f7_RGBA_4, _Combine_6d0dc3aeb5ce416b848b18e29ac082f7_RGB_5, _Combine_6d0dc3aeb5ce416b848b18e29ac082f7_RG_6);
-            #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
-            float4 _Add_a65535dcb45144b5b19ae02c22841015_Out_2;
-            Unity_Add_float4(_Branch_cf6de22576ad412293d963d30af6cdc8_Out_3, _Combine_6d0dc3aeb5ce416b848b18e29ac082f7_RGBA_4, _Add_a65535dcb45144b5b19ae02c22841015_Out_2);
-            #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
-            float4 _Saturate_e2c66aff0a8045cfb3c5c91605f527f8_Out_1;
-            Unity_Saturate_float4(_Add_a65535dcb45144b5b19ae02c22841015_Out_2, _Saturate_e2c66aff0a8045cfb3c5c91605f527f8_Out_1);
-            #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float4 _Property_c1801e9519f64f7f936a670ecbe7136e_Out_0 = IsGammaSpace() ? LinearToSRGB(_Color) : _Color;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
-            float4 _Blend_ca36642131a449a0b5e02aa1653d0ca4_Out_2;
-            Unity_Blend_Multiply_float4(_Saturate_e2c66aff0a8045cfb3c5c91605f527f8_Out_1, _Property_c1801e9519f64f7f936a670ecbe7136e_Out_0, _Blend_ca36642131a449a0b5e02aa1653d0ca4_Out_2, 1);
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
+            float _Split_2d15148249864ec68585adec0ae2fed8_R_1 = _Property_c1801e9519f64f7f936a670ecbe7136e_Out_0[0];
+            float _Split_2d15148249864ec68585adec0ae2fed8_G_2 = _Property_c1801e9519f64f7f936a670ecbe7136e_Out_0[1];
+            float _Split_2d15148249864ec68585adec0ae2fed8_B_3 = _Property_c1801e9519f64f7f936a670ecbe7136e_Out_0[2];
+            float _Split_2d15148249864ec68585adec0ae2fed8_A_4 = _Property_c1801e9519f64f7f936a670ecbe7136e_Out_0[3];
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
+            UnityTexture2D _Property_864b169f1c6a43c0b59909b2aec86eb4_Out_0 = UnityBuildTexture2DStructNoScale(Texture2D_8790a9e04c6a4e70b402b45c5e760cd7);
+            #endif
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
+            float2 _Property_c1b8e20cd588445f9dabe524190a2656_Out_0 = Vector2_9a4cda2eb6c64c1ab91cda5fd2713e62;
+            #endif
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
+            float2 _Property_08619587a1384371af8d213876601012_Out_0 = Vector2_404fab8435f2423f85f5f8bbc745e531;
+            #endif
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
+            float2 _TilingAndOffset_3ede2584cc3b4c1ebbb7828e4ba5021a_Out_3;
+            Unity_TilingAndOffset_float(_Combine_25e50631448749efbb0da292180556ac_RG_6, _Property_c1b8e20cd588445f9dabe524190a2656_Out_0, _Property_08619587a1384371af8d213876601012_Out_0, _TilingAndOffset_3ede2584cc3b4c1ebbb7828e4ba5021a_Out_3);
+            #endif
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
+            float4 _SampleTexture2D_00954e9c38ba4eb3b1c85076038ce5cd_RGBA_0 = SAMPLE_TEXTURE2D(_Property_864b169f1c6a43c0b59909b2aec86eb4_Out_0.tex, _Property_864b169f1c6a43c0b59909b2aec86eb4_Out_0.samplerstate, _TilingAndOffset_3ede2584cc3b4c1ebbb7828e4ba5021a_Out_3);
+            float _SampleTexture2D_00954e9c38ba4eb3b1c85076038ce5cd_R_4 = _SampleTexture2D_00954e9c38ba4eb3b1c85076038ce5cd_RGBA_0.r;
+            float _SampleTexture2D_00954e9c38ba4eb3b1c85076038ce5cd_G_5 = _SampleTexture2D_00954e9c38ba4eb3b1c85076038ce5cd_RGBA_0.g;
+            float _SampleTexture2D_00954e9c38ba4eb3b1c85076038ce5cd_B_6 = _SampleTexture2D_00954e9c38ba4eb3b1c85076038ce5cd_RGBA_0.b;
+            float _SampleTexture2D_00954e9c38ba4eb3b1c85076038ce5cd_A_7 = _SampleTexture2D_00954e9c38ba4eb3b1c85076038ce5cd_RGBA_0.a;
+            #endif
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
+            #if defined(ENUM_BC782402F6BE4FA183DEE55887251E18_R)
+            float _ColorChannel_cfe94a227f8945789d08e35e20304d65_Out_0 = _SampleTexture2D_00954e9c38ba4eb3b1c85076038ce5cd_R_4;
+            #elif defined(ENUM_BC782402F6BE4FA183DEE55887251E18_G)
+            float _ColorChannel_cfe94a227f8945789d08e35e20304d65_Out_0 = _SampleTexture2D_00954e9c38ba4eb3b1c85076038ce5cd_G_5;
+            #else
+            float _ColorChannel_cfe94a227f8945789d08e35e20304d65_Out_0 = _SampleTexture2D_00954e9c38ba4eb3b1c85076038ce5cd_B_6;
+            #endif
+            #endif
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
+            float _Multiply_2973ed050a7840c6a931ed8bffb8f82e_Out_2;
+            Unity_Multiply_float(_Split_2d15148249864ec68585adec0ae2fed8_A_4, _ColorChannel_cfe94a227f8945789d08e35e20304d65_Out_0, _Multiply_2973ed050a7840c6a931ed8bffb8f82e_Out_2);
+            #endif
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
+            float4 _Blend_ca36642131a449a0b5e02aa1653d0ca4_Out_2;
+            Unity_Blend_Multiply_float4(_Branch_cf6de22576ad412293d963d30af6cdc8_Out_3, _Property_c1801e9519f64f7f936a670ecbe7136e_Out_0, _Blend_ca36642131a449a0b5e02aa1653d0ca4_Out_2, _Multiply_2973ed050a7840c6a931ed8bffb8f82e_Out_2);
+            #endif
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 _Vector3_00b6f137b569440981229d628d3a1b37_Out_0 = float3(0, 1, 0);
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             #if defined(MAKE_FLAT_ON)
             float3 _MakeFlat_15a66a5e097346b0ab04ed10790f004e_Out_0 = _Vector3_00b6f137b569440981229d628d3a1b37_Out_0;
             #else
@@ -2286,35 +2382,35 @@ Shader "Custom/LitGridTillingFlatOutline"
             VertexDescriptionInputs output;
             ZERO_INITIALIZE(VertexDescriptionInputs, output);
 
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         output.ObjectSpaceNormal =           input.normalOS;
         #endif
 
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         output.WorldSpaceNormal =            TransformObjectToWorldNormal(input.normalOS);
         #endif
 
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         output.ObjectSpaceTangent =          input.tangentOS.xyz;
         #endif
 
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         output.WorldSpaceTangent =           TransformObjectToWorldDir(input.tangentOS.xyz);
         #endif
 
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         output.ObjectSpaceBiTangent =        normalize(cross(input.normalOS, input.tangentOS) * (input.tangentOS.w > 0.0f ? 1.0f : -1.0f) * GetOddNegativeScale());
         #endif
 
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         output.WorldSpaceBiTangent =         TransformObjectToWorldDir(output.ObjectSpaceBiTangent);
         #endif
 
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         output.ObjectSpacePosition =         input.positionOS;
         #endif
 
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         output.AbsoluteWorldSpacePosition =  GetAbsolutePositionWS(TransformObjectToWorld(input.positionOS));
         #endif
 
@@ -2326,27 +2422,27 @@ Shader "Custom/LitGridTillingFlatOutline"
             SurfaceDescriptionInputs output;
             ZERO_INITIALIZE(SurfaceDescriptionInputs, output);
 
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         // must use interpolated tangent, bitangent and normal before they are normalized in the pixel shader.
         #endif
 
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         float3 unnormalizedNormalWS = input.normalWS;
         #endif
 
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         const float renormFactor = 1.0 / length(unnormalizedNormalWS);
         #endif
 
 
 
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         output.WorldSpaceNormal =            renormFactor*input.normalWS.xyz;		// we want a unit length Normal Vector node in shader graph
         #endif
 
 
 
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         output.AbsoluteWorldSpacePosition =  GetAbsolutePositionWS(input.positionWS);
         #endif
 
@@ -2406,34 +2502,38 @@ Shader "Custom/LitGridTillingFlatOutline"
 
             // Keywords
             // PassKeywords: <None>
-            #pragma shader_feature_local _ USE_VIEW_DIRECTION_ON
-        #pragma shader_feature_local _ MAKE_FLAT_ON
+            #pragma shader_feature_local _ MAKE_FLAT_ON
+        #pragma shader_feature_local ENUM_BC782402F6BE4FA183DEE55887251E18_R ENUM_BC782402F6BE4FA183DEE55887251E18_G ENUM_BC782402F6BE4FA183DEE55887251E18_B
 
-        #if defined(USE_VIEW_DIRECTION_ON) && defined(MAKE_FLAT_ON)
+        #if defined(MAKE_FLAT_ON) && defined(ENUM_BC782402F6BE4FA183DEE55887251E18_R)
             #define KEYWORD_PERMUTATION_0
-        #elif defined(USE_VIEW_DIRECTION_ON)
+        #elif defined(MAKE_FLAT_ON) && defined(ENUM_BC782402F6BE4FA183DEE55887251E18_G)
             #define KEYWORD_PERMUTATION_1
-        #elif defined(MAKE_FLAT_ON)
+        #elif defined(MAKE_FLAT_ON) && defined(ENUM_BC782402F6BE4FA183DEE55887251E18_B)
             #define KEYWORD_PERMUTATION_2
-        #else
+        #elif defined(ENUM_BC782402F6BE4FA183DEE55887251E18_R)
             #define KEYWORD_PERMUTATION_3
+        #elif defined(ENUM_BC782402F6BE4FA183DEE55887251E18_G)
+            #define KEYWORD_PERMUTATION_4
+        #else
+            #define KEYWORD_PERMUTATION_5
         #endif
 
 
             // Defines
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         #define _NORMALMAP 1
         #endif
 
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         #define _NORMAL_DROPOFF_WS 1
         #endif
 
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         #define ATTRIBUTES_NEED_NORMAL
         #endif
 
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         #define ATTRIBUTES_NEED_TANGENT
         #endif
 
@@ -2455,43 +2555,43 @@ Shader "Custom/LitGridTillingFlatOutline"
 
             struct Attributes
         {
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 positionOS : POSITION;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 normalOS : NORMAL;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float4 tangentOS : TANGENT;
             #endif
             #if UNITY_ANY_INSTANCING_ENABLED
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             uint instanceID : INSTANCEID_SEMANTIC;
             #endif
             #endif
         };
         struct Varyings
         {
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float4 positionCS : SV_POSITION;
             #endif
             #if UNITY_ANY_INSTANCING_ENABLED
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             uint instanceID : CUSTOM_INSTANCE_ID;
             #endif
             #endif
             #if (defined(UNITY_STEREO_MULTIVIEW_ENABLED)) || (defined(UNITY_STEREO_INSTANCING_ENABLED) && (defined(SHADER_API_GLES3) || defined(SHADER_API_GLCORE)))
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             uint stereoTargetEyeIndexAsBlendIdx0 : BLENDINDICES0;
             #endif
             #endif
             #if (defined(UNITY_STEREO_INSTANCING_ENABLED))
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             uint stereoTargetEyeIndexAsRTArrayIdx : SV_RenderTargetArrayIndex;
             #endif
             #endif
             #if defined(SHADER_STAGE_FRAGMENT) && defined(VARYINGS_NEED_CULLFACE)
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             FRONT_FACE_TYPE cullFace : FRONT_FACE_SEMANTIC;
             #endif
             #endif
@@ -2501,59 +2601,59 @@ Shader "Custom/LitGridTillingFlatOutline"
         };
         struct VertexDescriptionInputs
         {
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 ObjectSpaceNormal;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 WorldSpaceNormal;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 ObjectSpaceTangent;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 WorldSpaceTangent;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 ObjectSpaceBiTangent;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 WorldSpaceBiTangent;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 ObjectSpacePosition;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 AbsoluteWorldSpacePosition;
             #endif
         };
         struct PackedVaryings
         {
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float4 positionCS : SV_POSITION;
             #endif
             #if UNITY_ANY_INSTANCING_ENABLED
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             uint instanceID : CUSTOM_INSTANCE_ID;
             #endif
             #endif
             #if (defined(UNITY_STEREO_MULTIVIEW_ENABLED)) || (defined(UNITY_STEREO_INSTANCING_ENABLED) && (defined(SHADER_API_GLES3) || defined(SHADER_API_GLCORE)))
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             uint stereoTargetEyeIndexAsBlendIdx0 : BLENDINDICES0;
             #endif
             #endif
             #if (defined(UNITY_STEREO_INSTANCING_ENABLED))
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             uint stereoTargetEyeIndexAsRTArrayIdx : SV_RenderTargetArrayIndex;
             #endif
             #endif
             #if defined(SHADER_STAGE_FRAGMENT) && defined(VARYINGS_NEED_CULLFACE)
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             FRONT_FACE_TYPE cullFace : FRONT_FACE_SEMANTIC;
             #endif
             #endif
         };
 
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         PackedVaryings PackVaryings (Varyings input)
         {
             PackedVaryings output;
@@ -2598,14 +2698,17 @@ Shader "Custom/LitGridTillingFlatOutline"
             // Graph Properties
             CBUFFER_START(UnityPerMaterial)
             float4 _Texture_TexelSize;
-            float2 _Tilling;
+            float2 _Tiling;
             float2 _Offset;
+            float4 Texture2D_8790a9e04c6a4e70b402b45c5e760cd7_TexelSize;
+            float2 Vector2_9a4cda2eb6c64c1ab91cda5fd2713e62;
+            float2 Vector2_404fab8435f2423f85f5f8bbc745e531;
             float4 _Color;
-            float _BlendRatio;
             float3 _ViewDirection;
             float _FlatHeight;
             float3 _FlatRotationAxis;
             float _FlatRotationDegrees;
+            float3 _FlatRotationOffset;
             float _GridSize;
             float _GridLineSize;
             float2 _GridOffset;
@@ -2619,9 +2722,16 @@ Shader "Custom/LitGridTillingFlatOutline"
         SAMPLER(SamplerState_Linear_Repeat);
         TEXTURE2D(_Texture);
         SAMPLER(sampler_Texture);
+        TEXTURE2D(Texture2D_8790a9e04c6a4e70b402b45c5e760cd7);
+        SAMPLER(samplerTexture2D_8790a9e04c6a4e70b402b45c5e760cd7);
 
             // Graph Functions
             
+        void Unity_Subtract_float3(float3 A, float3 B, out float3 Out)
+        {
+            Out = A - B;
+        }
+
         void Unity_Rotate_About_Axis_Degrees_float(float3 In, float3 Axis, float Rotation, out float3 Out)
         {
             Rotation = radians(Rotation);
@@ -2640,6 +2750,11 @@ Shader "Custom/LitGridTillingFlatOutline"
             Out = mul(rot_mat,  In);
         }
 
+        void Unity_Add_float3(float3 A, float3 B, out float3 Out)
+        {
+            Out = A + B;
+        }
+
         void Unity_Subtract_float(float A, float B, out float Out)
         {
             Out = A - B;
@@ -2648,11 +2763,6 @@ Shader "Custom/LitGridTillingFlatOutline"
         void Unity_Multiply_float(float3 A, float3 B, out float3 Out)
         {
             Out = A * B;
-        }
-
-        void Unity_Subtract_float3(float3 A, float3 B, out float3 Out)
-        {
-            Out = A - B;
         }
 
             // Graph Vertex
@@ -2666,44 +2776,55 @@ Shader "Custom/LitGridTillingFlatOutline"
         VertexDescription VertexDescriptionFunction(VertexDescriptionInputs IN)
         {
             VertexDescription description = (VertexDescription)0;
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
+            float3 _Property_f08c037d6b934269b31af1a394cffb21_Out_0 = _FlatRotationOffset;
+            #endif
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
+            float3 _Subtract_5f2dd89698fb42a89b9c743b5296afc4_Out_2;
+            Unity_Subtract_float3(IN.AbsoluteWorldSpacePosition, _Property_f08c037d6b934269b31af1a394cffb21_Out_0, _Subtract_5f2dd89698fb42a89b9c743b5296afc4_Out_2);
+            #endif
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 _Property_f67616b49efb49a395d991e36d5c2f7d_Out_0 = _FlatRotationAxis;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float _Property_a8d31893f5104bb3bdc008c6144d0a2f_Out_0 = _FlatRotationDegrees;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 _RotateAboutAxis_45b701f026d44f0b9e1314efc1fcdb63_Out_3;
-            Unity_Rotate_About_Axis_Degrees_float(IN.AbsoluteWorldSpacePosition, _Property_f67616b49efb49a395d991e36d5c2f7d_Out_0, _Property_a8d31893f5104bb3bdc008c6144d0a2f_Out_0, _RotateAboutAxis_45b701f026d44f0b9e1314efc1fcdb63_Out_3);
+            Unity_Rotate_About_Axis_Degrees_float(_Subtract_5f2dd89698fb42a89b9c743b5296afc4_Out_2, _Property_f67616b49efb49a395d991e36d5c2f7d_Out_0, _Property_a8d31893f5104bb3bdc008c6144d0a2f_Out_0, _RotateAboutAxis_45b701f026d44f0b9e1314efc1fcdb63_Out_3);
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
-            float _Split_ef2a24bdf255433eb88306bcde4fe4aa_R_1 = _RotateAboutAxis_45b701f026d44f0b9e1314efc1fcdb63_Out_3[0];
-            float _Split_ef2a24bdf255433eb88306bcde4fe4aa_G_2 = _RotateAboutAxis_45b701f026d44f0b9e1314efc1fcdb63_Out_3[1];
-            float _Split_ef2a24bdf255433eb88306bcde4fe4aa_B_3 = _RotateAboutAxis_45b701f026d44f0b9e1314efc1fcdb63_Out_3[2];
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
+            float3 _Add_d3137f4c6ff74e9ea29c69792c4663e5_Out_2;
+            Unity_Add_float3(_RotateAboutAxis_45b701f026d44f0b9e1314efc1fcdb63_Out_3, _Property_f08c037d6b934269b31af1a394cffb21_Out_0, _Add_d3137f4c6ff74e9ea29c69792c4663e5_Out_2);
+            #endif
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
+            float _Split_ef2a24bdf255433eb88306bcde4fe4aa_R_1 = _Add_d3137f4c6ff74e9ea29c69792c4663e5_Out_2[0];
+            float _Split_ef2a24bdf255433eb88306bcde4fe4aa_G_2 = _Add_d3137f4c6ff74e9ea29c69792c4663e5_Out_2[1];
+            float _Split_ef2a24bdf255433eb88306bcde4fe4aa_B_3 = _Add_d3137f4c6ff74e9ea29c69792c4663e5_Out_2[2];
             float _Split_ef2a24bdf255433eb88306bcde4fe4aa_A_4 = 0;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float _Property_6c2e69a260844c7a91bd51ff7e3517cc_Out_0 = _FlatHeight;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float _Subtract_68df9f007bd44fea9df06041fa7120a9_Out_2;
             Unity_Subtract_float(_Split_ef2a24bdf255433eb88306bcde4fe4aa_G_2, _Property_6c2e69a260844c7a91bd51ff7e3517cc_Out_0, _Subtract_68df9f007bd44fea9df06041fa7120a9_Out_2);
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 _Vector3_8dfc68ab95c4422a8396dc15f0376486_Out_0 = float3(0, 1, 0);
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 _Multiply_6b6ee4a2652a4675b8cdc3048866c2f2_Out_2;
             Unity_Multiply_float((_Subtract_68df9f007bd44fea9df06041fa7120a9_Out_2.xxx), _Vector3_8dfc68ab95c4422a8396dc15f0376486_Out_0, _Multiply_6b6ee4a2652a4675b8cdc3048866c2f2_Out_2);
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 _Subtract_08c11516e1dc412b903dfeba38607cd4_Out_2;
-            Unity_Subtract_float3(_RotateAboutAxis_45b701f026d44f0b9e1314efc1fcdb63_Out_3, _Multiply_6b6ee4a2652a4675b8cdc3048866c2f2_Out_2, _Subtract_08c11516e1dc412b903dfeba38607cd4_Out_2);
+            Unity_Subtract_float3(_Add_d3137f4c6ff74e9ea29c69792c4663e5_Out_2, _Multiply_6b6ee4a2652a4675b8cdc3048866c2f2_Out_2, _Subtract_08c11516e1dc412b903dfeba38607cd4_Out_2);
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 _Transform_e0ad5d78a2ae4d5fa740c2e72daa7f9a_Out_1 = TransformWorldToObject(GetCameraRelativePositionWS(_Subtract_08c11516e1dc412b903dfeba38607cd4_Out_2.xyz));
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             #if defined(MAKE_FLAT_ON)
             float3 _MakeFlat_48f396b624134ea9bc2f3c47a31041ed_Out_0 = _Transform_e0ad5d78a2ae4d5fa740c2e72daa7f9a_Out_1;
             #else
@@ -2735,35 +2856,35 @@ Shader "Custom/LitGridTillingFlatOutline"
             VertexDescriptionInputs output;
             ZERO_INITIALIZE(VertexDescriptionInputs, output);
 
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         output.ObjectSpaceNormal =           input.normalOS;
         #endif
 
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         output.WorldSpaceNormal =            TransformObjectToWorldNormal(input.normalOS);
         #endif
 
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         output.ObjectSpaceTangent =          input.tangentOS.xyz;
         #endif
 
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         output.WorldSpaceTangent =           TransformObjectToWorldDir(input.tangentOS.xyz);
         #endif
 
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         output.ObjectSpaceBiTangent =        normalize(cross(input.normalOS, input.tangentOS) * (input.tangentOS.w > 0.0f ? 1.0f : -1.0f) * GetOddNegativeScale());
         #endif
 
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         output.WorldSpaceBiTangent =         TransformObjectToWorldDir(output.ObjectSpaceBiTangent);
         #endif
 
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         output.ObjectSpacePosition =         input.positionOS;
         #endif
 
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         output.AbsoluteWorldSpacePosition =  GetAbsolutePositionWS(TransformObjectToWorld(input.positionOS));
         #endif
 
@@ -2834,34 +2955,38 @@ Shader "Custom/LitGridTillingFlatOutline"
 
             // Keywords
             // PassKeywords: <None>
-            #pragma shader_feature_local _ USE_VIEW_DIRECTION_ON
-        #pragma shader_feature_local _ MAKE_FLAT_ON
+            #pragma shader_feature_local _ MAKE_FLAT_ON
+        #pragma shader_feature_local ENUM_BC782402F6BE4FA183DEE55887251E18_R ENUM_BC782402F6BE4FA183DEE55887251E18_G ENUM_BC782402F6BE4FA183DEE55887251E18_B
 
-        #if defined(USE_VIEW_DIRECTION_ON) && defined(MAKE_FLAT_ON)
+        #if defined(MAKE_FLAT_ON) && defined(ENUM_BC782402F6BE4FA183DEE55887251E18_R)
             #define KEYWORD_PERMUTATION_0
-        #elif defined(USE_VIEW_DIRECTION_ON)
+        #elif defined(MAKE_FLAT_ON) && defined(ENUM_BC782402F6BE4FA183DEE55887251E18_G)
             #define KEYWORD_PERMUTATION_1
-        #elif defined(MAKE_FLAT_ON)
+        #elif defined(MAKE_FLAT_ON) && defined(ENUM_BC782402F6BE4FA183DEE55887251E18_B)
             #define KEYWORD_PERMUTATION_2
-        #else
+        #elif defined(ENUM_BC782402F6BE4FA183DEE55887251E18_R)
             #define KEYWORD_PERMUTATION_3
+        #elif defined(ENUM_BC782402F6BE4FA183DEE55887251E18_G)
+            #define KEYWORD_PERMUTATION_4
+        #else
+            #define KEYWORD_PERMUTATION_5
         #endif
 
 
             // Defines
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         #define _NORMALMAP 1
         #endif
 
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         #define _NORMAL_DROPOFF_WS 1
         #endif
 
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         #define ATTRIBUTES_NEED_NORMAL
         #endif
 
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         #define ATTRIBUTES_NEED_TANGENT
         #endif
 
@@ -2883,43 +3008,43 @@ Shader "Custom/LitGridTillingFlatOutline"
 
             struct Attributes
         {
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 positionOS : POSITION;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 normalOS : NORMAL;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float4 tangentOS : TANGENT;
             #endif
             #if UNITY_ANY_INSTANCING_ENABLED
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             uint instanceID : INSTANCEID_SEMANTIC;
             #endif
             #endif
         };
         struct Varyings
         {
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float4 positionCS : SV_POSITION;
             #endif
             #if UNITY_ANY_INSTANCING_ENABLED
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             uint instanceID : CUSTOM_INSTANCE_ID;
             #endif
             #endif
             #if (defined(UNITY_STEREO_MULTIVIEW_ENABLED)) || (defined(UNITY_STEREO_INSTANCING_ENABLED) && (defined(SHADER_API_GLES3) || defined(SHADER_API_GLCORE)))
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             uint stereoTargetEyeIndexAsBlendIdx0 : BLENDINDICES0;
             #endif
             #endif
             #if (defined(UNITY_STEREO_INSTANCING_ENABLED))
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             uint stereoTargetEyeIndexAsRTArrayIdx : SV_RenderTargetArrayIndex;
             #endif
             #endif
             #if defined(SHADER_STAGE_FRAGMENT) && defined(VARYINGS_NEED_CULLFACE)
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             FRONT_FACE_TYPE cullFace : FRONT_FACE_SEMANTIC;
             #endif
             #endif
@@ -2929,59 +3054,59 @@ Shader "Custom/LitGridTillingFlatOutline"
         };
         struct VertexDescriptionInputs
         {
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 ObjectSpaceNormal;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 WorldSpaceNormal;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 ObjectSpaceTangent;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 WorldSpaceTangent;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 ObjectSpaceBiTangent;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 WorldSpaceBiTangent;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 ObjectSpacePosition;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 AbsoluteWorldSpacePosition;
             #endif
         };
         struct PackedVaryings
         {
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float4 positionCS : SV_POSITION;
             #endif
             #if UNITY_ANY_INSTANCING_ENABLED
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             uint instanceID : CUSTOM_INSTANCE_ID;
             #endif
             #endif
             #if (defined(UNITY_STEREO_MULTIVIEW_ENABLED)) || (defined(UNITY_STEREO_INSTANCING_ENABLED) && (defined(SHADER_API_GLES3) || defined(SHADER_API_GLCORE)))
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             uint stereoTargetEyeIndexAsBlendIdx0 : BLENDINDICES0;
             #endif
             #endif
             #if (defined(UNITY_STEREO_INSTANCING_ENABLED))
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             uint stereoTargetEyeIndexAsRTArrayIdx : SV_RenderTargetArrayIndex;
             #endif
             #endif
             #if defined(SHADER_STAGE_FRAGMENT) && defined(VARYINGS_NEED_CULLFACE)
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             FRONT_FACE_TYPE cullFace : FRONT_FACE_SEMANTIC;
             #endif
             #endif
         };
 
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         PackedVaryings PackVaryings (Varyings input)
         {
             PackedVaryings output;
@@ -3026,14 +3151,17 @@ Shader "Custom/LitGridTillingFlatOutline"
             // Graph Properties
             CBUFFER_START(UnityPerMaterial)
             float4 _Texture_TexelSize;
-            float2 _Tilling;
+            float2 _Tiling;
             float2 _Offset;
+            float4 Texture2D_8790a9e04c6a4e70b402b45c5e760cd7_TexelSize;
+            float2 Vector2_9a4cda2eb6c64c1ab91cda5fd2713e62;
+            float2 Vector2_404fab8435f2423f85f5f8bbc745e531;
             float4 _Color;
-            float _BlendRatio;
             float3 _ViewDirection;
             float _FlatHeight;
             float3 _FlatRotationAxis;
             float _FlatRotationDegrees;
+            float3 _FlatRotationOffset;
             float _GridSize;
             float _GridLineSize;
             float2 _GridOffset;
@@ -3047,9 +3175,16 @@ Shader "Custom/LitGridTillingFlatOutline"
         SAMPLER(SamplerState_Linear_Repeat);
         TEXTURE2D(_Texture);
         SAMPLER(sampler_Texture);
+        TEXTURE2D(Texture2D_8790a9e04c6a4e70b402b45c5e760cd7);
+        SAMPLER(samplerTexture2D_8790a9e04c6a4e70b402b45c5e760cd7);
 
             // Graph Functions
             
+        void Unity_Subtract_float3(float3 A, float3 B, out float3 Out)
+        {
+            Out = A - B;
+        }
+
         void Unity_Rotate_About_Axis_Degrees_float(float3 In, float3 Axis, float Rotation, out float3 Out)
         {
             Rotation = radians(Rotation);
@@ -3068,6 +3203,11 @@ Shader "Custom/LitGridTillingFlatOutline"
             Out = mul(rot_mat,  In);
         }
 
+        void Unity_Add_float3(float3 A, float3 B, out float3 Out)
+        {
+            Out = A + B;
+        }
+
         void Unity_Subtract_float(float A, float B, out float Out)
         {
             Out = A - B;
@@ -3076,11 +3216,6 @@ Shader "Custom/LitGridTillingFlatOutline"
         void Unity_Multiply_float(float3 A, float3 B, out float3 Out)
         {
             Out = A * B;
-        }
-
-        void Unity_Subtract_float3(float3 A, float3 B, out float3 Out)
-        {
-            Out = A - B;
         }
 
             // Graph Vertex
@@ -3094,44 +3229,55 @@ Shader "Custom/LitGridTillingFlatOutline"
         VertexDescription VertexDescriptionFunction(VertexDescriptionInputs IN)
         {
             VertexDescription description = (VertexDescription)0;
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
+            float3 _Property_f08c037d6b934269b31af1a394cffb21_Out_0 = _FlatRotationOffset;
+            #endif
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
+            float3 _Subtract_5f2dd89698fb42a89b9c743b5296afc4_Out_2;
+            Unity_Subtract_float3(IN.AbsoluteWorldSpacePosition, _Property_f08c037d6b934269b31af1a394cffb21_Out_0, _Subtract_5f2dd89698fb42a89b9c743b5296afc4_Out_2);
+            #endif
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 _Property_f67616b49efb49a395d991e36d5c2f7d_Out_0 = _FlatRotationAxis;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float _Property_a8d31893f5104bb3bdc008c6144d0a2f_Out_0 = _FlatRotationDegrees;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 _RotateAboutAxis_45b701f026d44f0b9e1314efc1fcdb63_Out_3;
-            Unity_Rotate_About_Axis_Degrees_float(IN.AbsoluteWorldSpacePosition, _Property_f67616b49efb49a395d991e36d5c2f7d_Out_0, _Property_a8d31893f5104bb3bdc008c6144d0a2f_Out_0, _RotateAboutAxis_45b701f026d44f0b9e1314efc1fcdb63_Out_3);
+            Unity_Rotate_About_Axis_Degrees_float(_Subtract_5f2dd89698fb42a89b9c743b5296afc4_Out_2, _Property_f67616b49efb49a395d991e36d5c2f7d_Out_0, _Property_a8d31893f5104bb3bdc008c6144d0a2f_Out_0, _RotateAboutAxis_45b701f026d44f0b9e1314efc1fcdb63_Out_3);
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
-            float _Split_ef2a24bdf255433eb88306bcde4fe4aa_R_1 = _RotateAboutAxis_45b701f026d44f0b9e1314efc1fcdb63_Out_3[0];
-            float _Split_ef2a24bdf255433eb88306bcde4fe4aa_G_2 = _RotateAboutAxis_45b701f026d44f0b9e1314efc1fcdb63_Out_3[1];
-            float _Split_ef2a24bdf255433eb88306bcde4fe4aa_B_3 = _RotateAboutAxis_45b701f026d44f0b9e1314efc1fcdb63_Out_3[2];
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
+            float3 _Add_d3137f4c6ff74e9ea29c69792c4663e5_Out_2;
+            Unity_Add_float3(_RotateAboutAxis_45b701f026d44f0b9e1314efc1fcdb63_Out_3, _Property_f08c037d6b934269b31af1a394cffb21_Out_0, _Add_d3137f4c6ff74e9ea29c69792c4663e5_Out_2);
+            #endif
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
+            float _Split_ef2a24bdf255433eb88306bcde4fe4aa_R_1 = _Add_d3137f4c6ff74e9ea29c69792c4663e5_Out_2[0];
+            float _Split_ef2a24bdf255433eb88306bcde4fe4aa_G_2 = _Add_d3137f4c6ff74e9ea29c69792c4663e5_Out_2[1];
+            float _Split_ef2a24bdf255433eb88306bcde4fe4aa_B_3 = _Add_d3137f4c6ff74e9ea29c69792c4663e5_Out_2[2];
             float _Split_ef2a24bdf255433eb88306bcde4fe4aa_A_4 = 0;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float _Property_6c2e69a260844c7a91bd51ff7e3517cc_Out_0 = _FlatHeight;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float _Subtract_68df9f007bd44fea9df06041fa7120a9_Out_2;
             Unity_Subtract_float(_Split_ef2a24bdf255433eb88306bcde4fe4aa_G_2, _Property_6c2e69a260844c7a91bd51ff7e3517cc_Out_0, _Subtract_68df9f007bd44fea9df06041fa7120a9_Out_2);
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 _Vector3_8dfc68ab95c4422a8396dc15f0376486_Out_0 = float3(0, 1, 0);
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 _Multiply_6b6ee4a2652a4675b8cdc3048866c2f2_Out_2;
             Unity_Multiply_float((_Subtract_68df9f007bd44fea9df06041fa7120a9_Out_2.xxx), _Vector3_8dfc68ab95c4422a8396dc15f0376486_Out_0, _Multiply_6b6ee4a2652a4675b8cdc3048866c2f2_Out_2);
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 _Subtract_08c11516e1dc412b903dfeba38607cd4_Out_2;
-            Unity_Subtract_float3(_RotateAboutAxis_45b701f026d44f0b9e1314efc1fcdb63_Out_3, _Multiply_6b6ee4a2652a4675b8cdc3048866c2f2_Out_2, _Subtract_08c11516e1dc412b903dfeba38607cd4_Out_2);
+            Unity_Subtract_float3(_Add_d3137f4c6ff74e9ea29c69792c4663e5_Out_2, _Multiply_6b6ee4a2652a4675b8cdc3048866c2f2_Out_2, _Subtract_08c11516e1dc412b903dfeba38607cd4_Out_2);
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 _Transform_e0ad5d78a2ae4d5fa740c2e72daa7f9a_Out_1 = TransformWorldToObject(GetCameraRelativePositionWS(_Subtract_08c11516e1dc412b903dfeba38607cd4_Out_2.xyz));
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             #if defined(MAKE_FLAT_ON)
             float3 _MakeFlat_48f396b624134ea9bc2f3c47a31041ed_Out_0 = _Transform_e0ad5d78a2ae4d5fa740c2e72daa7f9a_Out_1;
             #else
@@ -3163,35 +3309,35 @@ Shader "Custom/LitGridTillingFlatOutline"
             VertexDescriptionInputs output;
             ZERO_INITIALIZE(VertexDescriptionInputs, output);
 
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         output.ObjectSpaceNormal =           input.normalOS;
         #endif
 
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         output.WorldSpaceNormal =            TransformObjectToWorldNormal(input.normalOS);
         #endif
 
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         output.ObjectSpaceTangent =          input.tangentOS.xyz;
         #endif
 
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         output.WorldSpaceTangent =           TransformObjectToWorldDir(input.tangentOS.xyz);
         #endif
 
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         output.ObjectSpaceBiTangent =        normalize(cross(input.normalOS, input.tangentOS) * (input.tangentOS.w > 0.0f ? 1.0f : -1.0f) * GetOddNegativeScale());
         #endif
 
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         output.WorldSpaceBiTangent =         TransformObjectToWorldDir(output.ObjectSpaceBiTangent);
         #endif
 
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         output.ObjectSpacePosition =         input.positionOS;
         #endif
 
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         output.AbsoluteWorldSpacePosition =  GetAbsolutePositionWS(TransformObjectToWorld(input.positionOS));
         #endif
 
@@ -3261,46 +3407,50 @@ Shader "Custom/LitGridTillingFlatOutline"
 
             // Keywords
             // PassKeywords: <None>
-            #pragma shader_feature_local _ USE_VIEW_DIRECTION_ON
-        #pragma shader_feature_local _ MAKE_FLAT_ON
+            #pragma shader_feature_local _ MAKE_FLAT_ON
+        #pragma shader_feature_local ENUM_BC782402F6BE4FA183DEE55887251E18_R ENUM_BC782402F6BE4FA183DEE55887251E18_G ENUM_BC782402F6BE4FA183DEE55887251E18_B
 
-        #if defined(USE_VIEW_DIRECTION_ON) && defined(MAKE_FLAT_ON)
+        #if defined(MAKE_FLAT_ON) && defined(ENUM_BC782402F6BE4FA183DEE55887251E18_R)
             #define KEYWORD_PERMUTATION_0
-        #elif defined(USE_VIEW_DIRECTION_ON)
+        #elif defined(MAKE_FLAT_ON) && defined(ENUM_BC782402F6BE4FA183DEE55887251E18_G)
             #define KEYWORD_PERMUTATION_1
-        #elif defined(MAKE_FLAT_ON)
+        #elif defined(MAKE_FLAT_ON) && defined(ENUM_BC782402F6BE4FA183DEE55887251E18_B)
             #define KEYWORD_PERMUTATION_2
-        #else
+        #elif defined(ENUM_BC782402F6BE4FA183DEE55887251E18_R)
             #define KEYWORD_PERMUTATION_3
+        #elif defined(ENUM_BC782402F6BE4FA183DEE55887251E18_G)
+            #define KEYWORD_PERMUTATION_4
+        #else
+            #define KEYWORD_PERMUTATION_5
         #endif
 
 
             // Defines
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         #define _NORMALMAP 1
         #endif
 
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         #define _NORMAL_DROPOFF_WS 1
         #endif
 
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         #define ATTRIBUTES_NEED_NORMAL
         #endif
 
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         #define ATTRIBUTES_NEED_TANGENT
         #endif
 
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         #define ATTRIBUTES_NEED_TEXCOORD1
         #endif
 
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         #define VARYINGS_NEED_NORMAL_WS
         #endif
 
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         #define VARYINGS_NEED_TANGENT_WS
         #endif
 
@@ -3322,123 +3472,123 @@ Shader "Custom/LitGridTillingFlatOutline"
 
             struct Attributes
         {
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 positionOS : POSITION;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 normalOS : NORMAL;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float4 tangentOS : TANGENT;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float4 uv1 : TEXCOORD1;
             #endif
             #if UNITY_ANY_INSTANCING_ENABLED
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             uint instanceID : INSTANCEID_SEMANTIC;
             #endif
             #endif
         };
         struct Varyings
         {
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float4 positionCS : SV_POSITION;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 normalWS;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float4 tangentWS;
             #endif
             #if UNITY_ANY_INSTANCING_ENABLED
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             uint instanceID : CUSTOM_INSTANCE_ID;
             #endif
             #endif
             #if (defined(UNITY_STEREO_MULTIVIEW_ENABLED)) || (defined(UNITY_STEREO_INSTANCING_ENABLED) && (defined(SHADER_API_GLES3) || defined(SHADER_API_GLCORE)))
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             uint stereoTargetEyeIndexAsBlendIdx0 : BLENDINDICES0;
             #endif
             #endif
             #if (defined(UNITY_STEREO_INSTANCING_ENABLED))
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             uint stereoTargetEyeIndexAsRTArrayIdx : SV_RenderTargetArrayIndex;
             #endif
             #endif
             #if defined(SHADER_STAGE_FRAGMENT) && defined(VARYINGS_NEED_CULLFACE)
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             FRONT_FACE_TYPE cullFace : FRONT_FACE_SEMANTIC;
             #endif
             #endif
         };
         struct SurfaceDescriptionInputs
         {
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 WorldSpaceNormal;
             #endif
         };
         struct VertexDescriptionInputs
         {
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 ObjectSpaceNormal;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 WorldSpaceNormal;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 ObjectSpaceTangent;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 WorldSpaceTangent;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 ObjectSpaceBiTangent;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 WorldSpaceBiTangent;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 ObjectSpacePosition;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 AbsoluteWorldSpacePosition;
             #endif
         };
         struct PackedVaryings
         {
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float4 positionCS : SV_POSITION;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 interp0 : TEXCOORD0;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float4 interp1 : TEXCOORD1;
             #endif
             #if UNITY_ANY_INSTANCING_ENABLED
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             uint instanceID : CUSTOM_INSTANCE_ID;
             #endif
             #endif
             #if (defined(UNITY_STEREO_MULTIVIEW_ENABLED)) || (defined(UNITY_STEREO_INSTANCING_ENABLED) && (defined(SHADER_API_GLES3) || defined(SHADER_API_GLCORE)))
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             uint stereoTargetEyeIndexAsBlendIdx0 : BLENDINDICES0;
             #endif
             #endif
             #if (defined(UNITY_STEREO_INSTANCING_ENABLED))
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             uint stereoTargetEyeIndexAsRTArrayIdx : SV_RenderTargetArrayIndex;
             #endif
             #endif
             #if defined(SHADER_STAGE_FRAGMENT) && defined(VARYINGS_NEED_CULLFACE)
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             FRONT_FACE_TYPE cullFace : FRONT_FACE_SEMANTIC;
             #endif
             #endif
         };
 
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         PackedVaryings PackVaryings (Varyings input)
         {
             PackedVaryings output;
@@ -3487,14 +3637,17 @@ Shader "Custom/LitGridTillingFlatOutline"
             // Graph Properties
             CBUFFER_START(UnityPerMaterial)
             float4 _Texture_TexelSize;
-            float2 _Tilling;
+            float2 _Tiling;
             float2 _Offset;
+            float4 Texture2D_8790a9e04c6a4e70b402b45c5e760cd7_TexelSize;
+            float2 Vector2_9a4cda2eb6c64c1ab91cda5fd2713e62;
+            float2 Vector2_404fab8435f2423f85f5f8bbc745e531;
             float4 _Color;
-            float _BlendRatio;
             float3 _ViewDirection;
             float _FlatHeight;
             float3 _FlatRotationAxis;
             float _FlatRotationDegrees;
+            float3 _FlatRotationOffset;
             float _GridSize;
             float _GridLineSize;
             float2 _GridOffset;
@@ -3508,9 +3661,16 @@ Shader "Custom/LitGridTillingFlatOutline"
         SAMPLER(SamplerState_Linear_Repeat);
         TEXTURE2D(_Texture);
         SAMPLER(sampler_Texture);
+        TEXTURE2D(Texture2D_8790a9e04c6a4e70b402b45c5e760cd7);
+        SAMPLER(samplerTexture2D_8790a9e04c6a4e70b402b45c5e760cd7);
 
             // Graph Functions
             
+        void Unity_Subtract_float3(float3 A, float3 B, out float3 Out)
+        {
+            Out = A - B;
+        }
+
         void Unity_Rotate_About_Axis_Degrees_float(float3 In, float3 Axis, float Rotation, out float3 Out)
         {
             Rotation = radians(Rotation);
@@ -3529,6 +3689,11 @@ Shader "Custom/LitGridTillingFlatOutline"
             Out = mul(rot_mat,  In);
         }
 
+        void Unity_Add_float3(float3 A, float3 B, out float3 Out)
+        {
+            Out = A + B;
+        }
+
         void Unity_Subtract_float(float A, float B, out float Out)
         {
             Out = A - B;
@@ -3537,11 +3702,6 @@ Shader "Custom/LitGridTillingFlatOutline"
         void Unity_Multiply_float(float3 A, float3 B, out float3 Out)
         {
             Out = A * B;
-        }
-
-        void Unity_Subtract_float3(float3 A, float3 B, out float3 Out)
-        {
-            Out = A - B;
         }
 
             // Graph Vertex
@@ -3555,44 +3715,55 @@ Shader "Custom/LitGridTillingFlatOutline"
         VertexDescription VertexDescriptionFunction(VertexDescriptionInputs IN)
         {
             VertexDescription description = (VertexDescription)0;
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
+            float3 _Property_f08c037d6b934269b31af1a394cffb21_Out_0 = _FlatRotationOffset;
+            #endif
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
+            float3 _Subtract_5f2dd89698fb42a89b9c743b5296afc4_Out_2;
+            Unity_Subtract_float3(IN.AbsoluteWorldSpacePosition, _Property_f08c037d6b934269b31af1a394cffb21_Out_0, _Subtract_5f2dd89698fb42a89b9c743b5296afc4_Out_2);
+            #endif
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 _Property_f67616b49efb49a395d991e36d5c2f7d_Out_0 = _FlatRotationAxis;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float _Property_a8d31893f5104bb3bdc008c6144d0a2f_Out_0 = _FlatRotationDegrees;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 _RotateAboutAxis_45b701f026d44f0b9e1314efc1fcdb63_Out_3;
-            Unity_Rotate_About_Axis_Degrees_float(IN.AbsoluteWorldSpacePosition, _Property_f67616b49efb49a395d991e36d5c2f7d_Out_0, _Property_a8d31893f5104bb3bdc008c6144d0a2f_Out_0, _RotateAboutAxis_45b701f026d44f0b9e1314efc1fcdb63_Out_3);
+            Unity_Rotate_About_Axis_Degrees_float(_Subtract_5f2dd89698fb42a89b9c743b5296afc4_Out_2, _Property_f67616b49efb49a395d991e36d5c2f7d_Out_0, _Property_a8d31893f5104bb3bdc008c6144d0a2f_Out_0, _RotateAboutAxis_45b701f026d44f0b9e1314efc1fcdb63_Out_3);
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
-            float _Split_ef2a24bdf255433eb88306bcde4fe4aa_R_1 = _RotateAboutAxis_45b701f026d44f0b9e1314efc1fcdb63_Out_3[0];
-            float _Split_ef2a24bdf255433eb88306bcde4fe4aa_G_2 = _RotateAboutAxis_45b701f026d44f0b9e1314efc1fcdb63_Out_3[1];
-            float _Split_ef2a24bdf255433eb88306bcde4fe4aa_B_3 = _RotateAboutAxis_45b701f026d44f0b9e1314efc1fcdb63_Out_3[2];
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
+            float3 _Add_d3137f4c6ff74e9ea29c69792c4663e5_Out_2;
+            Unity_Add_float3(_RotateAboutAxis_45b701f026d44f0b9e1314efc1fcdb63_Out_3, _Property_f08c037d6b934269b31af1a394cffb21_Out_0, _Add_d3137f4c6ff74e9ea29c69792c4663e5_Out_2);
+            #endif
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
+            float _Split_ef2a24bdf255433eb88306bcde4fe4aa_R_1 = _Add_d3137f4c6ff74e9ea29c69792c4663e5_Out_2[0];
+            float _Split_ef2a24bdf255433eb88306bcde4fe4aa_G_2 = _Add_d3137f4c6ff74e9ea29c69792c4663e5_Out_2[1];
+            float _Split_ef2a24bdf255433eb88306bcde4fe4aa_B_3 = _Add_d3137f4c6ff74e9ea29c69792c4663e5_Out_2[2];
             float _Split_ef2a24bdf255433eb88306bcde4fe4aa_A_4 = 0;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float _Property_6c2e69a260844c7a91bd51ff7e3517cc_Out_0 = _FlatHeight;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float _Subtract_68df9f007bd44fea9df06041fa7120a9_Out_2;
             Unity_Subtract_float(_Split_ef2a24bdf255433eb88306bcde4fe4aa_G_2, _Property_6c2e69a260844c7a91bd51ff7e3517cc_Out_0, _Subtract_68df9f007bd44fea9df06041fa7120a9_Out_2);
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 _Vector3_8dfc68ab95c4422a8396dc15f0376486_Out_0 = float3(0, 1, 0);
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 _Multiply_6b6ee4a2652a4675b8cdc3048866c2f2_Out_2;
             Unity_Multiply_float((_Subtract_68df9f007bd44fea9df06041fa7120a9_Out_2.xxx), _Vector3_8dfc68ab95c4422a8396dc15f0376486_Out_0, _Multiply_6b6ee4a2652a4675b8cdc3048866c2f2_Out_2);
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 _Subtract_08c11516e1dc412b903dfeba38607cd4_Out_2;
-            Unity_Subtract_float3(_RotateAboutAxis_45b701f026d44f0b9e1314efc1fcdb63_Out_3, _Multiply_6b6ee4a2652a4675b8cdc3048866c2f2_Out_2, _Subtract_08c11516e1dc412b903dfeba38607cd4_Out_2);
+            Unity_Subtract_float3(_Add_d3137f4c6ff74e9ea29c69792c4663e5_Out_2, _Multiply_6b6ee4a2652a4675b8cdc3048866c2f2_Out_2, _Subtract_08c11516e1dc412b903dfeba38607cd4_Out_2);
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 _Transform_e0ad5d78a2ae4d5fa740c2e72daa7f9a_Out_1 = TransformWorldToObject(GetCameraRelativePositionWS(_Subtract_08c11516e1dc412b903dfeba38607cd4_Out_2.xyz));
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             #if defined(MAKE_FLAT_ON)
             float3 _MakeFlat_48f396b624134ea9bc2f3c47a31041ed_Out_0 = _Transform_e0ad5d78a2ae4d5fa740c2e72daa7f9a_Out_1;
             #else
@@ -3614,10 +3785,10 @@ Shader "Custom/LitGridTillingFlatOutline"
         SurfaceDescription SurfaceDescriptionFunction(SurfaceDescriptionInputs IN)
         {
             SurfaceDescription surface = (SurfaceDescription)0;
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 _Vector3_00b6f137b569440981229d628d3a1b37_Out_0 = float3(0, 1, 0);
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             #if defined(MAKE_FLAT_ON)
             float3 _MakeFlat_15a66a5e097346b0ab04ed10790f004e_Out_0 = _Vector3_00b6f137b569440981229d628d3a1b37_Out_0;
             #else
@@ -3636,35 +3807,35 @@ Shader "Custom/LitGridTillingFlatOutline"
             VertexDescriptionInputs output;
             ZERO_INITIALIZE(VertexDescriptionInputs, output);
 
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         output.ObjectSpaceNormal =           input.normalOS;
         #endif
 
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         output.WorldSpaceNormal =            TransformObjectToWorldNormal(input.normalOS);
         #endif
 
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         output.ObjectSpaceTangent =          input.tangentOS.xyz;
         #endif
 
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         output.WorldSpaceTangent =           TransformObjectToWorldDir(input.tangentOS.xyz);
         #endif
 
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         output.ObjectSpaceBiTangent =        normalize(cross(input.normalOS, input.tangentOS) * (input.tangentOS.w > 0.0f ? 1.0f : -1.0f) * GetOddNegativeScale());
         #endif
 
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         output.WorldSpaceBiTangent =         TransformObjectToWorldDir(output.ObjectSpaceBiTangent);
         #endif
 
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         output.ObjectSpacePosition =         input.positionOS;
         #endif
 
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         output.AbsoluteWorldSpacePosition =  GetAbsolutePositionWS(TransformObjectToWorld(input.positionOS));
         #endif
 
@@ -3676,21 +3847,21 @@ Shader "Custom/LitGridTillingFlatOutline"
             SurfaceDescriptionInputs output;
             ZERO_INITIALIZE(SurfaceDescriptionInputs, output);
 
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         // must use interpolated tangent, bitangent and normal before they are normalized in the pixel shader.
         #endif
 
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         float3 unnormalizedNormalWS = input.normalWS;
         #endif
 
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         const float renormFactor = 1.0 / length(unnormalizedNormalWS);
         #endif
 
 
 
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         output.WorldSpaceNormal =            renormFactor*input.normalWS.xyz;		// we want a unit length Normal Vector node in shader graph
         #endif
 
@@ -3745,46 +3916,50 @@ Shader "Custom/LitGridTillingFlatOutline"
 
             // Keywords
             #pragma shader_feature _ _SMOOTHNESS_TEXTURE_ALBEDO_CHANNEL_A
-            #pragma shader_feature_local _ USE_VIEW_DIRECTION_ON
-        #pragma shader_feature_local _ MAKE_FLAT_ON
+            #pragma shader_feature_local _ MAKE_FLAT_ON
+        #pragma shader_feature_local ENUM_BC782402F6BE4FA183DEE55887251E18_R ENUM_BC782402F6BE4FA183DEE55887251E18_G ENUM_BC782402F6BE4FA183DEE55887251E18_B
 
-        #if defined(USE_VIEW_DIRECTION_ON) && defined(MAKE_FLAT_ON)
+        #if defined(MAKE_FLAT_ON) && defined(ENUM_BC782402F6BE4FA183DEE55887251E18_R)
             #define KEYWORD_PERMUTATION_0
-        #elif defined(USE_VIEW_DIRECTION_ON)
+        #elif defined(MAKE_FLAT_ON) && defined(ENUM_BC782402F6BE4FA183DEE55887251E18_G)
             #define KEYWORD_PERMUTATION_1
-        #elif defined(MAKE_FLAT_ON)
+        #elif defined(MAKE_FLAT_ON) && defined(ENUM_BC782402F6BE4FA183DEE55887251E18_B)
             #define KEYWORD_PERMUTATION_2
-        #else
+        #elif defined(ENUM_BC782402F6BE4FA183DEE55887251E18_R)
             #define KEYWORD_PERMUTATION_3
+        #elif defined(ENUM_BC782402F6BE4FA183DEE55887251E18_G)
+            #define KEYWORD_PERMUTATION_4
+        #else
+            #define KEYWORD_PERMUTATION_5
         #endif
 
 
             // Defines
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         #define _NORMALMAP 1
         #endif
 
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         #define _NORMAL_DROPOFF_WS 1
         #endif
 
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         #define ATTRIBUTES_NEED_NORMAL
         #endif
 
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         #define ATTRIBUTES_NEED_TANGENT
         #endif
 
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         #define ATTRIBUTES_NEED_TEXCOORD1
         #endif
 
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         #define ATTRIBUTES_NEED_TEXCOORD2
         #endif
 
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         #define VARYINGS_NEED_POSITION_WS
         #endif
 
@@ -3807,120 +3982,120 @@ Shader "Custom/LitGridTillingFlatOutline"
 
             struct Attributes
         {
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 positionOS : POSITION;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 normalOS : NORMAL;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float4 tangentOS : TANGENT;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float4 uv1 : TEXCOORD1;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float4 uv2 : TEXCOORD2;
             #endif
             #if UNITY_ANY_INSTANCING_ENABLED
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             uint instanceID : INSTANCEID_SEMANTIC;
             #endif
             #endif
         };
         struct Varyings
         {
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float4 positionCS : SV_POSITION;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 positionWS;
             #endif
             #if UNITY_ANY_INSTANCING_ENABLED
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             uint instanceID : CUSTOM_INSTANCE_ID;
             #endif
             #endif
             #if (defined(UNITY_STEREO_MULTIVIEW_ENABLED)) || (defined(UNITY_STEREO_INSTANCING_ENABLED) && (defined(SHADER_API_GLES3) || defined(SHADER_API_GLCORE)))
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             uint stereoTargetEyeIndexAsBlendIdx0 : BLENDINDICES0;
             #endif
             #endif
             #if (defined(UNITY_STEREO_INSTANCING_ENABLED))
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             uint stereoTargetEyeIndexAsRTArrayIdx : SV_RenderTargetArrayIndex;
             #endif
             #endif
             #if defined(SHADER_STAGE_FRAGMENT) && defined(VARYINGS_NEED_CULLFACE)
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             FRONT_FACE_TYPE cullFace : FRONT_FACE_SEMANTIC;
             #endif
             #endif
         };
         struct SurfaceDescriptionInputs
         {
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 AbsoluteWorldSpacePosition;
             #endif
         };
         struct VertexDescriptionInputs
         {
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 ObjectSpaceNormal;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 WorldSpaceNormal;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 ObjectSpaceTangent;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 WorldSpaceTangent;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 ObjectSpaceBiTangent;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 WorldSpaceBiTangent;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 ObjectSpacePosition;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 AbsoluteWorldSpacePosition;
             #endif
         };
         struct PackedVaryings
         {
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float4 positionCS : SV_POSITION;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 interp0 : TEXCOORD0;
             #endif
             #if UNITY_ANY_INSTANCING_ENABLED
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             uint instanceID : CUSTOM_INSTANCE_ID;
             #endif
             #endif
             #if (defined(UNITY_STEREO_MULTIVIEW_ENABLED)) || (defined(UNITY_STEREO_INSTANCING_ENABLED) && (defined(SHADER_API_GLES3) || defined(SHADER_API_GLCORE)))
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             uint stereoTargetEyeIndexAsBlendIdx0 : BLENDINDICES0;
             #endif
             #endif
             #if (defined(UNITY_STEREO_INSTANCING_ENABLED))
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             uint stereoTargetEyeIndexAsRTArrayIdx : SV_RenderTargetArrayIndex;
             #endif
             #endif
             #if defined(SHADER_STAGE_FRAGMENT) && defined(VARYINGS_NEED_CULLFACE)
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             FRONT_FACE_TYPE cullFace : FRONT_FACE_SEMANTIC;
             #endif
             #endif
         };
 
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         PackedVaryings PackVaryings (Varyings input)
         {
             PackedVaryings output;
@@ -3967,14 +4142,17 @@ Shader "Custom/LitGridTillingFlatOutline"
             // Graph Properties
             CBUFFER_START(UnityPerMaterial)
             float4 _Texture_TexelSize;
-            float2 _Tilling;
+            float2 _Tiling;
             float2 _Offset;
+            float4 Texture2D_8790a9e04c6a4e70b402b45c5e760cd7_TexelSize;
+            float2 Vector2_9a4cda2eb6c64c1ab91cda5fd2713e62;
+            float2 Vector2_404fab8435f2423f85f5f8bbc745e531;
             float4 _Color;
-            float _BlendRatio;
             float3 _ViewDirection;
             float _FlatHeight;
             float3 _FlatRotationAxis;
             float _FlatRotationDegrees;
+            float3 _FlatRotationOffset;
             float _GridSize;
             float _GridLineSize;
             float2 _GridOffset;
@@ -3988,9 +4166,16 @@ Shader "Custom/LitGridTillingFlatOutline"
         SAMPLER(SamplerState_Linear_Repeat);
         TEXTURE2D(_Texture);
         SAMPLER(sampler_Texture);
+        TEXTURE2D(Texture2D_8790a9e04c6a4e70b402b45c5e760cd7);
+        SAMPLER(samplerTexture2D_8790a9e04c6a4e70b402b45c5e760cd7);
 
             // Graph Functions
             
+        void Unity_Subtract_float3(float3 A, float3 B, out float3 Out)
+        {
+            Out = A - B;
+        }
+
         void Unity_Rotate_About_Axis_Degrees_float(float3 In, float3 Axis, float Rotation, out float3 Out)
         {
             Rotation = radians(Rotation);
@@ -4009,6 +4194,11 @@ Shader "Custom/LitGridTillingFlatOutline"
             Out = mul(rot_mat,  In);
         }
 
+        void Unity_Add_float3(float3 A, float3 B, out float3 Out)
+        {
+            Out = A + B;
+        }
+
         void Unity_Subtract_float(float A, float B, out float Out)
         {
             Out = A - B;
@@ -4017,11 +4207,6 @@ Shader "Custom/LitGridTillingFlatOutline"
         void Unity_Multiply_float(float3 A, float3 B, out float3 Out)
         {
             Out = A * B;
-        }
-
-        void Unity_Subtract_float3(float3 A, float3 B, out float3 Out)
-        {
-            Out = A - B;
         }
 
         void Unity_DotProduct_float3(float3 A, float3 B, out float Out)
@@ -4049,6 +4234,11 @@ Shader "Custom/LitGridTillingFlatOutline"
         void Unity_Multiply_float(float A, float B, out float Out)
         {
             Out = A * B;
+        }
+
+        void Unity_Comparison_NotEqual_float(float A, float B, out float Out)
+        {
+            Out = A != B ? 1 : 0;
         }
 
         void Unity_Subtract_float2(float2 A, float2 B, out float2 Out)
@@ -4098,12 +4288,20 @@ Shader "Custom/LitGridTillingFlatOutline"
             Out = A || B;
         }
 
+        void Unity_And_float(float A, float B, out float Out)
+        {
+            Out = A && B;
+        }
+
         struct Bindings_GridUVCheck_294d007a503d6d2499de026b4f678348
         {
         };
 
         void SG_GridUVCheck_294d007a503d6d2499de026b4f678348(float2 Vector2_5a56dbf35cba4d4c8a3192a95b776eb9, float Vector1_0a171b7c60dc451dab7b2e69064f24eb, float2 Vector2_d630f5a030b148be8aa8b746e507f89a, float Vector1_7845b62507cb41e1bdeb7da05ba77e88, Bindings_GridUVCheck_294d007a503d6d2499de026b4f678348 IN, out float Out_Vector4_1)
         {
+            float _Property_261aaf889a324bb4ac259d0782d89eb0_Out_0 = Vector1_7845b62507cb41e1bdeb7da05ba77e88;
+            float _Comparison_351fddbc30fb4e358519fa5fcc059dfb_Out_2;
+            Unity_Comparison_NotEqual_float(_Property_261aaf889a324bb4ac259d0782d89eb0_Out_0, 0, _Comparison_351fddbc30fb4e358519fa5fcc059dfb_Out_2);
             float2 _Property_fb6173b513a2442dae002a71d714fb8a_Out_0 = Vector2_5a56dbf35cba4d4c8a3192a95b776eb9;
             float2 _Property_8e21231b95494bfd917e2a63f0311bab_Out_0 = Vector2_d630f5a030b148be8aa8b746e507f89a;
             float2 _Subtract_c86e7a2a84c841e6ace00653ee9c4c00_Out_2;
@@ -4122,7 +4320,9 @@ Shader "Custom/LitGridTillingFlatOutline"
             SG_GridCheck_7e9bb100a3d60a94f94589ab30823025(_Split_68957bd604ac408cb4f40d11f10462e0_G_2, _Property_f9707b40612141e28e92f98117aabb47_Out_0, _Property_82c6c275ad2e4dec864b44c81809a340_Out_0, _GridCheck_ad0e839ef18848968002cfbf3e540a4c, _GridCheck_ad0e839ef18848968002cfbf3e540a4c_OutVector4_1);
             float _Or_b916cb2784d64a6582f6bc7ebadae8e8_Out_2;
             Unity_Or_float(_GridCheck_b8e7d6fe4086451eb52139a6851ccac4_OutVector4_1, _GridCheck_ad0e839ef18848968002cfbf3e540a4c_OutVector4_1, _Or_b916cb2784d64a6582f6bc7ebadae8e8_Out_2);
-            Out_Vector4_1 = _Or_b916cb2784d64a6582f6bc7ebadae8e8_Out_2;
+            float _And_a4eda4421ac742ecb6275e2fa2316a72_Out_2;
+            Unity_And_float(_Comparison_351fddbc30fb4e358519fa5fcc059dfb_Out_2, _Or_b916cb2784d64a6582f6bc7ebadae8e8_Out_2, _And_a4eda4421ac742ecb6275e2fa2316a72_Out_2);
+            Out_Vector4_1 = _And_a4eda4421ac742ecb6275e2fa2316a72_Out_2;
         }
 
         void Unity_TilingAndOffset_float(float2 UV, float2 Tiling, float2 Offset, out float2 Out)
@@ -4141,16 +4341,6 @@ Shader "Custom/LitGridTillingFlatOutline"
             Out = Predicate ? True : False;
         }
 
-        void Unity_Add_float4(float4 A, float4 B, out float4 Out)
-        {
-            Out = A + B;
-        }
-
-        void Unity_Saturate_float4(float4 In, out float4 Out)
-        {
-            Out = saturate(In);
-        }
-
             // Graph Vertex
             struct VertexDescription
         {
@@ -4162,44 +4352,55 @@ Shader "Custom/LitGridTillingFlatOutline"
         VertexDescription VertexDescriptionFunction(VertexDescriptionInputs IN)
         {
             VertexDescription description = (VertexDescription)0;
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
+            float3 _Property_f08c037d6b934269b31af1a394cffb21_Out_0 = _FlatRotationOffset;
+            #endif
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
+            float3 _Subtract_5f2dd89698fb42a89b9c743b5296afc4_Out_2;
+            Unity_Subtract_float3(IN.AbsoluteWorldSpacePosition, _Property_f08c037d6b934269b31af1a394cffb21_Out_0, _Subtract_5f2dd89698fb42a89b9c743b5296afc4_Out_2);
+            #endif
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 _Property_f67616b49efb49a395d991e36d5c2f7d_Out_0 = _FlatRotationAxis;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float _Property_a8d31893f5104bb3bdc008c6144d0a2f_Out_0 = _FlatRotationDegrees;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 _RotateAboutAxis_45b701f026d44f0b9e1314efc1fcdb63_Out_3;
-            Unity_Rotate_About_Axis_Degrees_float(IN.AbsoluteWorldSpacePosition, _Property_f67616b49efb49a395d991e36d5c2f7d_Out_0, _Property_a8d31893f5104bb3bdc008c6144d0a2f_Out_0, _RotateAboutAxis_45b701f026d44f0b9e1314efc1fcdb63_Out_3);
+            Unity_Rotate_About_Axis_Degrees_float(_Subtract_5f2dd89698fb42a89b9c743b5296afc4_Out_2, _Property_f67616b49efb49a395d991e36d5c2f7d_Out_0, _Property_a8d31893f5104bb3bdc008c6144d0a2f_Out_0, _RotateAboutAxis_45b701f026d44f0b9e1314efc1fcdb63_Out_3);
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
-            float _Split_ef2a24bdf255433eb88306bcde4fe4aa_R_1 = _RotateAboutAxis_45b701f026d44f0b9e1314efc1fcdb63_Out_3[0];
-            float _Split_ef2a24bdf255433eb88306bcde4fe4aa_G_2 = _RotateAboutAxis_45b701f026d44f0b9e1314efc1fcdb63_Out_3[1];
-            float _Split_ef2a24bdf255433eb88306bcde4fe4aa_B_3 = _RotateAboutAxis_45b701f026d44f0b9e1314efc1fcdb63_Out_3[2];
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
+            float3 _Add_d3137f4c6ff74e9ea29c69792c4663e5_Out_2;
+            Unity_Add_float3(_RotateAboutAxis_45b701f026d44f0b9e1314efc1fcdb63_Out_3, _Property_f08c037d6b934269b31af1a394cffb21_Out_0, _Add_d3137f4c6ff74e9ea29c69792c4663e5_Out_2);
+            #endif
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
+            float _Split_ef2a24bdf255433eb88306bcde4fe4aa_R_1 = _Add_d3137f4c6ff74e9ea29c69792c4663e5_Out_2[0];
+            float _Split_ef2a24bdf255433eb88306bcde4fe4aa_G_2 = _Add_d3137f4c6ff74e9ea29c69792c4663e5_Out_2[1];
+            float _Split_ef2a24bdf255433eb88306bcde4fe4aa_B_3 = _Add_d3137f4c6ff74e9ea29c69792c4663e5_Out_2[2];
             float _Split_ef2a24bdf255433eb88306bcde4fe4aa_A_4 = 0;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float _Property_6c2e69a260844c7a91bd51ff7e3517cc_Out_0 = _FlatHeight;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float _Subtract_68df9f007bd44fea9df06041fa7120a9_Out_2;
             Unity_Subtract_float(_Split_ef2a24bdf255433eb88306bcde4fe4aa_G_2, _Property_6c2e69a260844c7a91bd51ff7e3517cc_Out_0, _Subtract_68df9f007bd44fea9df06041fa7120a9_Out_2);
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 _Vector3_8dfc68ab95c4422a8396dc15f0376486_Out_0 = float3(0, 1, 0);
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 _Multiply_6b6ee4a2652a4675b8cdc3048866c2f2_Out_2;
             Unity_Multiply_float((_Subtract_68df9f007bd44fea9df06041fa7120a9_Out_2.xxx), _Vector3_8dfc68ab95c4422a8396dc15f0376486_Out_0, _Multiply_6b6ee4a2652a4675b8cdc3048866c2f2_Out_2);
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 _Subtract_08c11516e1dc412b903dfeba38607cd4_Out_2;
-            Unity_Subtract_float3(_RotateAboutAxis_45b701f026d44f0b9e1314efc1fcdb63_Out_3, _Multiply_6b6ee4a2652a4675b8cdc3048866c2f2_Out_2, _Subtract_08c11516e1dc412b903dfeba38607cd4_Out_2);
+            Unity_Subtract_float3(_Add_d3137f4c6ff74e9ea29c69792c4663e5_Out_2, _Multiply_6b6ee4a2652a4675b8cdc3048866c2f2_Out_2, _Subtract_08c11516e1dc412b903dfeba38607cd4_Out_2);
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 _Transform_e0ad5d78a2ae4d5fa740c2e72daa7f9a_Out_1 = TransformWorldToObject(GetCameraRelativePositionWS(_Subtract_08c11516e1dc412b903dfeba38607cd4_Out_2.xyz));
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             #if defined(MAKE_FLAT_ON)
             float3 _MakeFlat_48f396b624134ea9bc2f3c47a31041ed_Out_0 = _Transform_e0ad5d78a2ae4d5fa740c2e72daa7f9a_Out_1;
             #else
@@ -4222,132 +4423,147 @@ Shader "Custom/LitGridTillingFlatOutline"
         SurfaceDescription SurfaceDescriptionFunction(SurfaceDescriptionInputs IN)
         {
             SurfaceDescription surface = (SurfaceDescription)0;
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 _Property_e4769ac03187485fb020eb7088c295ed_Out_0 = _ViewDirection;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
-            #if defined(USE_VIEW_DIRECTION_ON)
-            float3 _UseViewDirection_2608c469ad394b9992f097284919b99f_Out_0 = _Property_e4769ac03187485fb020eb7088c295ed_Out_0;
-            #else
-            float3 _UseViewDirection_2608c469ad394b9992f097284919b99f_Out_0 = -1 * mul((float3x3)UNITY_MATRIX_M, transpose(mul(UNITY_MATRIX_I_M, UNITY_MATRIX_I_V)) [2].xyz);
-            #endif
-            #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float _DotProduct_ed4a360a7a57420c95960f83990050e4_Out_2;
-            Unity_DotProduct_float3(IN.AbsoluteWorldSpacePosition, _UseViewDirection_2608c469ad394b9992f097284919b99f_Out_0, _DotProduct_ed4a360a7a57420c95960f83990050e4_Out_2);
+            Unity_DotProduct_float3(IN.AbsoluteWorldSpacePosition, _Property_e4769ac03187485fb020eb7088c295ed_Out_0, _DotProduct_ed4a360a7a57420c95960f83990050e4_Out_2);
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 _Multiply_85385482bb3846f5a7552ac6c824f094_Out_2;
-            Unity_Multiply_float(_UseViewDirection_2608c469ad394b9992f097284919b99f_Out_0, (_DotProduct_ed4a360a7a57420c95960f83990050e4_Out_2.xxx), _Multiply_85385482bb3846f5a7552ac6c824f094_Out_2);
+            Unity_Multiply_float((_DotProduct_ed4a360a7a57420c95960f83990050e4_Out_2.xxx), _Property_e4769ac03187485fb020eb7088c295ed_Out_0, _Multiply_85385482bb3846f5a7552ac6c824f094_Out_2);
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 _Subtract_1bc7b4078bde43a480621eb2d19ce011_Out_2;
             Unity_Subtract_float3(IN.AbsoluteWorldSpacePosition, _Multiply_85385482bb3846f5a7552ac6c824f094_Out_2, _Subtract_1bc7b4078bde43a480621eb2d19ce011_Out_2);
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float _Split_ede1224a4ca84032bf4b1df871e93e70_R_1 = _Subtract_1bc7b4078bde43a480621eb2d19ce011_Out_2[0];
             float _Split_ede1224a4ca84032bf4b1df871e93e70_G_2 = _Subtract_1bc7b4078bde43a480621eb2d19ce011_Out_2[1];
             float _Split_ede1224a4ca84032bf4b1df871e93e70_B_3 = _Subtract_1bc7b4078bde43a480621eb2d19ce011_Out_2[2];
             float _Split_ede1224a4ca84032bf4b1df871e93e70_A_4 = 0;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float4 _Combine_c544d0baf46547c886465113721b8dc2_RGBA_4;
             float3 _Combine_c544d0baf46547c886465113721b8dc2_RGB_5;
             float2 _Combine_c544d0baf46547c886465113721b8dc2_RG_6;
             Unity_Combine_float(_Split_ede1224a4ca84032bf4b1df871e93e70_G_2, _Split_ede1224a4ca84032bf4b1df871e93e70_B_3, 0, 0, _Combine_c544d0baf46547c886465113721b8dc2_RGBA_4, _Combine_c544d0baf46547c886465113721b8dc2_RGB_5, _Combine_c544d0baf46547c886465113721b8dc2_RG_6);
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float _Length_48a21bd606b84dd8809be4bbd711831d_Out_1;
             Unity_Length_float2(_Combine_c544d0baf46547c886465113721b8dc2_RG_6, _Length_48a21bd606b84dd8809be4bbd711831d_Out_1);
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float _Sign_3a9dd5cc2c7d401abf60568356686fa9_Out_1;
             Unity_Sign_float(_Split_ede1224a4ca84032bf4b1df871e93e70_B_3, _Sign_3a9dd5cc2c7d401abf60568356686fa9_Out_1);
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float _Multiply_3a12640e60a9408d9c50ff83d67b70dd_Out_2;
             Unity_Multiply_float(_Length_48a21bd606b84dd8809be4bbd711831d_Out_1, _Sign_3a9dd5cc2c7d401abf60568356686fa9_Out_1, _Multiply_3a12640e60a9408d9c50ff83d67b70dd_Out_2);
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float4 _Combine_25e50631448749efbb0da292180556ac_RGBA_4;
             float3 _Combine_25e50631448749efbb0da292180556ac_RGB_5;
             float2 _Combine_25e50631448749efbb0da292180556ac_RG_6;
             Unity_Combine_float(_Split_ede1224a4ca84032bf4b1df871e93e70_R_1, _Multiply_3a12640e60a9408d9c50ff83d67b70dd_Out_2, 0, 0, _Combine_25e50631448749efbb0da292180556ac_RGBA_4, _Combine_25e50631448749efbb0da292180556ac_RGB_5, _Combine_25e50631448749efbb0da292180556ac_RG_6);
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float _Property_3ee427d04e2f408aac838c37ac2b2d1c_Out_0 = _GridSize;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float2 _Property_d8a6657237b7495786fadc1e73d14d81_Out_0 = _GridOffset;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float _Property_30cda5be8c7d404e9658c018ae46e704_Out_0 = _GridLineSize;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             Bindings_GridUVCheck_294d007a503d6d2499de026b4f678348 _GridUVCheck_8e141dc40edd45cf86f9583be61f0601;
             float _GridUVCheck_8e141dc40edd45cf86f9583be61f0601_OutVector4_1;
             SG_GridUVCheck_294d007a503d6d2499de026b4f678348(_Combine_25e50631448749efbb0da292180556ac_RG_6, _Property_3ee427d04e2f408aac838c37ac2b2d1c_Out_0, _Property_d8a6657237b7495786fadc1e73d14d81_Out_0, _Property_30cda5be8c7d404e9658c018ae46e704_Out_0, _GridUVCheck_8e141dc40edd45cf86f9583be61f0601, _GridUVCheck_8e141dc40edd45cf86f9583be61f0601_OutVector4_1);
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             UnityTexture2D _Property_900549e618014d46a7aa4b8400b8cd4b_Out_0 = UnityBuildTexture2DStructNoScale(_Texture);
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
-            float2 _Property_26f81c3a8e7b47ef923406f69667d74a_Out_0 = _Tilling;
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
+            float2 _Property_26f81c3a8e7b47ef923406f69667d74a_Out_0 = _Tiling;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float2 _Property_70dc0c9ec432462bbacdd2bd304dbb2e_Out_0 = _Offset;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float2 _TilingAndOffset_881168c7b48240938ea9f413d8f014b6_Out_3;
             Unity_TilingAndOffset_float(_Combine_25e50631448749efbb0da292180556ac_RG_6, _Property_26f81c3a8e7b47ef923406f69667d74a_Out_0, _Property_70dc0c9ec432462bbacdd2bd304dbb2e_Out_0, _TilingAndOffset_881168c7b48240938ea9f413d8f014b6_Out_3);
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float4 _SampleTexture2D_0fd870835aa44780b67f6d4b50de6b40_RGBA_0 = SAMPLE_TEXTURE2D(_Property_900549e618014d46a7aa4b8400b8cd4b_Out_0.tex, _Property_900549e618014d46a7aa4b8400b8cd4b_Out_0.samplerstate, _TilingAndOffset_881168c7b48240938ea9f413d8f014b6_Out_3);
             float _SampleTexture2D_0fd870835aa44780b67f6d4b50de6b40_R_4 = _SampleTexture2D_0fd870835aa44780b67f6d4b50de6b40_RGBA_0.r;
             float _SampleTexture2D_0fd870835aa44780b67f6d4b50de6b40_G_5 = _SampleTexture2D_0fd870835aa44780b67f6d4b50de6b40_RGBA_0.g;
             float _SampleTexture2D_0fd870835aa44780b67f6d4b50de6b40_B_6 = _SampleTexture2D_0fd870835aa44780b67f6d4b50de6b40_RGBA_0.b;
             float _SampleTexture2D_0fd870835aa44780b67f6d4b50de6b40_A_7 = _SampleTexture2D_0fd870835aa44780b67f6d4b50de6b40_RGBA_0.a;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float4 _Property_5f4aa42568f74facb8a0fc03902bafec_Out_0 = IsGammaSpace() ? LinearToSRGB(_GridColor) : _GridColor;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float _Split_3fb6c7796dd34604bc473fd730674b8f_R_1 = _Property_5f4aa42568f74facb8a0fc03902bafec_Out_0[0];
             float _Split_3fb6c7796dd34604bc473fd730674b8f_G_2 = _Property_5f4aa42568f74facb8a0fc03902bafec_Out_0[1];
             float _Split_3fb6c7796dd34604bc473fd730674b8f_B_3 = _Property_5f4aa42568f74facb8a0fc03902bafec_Out_0[2];
             float _Split_3fb6c7796dd34604bc473fd730674b8f_A_4 = _Property_5f4aa42568f74facb8a0fc03902bafec_Out_0[3];
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float4 _Blend_6fb1d10a173e4923b5c6c51b2ee9cfd0_Out_2;
             Unity_Blend_Multiply_float4(_SampleTexture2D_0fd870835aa44780b67f6d4b50de6b40_RGBA_0, _Property_5f4aa42568f74facb8a0fc03902bafec_Out_0, _Blend_6fb1d10a173e4923b5c6c51b2ee9cfd0_Out_2, _Split_3fb6c7796dd34604bc473fd730674b8f_A_4);
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float4 _Branch_cf6de22576ad412293d963d30af6cdc8_Out_3;
             Unity_Branch_float4(_GridUVCheck_8e141dc40edd45cf86f9583be61f0601_OutVector4_1, _Blend_6fb1d10a173e4923b5c6c51b2ee9cfd0_Out_2, _SampleTexture2D_0fd870835aa44780b67f6d4b50de6b40_RGBA_0, _Branch_cf6de22576ad412293d963d30af6cdc8_Out_3);
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
-            float _Property_bbe3c70cde1d42edba6694b747ffbc19_Out_0 = _BlendRatio;
-            #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
-            float4 _Combine_6d0dc3aeb5ce416b848b18e29ac082f7_RGBA_4;
-            float3 _Combine_6d0dc3aeb5ce416b848b18e29ac082f7_RGB_5;
-            float2 _Combine_6d0dc3aeb5ce416b848b18e29ac082f7_RG_6;
-            Unity_Combine_float(_Property_bbe3c70cde1d42edba6694b747ffbc19_Out_0, _Property_bbe3c70cde1d42edba6694b747ffbc19_Out_0, _Property_bbe3c70cde1d42edba6694b747ffbc19_Out_0, 0, _Combine_6d0dc3aeb5ce416b848b18e29ac082f7_RGBA_4, _Combine_6d0dc3aeb5ce416b848b18e29ac082f7_RGB_5, _Combine_6d0dc3aeb5ce416b848b18e29ac082f7_RG_6);
-            #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
-            float4 _Add_a65535dcb45144b5b19ae02c22841015_Out_2;
-            Unity_Add_float4(_Branch_cf6de22576ad412293d963d30af6cdc8_Out_3, _Combine_6d0dc3aeb5ce416b848b18e29ac082f7_RGBA_4, _Add_a65535dcb45144b5b19ae02c22841015_Out_2);
-            #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
-            float4 _Saturate_e2c66aff0a8045cfb3c5c91605f527f8_Out_1;
-            Unity_Saturate_float4(_Add_a65535dcb45144b5b19ae02c22841015_Out_2, _Saturate_e2c66aff0a8045cfb3c5c91605f527f8_Out_1);
-            #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float4 _Property_c1801e9519f64f7f936a670ecbe7136e_Out_0 = IsGammaSpace() ? LinearToSRGB(_Color) : _Color;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
+            float _Split_2d15148249864ec68585adec0ae2fed8_R_1 = _Property_c1801e9519f64f7f936a670ecbe7136e_Out_0[0];
+            float _Split_2d15148249864ec68585adec0ae2fed8_G_2 = _Property_c1801e9519f64f7f936a670ecbe7136e_Out_0[1];
+            float _Split_2d15148249864ec68585adec0ae2fed8_B_3 = _Property_c1801e9519f64f7f936a670ecbe7136e_Out_0[2];
+            float _Split_2d15148249864ec68585adec0ae2fed8_A_4 = _Property_c1801e9519f64f7f936a670ecbe7136e_Out_0[3];
+            #endif
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
+            UnityTexture2D _Property_864b169f1c6a43c0b59909b2aec86eb4_Out_0 = UnityBuildTexture2DStructNoScale(Texture2D_8790a9e04c6a4e70b402b45c5e760cd7);
+            #endif
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
+            float2 _Property_c1b8e20cd588445f9dabe524190a2656_Out_0 = Vector2_9a4cda2eb6c64c1ab91cda5fd2713e62;
+            #endif
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
+            float2 _Property_08619587a1384371af8d213876601012_Out_0 = Vector2_404fab8435f2423f85f5f8bbc745e531;
+            #endif
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
+            float2 _TilingAndOffset_3ede2584cc3b4c1ebbb7828e4ba5021a_Out_3;
+            Unity_TilingAndOffset_float(_Combine_25e50631448749efbb0da292180556ac_RG_6, _Property_c1b8e20cd588445f9dabe524190a2656_Out_0, _Property_08619587a1384371af8d213876601012_Out_0, _TilingAndOffset_3ede2584cc3b4c1ebbb7828e4ba5021a_Out_3);
+            #endif
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
+            float4 _SampleTexture2D_00954e9c38ba4eb3b1c85076038ce5cd_RGBA_0 = SAMPLE_TEXTURE2D(_Property_864b169f1c6a43c0b59909b2aec86eb4_Out_0.tex, _Property_864b169f1c6a43c0b59909b2aec86eb4_Out_0.samplerstate, _TilingAndOffset_3ede2584cc3b4c1ebbb7828e4ba5021a_Out_3);
+            float _SampleTexture2D_00954e9c38ba4eb3b1c85076038ce5cd_R_4 = _SampleTexture2D_00954e9c38ba4eb3b1c85076038ce5cd_RGBA_0.r;
+            float _SampleTexture2D_00954e9c38ba4eb3b1c85076038ce5cd_G_5 = _SampleTexture2D_00954e9c38ba4eb3b1c85076038ce5cd_RGBA_0.g;
+            float _SampleTexture2D_00954e9c38ba4eb3b1c85076038ce5cd_B_6 = _SampleTexture2D_00954e9c38ba4eb3b1c85076038ce5cd_RGBA_0.b;
+            float _SampleTexture2D_00954e9c38ba4eb3b1c85076038ce5cd_A_7 = _SampleTexture2D_00954e9c38ba4eb3b1c85076038ce5cd_RGBA_0.a;
+            #endif
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
+            #if defined(ENUM_BC782402F6BE4FA183DEE55887251E18_R)
+            float _ColorChannel_cfe94a227f8945789d08e35e20304d65_Out_0 = _SampleTexture2D_00954e9c38ba4eb3b1c85076038ce5cd_R_4;
+            #elif defined(ENUM_BC782402F6BE4FA183DEE55887251E18_G)
+            float _ColorChannel_cfe94a227f8945789d08e35e20304d65_Out_0 = _SampleTexture2D_00954e9c38ba4eb3b1c85076038ce5cd_G_5;
+            #else
+            float _ColorChannel_cfe94a227f8945789d08e35e20304d65_Out_0 = _SampleTexture2D_00954e9c38ba4eb3b1c85076038ce5cd_B_6;
+            #endif
+            #endif
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
+            float _Multiply_2973ed050a7840c6a931ed8bffb8f82e_Out_2;
+            Unity_Multiply_float(_Split_2d15148249864ec68585adec0ae2fed8_A_4, _ColorChannel_cfe94a227f8945789d08e35e20304d65_Out_0, _Multiply_2973ed050a7840c6a931ed8bffb8f82e_Out_2);
+            #endif
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float4 _Blend_ca36642131a449a0b5e02aa1653d0ca4_Out_2;
-            Unity_Blend_Multiply_float4(_Saturate_e2c66aff0a8045cfb3c5c91605f527f8_Out_1, _Property_c1801e9519f64f7f936a670ecbe7136e_Out_0, _Blend_ca36642131a449a0b5e02aa1653d0ca4_Out_2, 1);
+            Unity_Blend_Multiply_float4(_Branch_cf6de22576ad412293d963d30af6cdc8_Out_3, _Property_c1801e9519f64f7f936a670ecbe7136e_Out_0, _Blend_ca36642131a449a0b5e02aa1653d0ca4_Out_2, _Multiply_2973ed050a7840c6a931ed8bffb8f82e_Out_2);
             #endif
             surface.BaseColor = (_Blend_ca36642131a449a0b5e02aa1653d0ca4_Out_2.xyz);
             surface.Emission = float3(0, 0, 0);
@@ -4362,35 +4578,35 @@ Shader "Custom/LitGridTillingFlatOutline"
             VertexDescriptionInputs output;
             ZERO_INITIALIZE(VertexDescriptionInputs, output);
 
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         output.ObjectSpaceNormal =           input.normalOS;
         #endif
 
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         output.WorldSpaceNormal =            TransformObjectToWorldNormal(input.normalOS);
         #endif
 
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         output.ObjectSpaceTangent =          input.tangentOS.xyz;
         #endif
 
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         output.WorldSpaceTangent =           TransformObjectToWorldDir(input.tangentOS.xyz);
         #endif
 
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         output.ObjectSpaceBiTangent =        normalize(cross(input.normalOS, input.tangentOS) * (input.tangentOS.w > 0.0f ? 1.0f : -1.0f) * GetOddNegativeScale());
         #endif
 
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         output.WorldSpaceBiTangent =         TransformObjectToWorldDir(output.ObjectSpaceBiTangent);
         #endif
 
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         output.ObjectSpacePosition =         input.positionOS;
         #endif
 
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         output.AbsoluteWorldSpacePosition =  GetAbsolutePositionWS(TransformObjectToWorld(input.positionOS));
         #endif
 
@@ -4406,7 +4622,7 @@ Shader "Custom/LitGridTillingFlatOutline"
 
 
 
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         output.AbsoluteWorldSpacePosition =  GetAbsolutePositionWS(input.positionWS);
         #endif
 
@@ -4462,38 +4678,42 @@ Shader "Custom/LitGridTillingFlatOutline"
 
             // Keywords
             // PassKeywords: <None>
-            #pragma shader_feature_local _ USE_VIEW_DIRECTION_ON
-        #pragma shader_feature_local _ MAKE_FLAT_ON
+            #pragma shader_feature_local _ MAKE_FLAT_ON
+        #pragma shader_feature_local ENUM_BC782402F6BE4FA183DEE55887251E18_R ENUM_BC782402F6BE4FA183DEE55887251E18_G ENUM_BC782402F6BE4FA183DEE55887251E18_B
 
-        #if defined(USE_VIEW_DIRECTION_ON) && defined(MAKE_FLAT_ON)
+        #if defined(MAKE_FLAT_ON) && defined(ENUM_BC782402F6BE4FA183DEE55887251E18_R)
             #define KEYWORD_PERMUTATION_0
-        #elif defined(USE_VIEW_DIRECTION_ON)
+        #elif defined(MAKE_FLAT_ON) && defined(ENUM_BC782402F6BE4FA183DEE55887251E18_G)
             #define KEYWORD_PERMUTATION_1
-        #elif defined(MAKE_FLAT_ON)
+        #elif defined(MAKE_FLAT_ON) && defined(ENUM_BC782402F6BE4FA183DEE55887251E18_B)
             #define KEYWORD_PERMUTATION_2
-        #else
+        #elif defined(ENUM_BC782402F6BE4FA183DEE55887251E18_R)
             #define KEYWORD_PERMUTATION_3
+        #elif defined(ENUM_BC782402F6BE4FA183DEE55887251E18_G)
+            #define KEYWORD_PERMUTATION_4
+        #else
+            #define KEYWORD_PERMUTATION_5
         #endif
 
 
             // Defines
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         #define _NORMALMAP 1
         #endif
 
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         #define _NORMAL_DROPOFF_WS 1
         #endif
 
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         #define ATTRIBUTES_NEED_NORMAL
         #endif
 
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         #define ATTRIBUTES_NEED_TANGENT
         #endif
 
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         #define VARYINGS_NEED_POSITION_WS
         #endif
 
@@ -4515,114 +4735,114 @@ Shader "Custom/LitGridTillingFlatOutline"
 
             struct Attributes
         {
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 positionOS : POSITION;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 normalOS : NORMAL;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float4 tangentOS : TANGENT;
             #endif
             #if UNITY_ANY_INSTANCING_ENABLED
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             uint instanceID : INSTANCEID_SEMANTIC;
             #endif
             #endif
         };
         struct Varyings
         {
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float4 positionCS : SV_POSITION;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 positionWS;
             #endif
             #if UNITY_ANY_INSTANCING_ENABLED
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             uint instanceID : CUSTOM_INSTANCE_ID;
             #endif
             #endif
             #if (defined(UNITY_STEREO_MULTIVIEW_ENABLED)) || (defined(UNITY_STEREO_INSTANCING_ENABLED) && (defined(SHADER_API_GLES3) || defined(SHADER_API_GLCORE)))
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             uint stereoTargetEyeIndexAsBlendIdx0 : BLENDINDICES0;
             #endif
             #endif
             #if (defined(UNITY_STEREO_INSTANCING_ENABLED))
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             uint stereoTargetEyeIndexAsRTArrayIdx : SV_RenderTargetArrayIndex;
             #endif
             #endif
             #if defined(SHADER_STAGE_FRAGMENT) && defined(VARYINGS_NEED_CULLFACE)
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             FRONT_FACE_TYPE cullFace : FRONT_FACE_SEMANTIC;
             #endif
             #endif
         };
         struct SurfaceDescriptionInputs
         {
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 AbsoluteWorldSpacePosition;
             #endif
         };
         struct VertexDescriptionInputs
         {
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 ObjectSpaceNormal;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 WorldSpaceNormal;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 ObjectSpaceTangent;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 WorldSpaceTangent;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 ObjectSpaceBiTangent;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 WorldSpaceBiTangent;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 ObjectSpacePosition;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 AbsoluteWorldSpacePosition;
             #endif
         };
         struct PackedVaryings
         {
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float4 positionCS : SV_POSITION;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 interp0 : TEXCOORD0;
             #endif
             #if UNITY_ANY_INSTANCING_ENABLED
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             uint instanceID : CUSTOM_INSTANCE_ID;
             #endif
             #endif
             #if (defined(UNITY_STEREO_MULTIVIEW_ENABLED)) || (defined(UNITY_STEREO_INSTANCING_ENABLED) && (defined(SHADER_API_GLES3) || defined(SHADER_API_GLCORE)))
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             uint stereoTargetEyeIndexAsBlendIdx0 : BLENDINDICES0;
             #endif
             #endif
             #if (defined(UNITY_STEREO_INSTANCING_ENABLED))
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             uint stereoTargetEyeIndexAsRTArrayIdx : SV_RenderTargetArrayIndex;
             #endif
             #endif
             #if defined(SHADER_STAGE_FRAGMENT) && defined(VARYINGS_NEED_CULLFACE)
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             FRONT_FACE_TYPE cullFace : FRONT_FACE_SEMANTIC;
             #endif
             #endif
         };
 
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         PackedVaryings PackVaryings (Varyings input)
         {
             PackedVaryings output;
@@ -4669,14 +4889,17 @@ Shader "Custom/LitGridTillingFlatOutline"
             // Graph Properties
             CBUFFER_START(UnityPerMaterial)
             float4 _Texture_TexelSize;
-            float2 _Tilling;
+            float2 _Tiling;
             float2 _Offset;
+            float4 Texture2D_8790a9e04c6a4e70b402b45c5e760cd7_TexelSize;
+            float2 Vector2_9a4cda2eb6c64c1ab91cda5fd2713e62;
+            float2 Vector2_404fab8435f2423f85f5f8bbc745e531;
             float4 _Color;
-            float _BlendRatio;
             float3 _ViewDirection;
             float _FlatHeight;
             float3 _FlatRotationAxis;
             float _FlatRotationDegrees;
+            float3 _FlatRotationOffset;
             float _GridSize;
             float _GridLineSize;
             float2 _GridOffset;
@@ -4690,9 +4913,16 @@ Shader "Custom/LitGridTillingFlatOutline"
         SAMPLER(SamplerState_Linear_Repeat);
         TEXTURE2D(_Texture);
         SAMPLER(sampler_Texture);
+        TEXTURE2D(Texture2D_8790a9e04c6a4e70b402b45c5e760cd7);
+        SAMPLER(samplerTexture2D_8790a9e04c6a4e70b402b45c5e760cd7);
 
             // Graph Functions
             
+        void Unity_Subtract_float3(float3 A, float3 B, out float3 Out)
+        {
+            Out = A - B;
+        }
+
         void Unity_Rotate_About_Axis_Degrees_float(float3 In, float3 Axis, float Rotation, out float3 Out)
         {
             Rotation = radians(Rotation);
@@ -4711,6 +4941,11 @@ Shader "Custom/LitGridTillingFlatOutline"
             Out = mul(rot_mat,  In);
         }
 
+        void Unity_Add_float3(float3 A, float3 B, out float3 Out)
+        {
+            Out = A + B;
+        }
+
         void Unity_Subtract_float(float A, float B, out float Out)
         {
             Out = A - B;
@@ -4719,11 +4954,6 @@ Shader "Custom/LitGridTillingFlatOutline"
         void Unity_Multiply_float(float3 A, float3 B, out float3 Out)
         {
             Out = A * B;
-        }
-
-        void Unity_Subtract_float3(float3 A, float3 B, out float3 Out)
-        {
-            Out = A - B;
         }
 
         void Unity_DotProduct_float3(float3 A, float3 B, out float Out)
@@ -4751,6 +4981,11 @@ Shader "Custom/LitGridTillingFlatOutline"
         void Unity_Multiply_float(float A, float B, out float Out)
         {
             Out = A * B;
+        }
+
+        void Unity_Comparison_NotEqual_float(float A, float B, out float Out)
+        {
+            Out = A != B ? 1 : 0;
         }
 
         void Unity_Subtract_float2(float2 A, float2 B, out float2 Out)
@@ -4800,12 +5035,20 @@ Shader "Custom/LitGridTillingFlatOutline"
             Out = A || B;
         }
 
+        void Unity_And_float(float A, float B, out float Out)
+        {
+            Out = A && B;
+        }
+
         struct Bindings_GridUVCheck_294d007a503d6d2499de026b4f678348
         {
         };
 
         void SG_GridUVCheck_294d007a503d6d2499de026b4f678348(float2 Vector2_5a56dbf35cba4d4c8a3192a95b776eb9, float Vector1_0a171b7c60dc451dab7b2e69064f24eb, float2 Vector2_d630f5a030b148be8aa8b746e507f89a, float Vector1_7845b62507cb41e1bdeb7da05ba77e88, Bindings_GridUVCheck_294d007a503d6d2499de026b4f678348 IN, out float Out_Vector4_1)
         {
+            float _Property_261aaf889a324bb4ac259d0782d89eb0_Out_0 = Vector1_7845b62507cb41e1bdeb7da05ba77e88;
+            float _Comparison_351fddbc30fb4e358519fa5fcc059dfb_Out_2;
+            Unity_Comparison_NotEqual_float(_Property_261aaf889a324bb4ac259d0782d89eb0_Out_0, 0, _Comparison_351fddbc30fb4e358519fa5fcc059dfb_Out_2);
             float2 _Property_fb6173b513a2442dae002a71d714fb8a_Out_0 = Vector2_5a56dbf35cba4d4c8a3192a95b776eb9;
             float2 _Property_8e21231b95494bfd917e2a63f0311bab_Out_0 = Vector2_d630f5a030b148be8aa8b746e507f89a;
             float2 _Subtract_c86e7a2a84c841e6ace00653ee9c4c00_Out_2;
@@ -4824,7 +5067,9 @@ Shader "Custom/LitGridTillingFlatOutline"
             SG_GridCheck_7e9bb100a3d60a94f94589ab30823025(_Split_68957bd604ac408cb4f40d11f10462e0_G_2, _Property_f9707b40612141e28e92f98117aabb47_Out_0, _Property_82c6c275ad2e4dec864b44c81809a340_Out_0, _GridCheck_ad0e839ef18848968002cfbf3e540a4c, _GridCheck_ad0e839ef18848968002cfbf3e540a4c_OutVector4_1);
             float _Or_b916cb2784d64a6582f6bc7ebadae8e8_Out_2;
             Unity_Or_float(_GridCheck_b8e7d6fe4086451eb52139a6851ccac4_OutVector4_1, _GridCheck_ad0e839ef18848968002cfbf3e540a4c_OutVector4_1, _Or_b916cb2784d64a6582f6bc7ebadae8e8_Out_2);
-            Out_Vector4_1 = _Or_b916cb2784d64a6582f6bc7ebadae8e8_Out_2;
+            float _And_a4eda4421ac742ecb6275e2fa2316a72_Out_2;
+            Unity_And_float(_Comparison_351fddbc30fb4e358519fa5fcc059dfb_Out_2, _Or_b916cb2784d64a6582f6bc7ebadae8e8_Out_2, _And_a4eda4421ac742ecb6275e2fa2316a72_Out_2);
+            Out_Vector4_1 = _And_a4eda4421ac742ecb6275e2fa2316a72_Out_2;
         }
 
         void Unity_TilingAndOffset_float(float2 UV, float2 Tiling, float2 Offset, out float2 Out)
@@ -4843,16 +5088,6 @@ Shader "Custom/LitGridTillingFlatOutline"
             Out = Predicate ? True : False;
         }
 
-        void Unity_Add_float4(float4 A, float4 B, out float4 Out)
-        {
-            Out = A + B;
-        }
-
-        void Unity_Saturate_float4(float4 In, out float4 Out)
-        {
-            Out = saturate(In);
-        }
-
             // Graph Vertex
             struct VertexDescription
         {
@@ -4864,44 +5099,55 @@ Shader "Custom/LitGridTillingFlatOutline"
         VertexDescription VertexDescriptionFunction(VertexDescriptionInputs IN)
         {
             VertexDescription description = (VertexDescription)0;
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
+            float3 _Property_f08c037d6b934269b31af1a394cffb21_Out_0 = _FlatRotationOffset;
+            #endif
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
+            float3 _Subtract_5f2dd89698fb42a89b9c743b5296afc4_Out_2;
+            Unity_Subtract_float3(IN.AbsoluteWorldSpacePosition, _Property_f08c037d6b934269b31af1a394cffb21_Out_0, _Subtract_5f2dd89698fb42a89b9c743b5296afc4_Out_2);
+            #endif
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 _Property_f67616b49efb49a395d991e36d5c2f7d_Out_0 = _FlatRotationAxis;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float _Property_a8d31893f5104bb3bdc008c6144d0a2f_Out_0 = _FlatRotationDegrees;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 _RotateAboutAxis_45b701f026d44f0b9e1314efc1fcdb63_Out_3;
-            Unity_Rotate_About_Axis_Degrees_float(IN.AbsoluteWorldSpacePosition, _Property_f67616b49efb49a395d991e36d5c2f7d_Out_0, _Property_a8d31893f5104bb3bdc008c6144d0a2f_Out_0, _RotateAboutAxis_45b701f026d44f0b9e1314efc1fcdb63_Out_3);
+            Unity_Rotate_About_Axis_Degrees_float(_Subtract_5f2dd89698fb42a89b9c743b5296afc4_Out_2, _Property_f67616b49efb49a395d991e36d5c2f7d_Out_0, _Property_a8d31893f5104bb3bdc008c6144d0a2f_Out_0, _RotateAboutAxis_45b701f026d44f0b9e1314efc1fcdb63_Out_3);
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
-            float _Split_ef2a24bdf255433eb88306bcde4fe4aa_R_1 = _RotateAboutAxis_45b701f026d44f0b9e1314efc1fcdb63_Out_3[0];
-            float _Split_ef2a24bdf255433eb88306bcde4fe4aa_G_2 = _RotateAboutAxis_45b701f026d44f0b9e1314efc1fcdb63_Out_3[1];
-            float _Split_ef2a24bdf255433eb88306bcde4fe4aa_B_3 = _RotateAboutAxis_45b701f026d44f0b9e1314efc1fcdb63_Out_3[2];
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
+            float3 _Add_d3137f4c6ff74e9ea29c69792c4663e5_Out_2;
+            Unity_Add_float3(_RotateAboutAxis_45b701f026d44f0b9e1314efc1fcdb63_Out_3, _Property_f08c037d6b934269b31af1a394cffb21_Out_0, _Add_d3137f4c6ff74e9ea29c69792c4663e5_Out_2);
+            #endif
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
+            float _Split_ef2a24bdf255433eb88306bcde4fe4aa_R_1 = _Add_d3137f4c6ff74e9ea29c69792c4663e5_Out_2[0];
+            float _Split_ef2a24bdf255433eb88306bcde4fe4aa_G_2 = _Add_d3137f4c6ff74e9ea29c69792c4663e5_Out_2[1];
+            float _Split_ef2a24bdf255433eb88306bcde4fe4aa_B_3 = _Add_d3137f4c6ff74e9ea29c69792c4663e5_Out_2[2];
             float _Split_ef2a24bdf255433eb88306bcde4fe4aa_A_4 = 0;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float _Property_6c2e69a260844c7a91bd51ff7e3517cc_Out_0 = _FlatHeight;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float _Subtract_68df9f007bd44fea9df06041fa7120a9_Out_2;
             Unity_Subtract_float(_Split_ef2a24bdf255433eb88306bcde4fe4aa_G_2, _Property_6c2e69a260844c7a91bd51ff7e3517cc_Out_0, _Subtract_68df9f007bd44fea9df06041fa7120a9_Out_2);
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 _Vector3_8dfc68ab95c4422a8396dc15f0376486_Out_0 = float3(0, 1, 0);
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 _Multiply_6b6ee4a2652a4675b8cdc3048866c2f2_Out_2;
             Unity_Multiply_float((_Subtract_68df9f007bd44fea9df06041fa7120a9_Out_2.xxx), _Vector3_8dfc68ab95c4422a8396dc15f0376486_Out_0, _Multiply_6b6ee4a2652a4675b8cdc3048866c2f2_Out_2);
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 _Subtract_08c11516e1dc412b903dfeba38607cd4_Out_2;
-            Unity_Subtract_float3(_RotateAboutAxis_45b701f026d44f0b9e1314efc1fcdb63_Out_3, _Multiply_6b6ee4a2652a4675b8cdc3048866c2f2_Out_2, _Subtract_08c11516e1dc412b903dfeba38607cd4_Out_2);
+            Unity_Subtract_float3(_Add_d3137f4c6ff74e9ea29c69792c4663e5_Out_2, _Multiply_6b6ee4a2652a4675b8cdc3048866c2f2_Out_2, _Subtract_08c11516e1dc412b903dfeba38607cd4_Out_2);
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 _Transform_e0ad5d78a2ae4d5fa740c2e72daa7f9a_Out_1 = TransformWorldToObject(GetCameraRelativePositionWS(_Subtract_08c11516e1dc412b903dfeba38607cd4_Out_2.xyz));
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             #if defined(MAKE_FLAT_ON)
             float3 _MakeFlat_48f396b624134ea9bc2f3c47a31041ed_Out_0 = _Transform_e0ad5d78a2ae4d5fa740c2e72daa7f9a_Out_1;
             #else
@@ -4923,132 +5169,147 @@ Shader "Custom/LitGridTillingFlatOutline"
         SurfaceDescription SurfaceDescriptionFunction(SurfaceDescriptionInputs IN)
         {
             SurfaceDescription surface = (SurfaceDescription)0;
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 _Property_e4769ac03187485fb020eb7088c295ed_Out_0 = _ViewDirection;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
-            #if defined(USE_VIEW_DIRECTION_ON)
-            float3 _UseViewDirection_2608c469ad394b9992f097284919b99f_Out_0 = _Property_e4769ac03187485fb020eb7088c295ed_Out_0;
-            #else
-            float3 _UseViewDirection_2608c469ad394b9992f097284919b99f_Out_0 = -1 * mul((float3x3)UNITY_MATRIX_M, transpose(mul(UNITY_MATRIX_I_M, UNITY_MATRIX_I_V)) [2].xyz);
-            #endif
-            #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float _DotProduct_ed4a360a7a57420c95960f83990050e4_Out_2;
-            Unity_DotProduct_float3(IN.AbsoluteWorldSpacePosition, _UseViewDirection_2608c469ad394b9992f097284919b99f_Out_0, _DotProduct_ed4a360a7a57420c95960f83990050e4_Out_2);
+            Unity_DotProduct_float3(IN.AbsoluteWorldSpacePosition, _Property_e4769ac03187485fb020eb7088c295ed_Out_0, _DotProduct_ed4a360a7a57420c95960f83990050e4_Out_2);
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 _Multiply_85385482bb3846f5a7552ac6c824f094_Out_2;
-            Unity_Multiply_float(_UseViewDirection_2608c469ad394b9992f097284919b99f_Out_0, (_DotProduct_ed4a360a7a57420c95960f83990050e4_Out_2.xxx), _Multiply_85385482bb3846f5a7552ac6c824f094_Out_2);
+            Unity_Multiply_float((_DotProduct_ed4a360a7a57420c95960f83990050e4_Out_2.xxx), _Property_e4769ac03187485fb020eb7088c295ed_Out_0, _Multiply_85385482bb3846f5a7552ac6c824f094_Out_2);
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float3 _Subtract_1bc7b4078bde43a480621eb2d19ce011_Out_2;
             Unity_Subtract_float3(IN.AbsoluteWorldSpacePosition, _Multiply_85385482bb3846f5a7552ac6c824f094_Out_2, _Subtract_1bc7b4078bde43a480621eb2d19ce011_Out_2);
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float _Split_ede1224a4ca84032bf4b1df871e93e70_R_1 = _Subtract_1bc7b4078bde43a480621eb2d19ce011_Out_2[0];
             float _Split_ede1224a4ca84032bf4b1df871e93e70_G_2 = _Subtract_1bc7b4078bde43a480621eb2d19ce011_Out_2[1];
             float _Split_ede1224a4ca84032bf4b1df871e93e70_B_3 = _Subtract_1bc7b4078bde43a480621eb2d19ce011_Out_2[2];
             float _Split_ede1224a4ca84032bf4b1df871e93e70_A_4 = 0;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float4 _Combine_c544d0baf46547c886465113721b8dc2_RGBA_4;
             float3 _Combine_c544d0baf46547c886465113721b8dc2_RGB_5;
             float2 _Combine_c544d0baf46547c886465113721b8dc2_RG_6;
             Unity_Combine_float(_Split_ede1224a4ca84032bf4b1df871e93e70_G_2, _Split_ede1224a4ca84032bf4b1df871e93e70_B_3, 0, 0, _Combine_c544d0baf46547c886465113721b8dc2_RGBA_4, _Combine_c544d0baf46547c886465113721b8dc2_RGB_5, _Combine_c544d0baf46547c886465113721b8dc2_RG_6);
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float _Length_48a21bd606b84dd8809be4bbd711831d_Out_1;
             Unity_Length_float2(_Combine_c544d0baf46547c886465113721b8dc2_RG_6, _Length_48a21bd606b84dd8809be4bbd711831d_Out_1);
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float _Sign_3a9dd5cc2c7d401abf60568356686fa9_Out_1;
             Unity_Sign_float(_Split_ede1224a4ca84032bf4b1df871e93e70_B_3, _Sign_3a9dd5cc2c7d401abf60568356686fa9_Out_1);
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float _Multiply_3a12640e60a9408d9c50ff83d67b70dd_Out_2;
             Unity_Multiply_float(_Length_48a21bd606b84dd8809be4bbd711831d_Out_1, _Sign_3a9dd5cc2c7d401abf60568356686fa9_Out_1, _Multiply_3a12640e60a9408d9c50ff83d67b70dd_Out_2);
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float4 _Combine_25e50631448749efbb0da292180556ac_RGBA_4;
             float3 _Combine_25e50631448749efbb0da292180556ac_RGB_5;
             float2 _Combine_25e50631448749efbb0da292180556ac_RG_6;
             Unity_Combine_float(_Split_ede1224a4ca84032bf4b1df871e93e70_R_1, _Multiply_3a12640e60a9408d9c50ff83d67b70dd_Out_2, 0, 0, _Combine_25e50631448749efbb0da292180556ac_RGBA_4, _Combine_25e50631448749efbb0da292180556ac_RGB_5, _Combine_25e50631448749efbb0da292180556ac_RG_6);
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float _Property_3ee427d04e2f408aac838c37ac2b2d1c_Out_0 = _GridSize;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float2 _Property_d8a6657237b7495786fadc1e73d14d81_Out_0 = _GridOffset;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float _Property_30cda5be8c7d404e9658c018ae46e704_Out_0 = _GridLineSize;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             Bindings_GridUVCheck_294d007a503d6d2499de026b4f678348 _GridUVCheck_8e141dc40edd45cf86f9583be61f0601;
             float _GridUVCheck_8e141dc40edd45cf86f9583be61f0601_OutVector4_1;
             SG_GridUVCheck_294d007a503d6d2499de026b4f678348(_Combine_25e50631448749efbb0da292180556ac_RG_6, _Property_3ee427d04e2f408aac838c37ac2b2d1c_Out_0, _Property_d8a6657237b7495786fadc1e73d14d81_Out_0, _Property_30cda5be8c7d404e9658c018ae46e704_Out_0, _GridUVCheck_8e141dc40edd45cf86f9583be61f0601, _GridUVCheck_8e141dc40edd45cf86f9583be61f0601_OutVector4_1);
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             UnityTexture2D _Property_900549e618014d46a7aa4b8400b8cd4b_Out_0 = UnityBuildTexture2DStructNoScale(_Texture);
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
-            float2 _Property_26f81c3a8e7b47ef923406f69667d74a_Out_0 = _Tilling;
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
+            float2 _Property_26f81c3a8e7b47ef923406f69667d74a_Out_0 = _Tiling;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float2 _Property_70dc0c9ec432462bbacdd2bd304dbb2e_Out_0 = _Offset;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float2 _TilingAndOffset_881168c7b48240938ea9f413d8f014b6_Out_3;
             Unity_TilingAndOffset_float(_Combine_25e50631448749efbb0da292180556ac_RG_6, _Property_26f81c3a8e7b47ef923406f69667d74a_Out_0, _Property_70dc0c9ec432462bbacdd2bd304dbb2e_Out_0, _TilingAndOffset_881168c7b48240938ea9f413d8f014b6_Out_3);
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float4 _SampleTexture2D_0fd870835aa44780b67f6d4b50de6b40_RGBA_0 = SAMPLE_TEXTURE2D(_Property_900549e618014d46a7aa4b8400b8cd4b_Out_0.tex, _Property_900549e618014d46a7aa4b8400b8cd4b_Out_0.samplerstate, _TilingAndOffset_881168c7b48240938ea9f413d8f014b6_Out_3);
             float _SampleTexture2D_0fd870835aa44780b67f6d4b50de6b40_R_4 = _SampleTexture2D_0fd870835aa44780b67f6d4b50de6b40_RGBA_0.r;
             float _SampleTexture2D_0fd870835aa44780b67f6d4b50de6b40_G_5 = _SampleTexture2D_0fd870835aa44780b67f6d4b50de6b40_RGBA_0.g;
             float _SampleTexture2D_0fd870835aa44780b67f6d4b50de6b40_B_6 = _SampleTexture2D_0fd870835aa44780b67f6d4b50de6b40_RGBA_0.b;
             float _SampleTexture2D_0fd870835aa44780b67f6d4b50de6b40_A_7 = _SampleTexture2D_0fd870835aa44780b67f6d4b50de6b40_RGBA_0.a;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float4 _Property_5f4aa42568f74facb8a0fc03902bafec_Out_0 = IsGammaSpace() ? LinearToSRGB(_GridColor) : _GridColor;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float _Split_3fb6c7796dd34604bc473fd730674b8f_R_1 = _Property_5f4aa42568f74facb8a0fc03902bafec_Out_0[0];
             float _Split_3fb6c7796dd34604bc473fd730674b8f_G_2 = _Property_5f4aa42568f74facb8a0fc03902bafec_Out_0[1];
             float _Split_3fb6c7796dd34604bc473fd730674b8f_B_3 = _Property_5f4aa42568f74facb8a0fc03902bafec_Out_0[2];
             float _Split_3fb6c7796dd34604bc473fd730674b8f_A_4 = _Property_5f4aa42568f74facb8a0fc03902bafec_Out_0[3];
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float4 _Blend_6fb1d10a173e4923b5c6c51b2ee9cfd0_Out_2;
             Unity_Blend_Multiply_float4(_SampleTexture2D_0fd870835aa44780b67f6d4b50de6b40_RGBA_0, _Property_5f4aa42568f74facb8a0fc03902bafec_Out_0, _Blend_6fb1d10a173e4923b5c6c51b2ee9cfd0_Out_2, _Split_3fb6c7796dd34604bc473fd730674b8f_A_4);
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float4 _Branch_cf6de22576ad412293d963d30af6cdc8_Out_3;
             Unity_Branch_float4(_GridUVCheck_8e141dc40edd45cf86f9583be61f0601_OutVector4_1, _Blend_6fb1d10a173e4923b5c6c51b2ee9cfd0_Out_2, _SampleTexture2D_0fd870835aa44780b67f6d4b50de6b40_RGBA_0, _Branch_cf6de22576ad412293d963d30af6cdc8_Out_3);
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
-            float _Property_bbe3c70cde1d42edba6694b747ffbc19_Out_0 = _BlendRatio;
-            #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
-            float4 _Combine_6d0dc3aeb5ce416b848b18e29ac082f7_RGBA_4;
-            float3 _Combine_6d0dc3aeb5ce416b848b18e29ac082f7_RGB_5;
-            float2 _Combine_6d0dc3aeb5ce416b848b18e29ac082f7_RG_6;
-            Unity_Combine_float(_Property_bbe3c70cde1d42edba6694b747ffbc19_Out_0, _Property_bbe3c70cde1d42edba6694b747ffbc19_Out_0, _Property_bbe3c70cde1d42edba6694b747ffbc19_Out_0, 0, _Combine_6d0dc3aeb5ce416b848b18e29ac082f7_RGBA_4, _Combine_6d0dc3aeb5ce416b848b18e29ac082f7_RGB_5, _Combine_6d0dc3aeb5ce416b848b18e29ac082f7_RG_6);
-            #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
-            float4 _Add_a65535dcb45144b5b19ae02c22841015_Out_2;
-            Unity_Add_float4(_Branch_cf6de22576ad412293d963d30af6cdc8_Out_3, _Combine_6d0dc3aeb5ce416b848b18e29ac082f7_RGBA_4, _Add_a65535dcb45144b5b19ae02c22841015_Out_2);
-            #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
-            float4 _Saturate_e2c66aff0a8045cfb3c5c91605f527f8_Out_1;
-            Unity_Saturate_float4(_Add_a65535dcb45144b5b19ae02c22841015_Out_2, _Saturate_e2c66aff0a8045cfb3c5c91605f527f8_Out_1);
-            #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float4 _Property_c1801e9519f64f7f936a670ecbe7136e_Out_0 = IsGammaSpace() ? LinearToSRGB(_Color) : _Color;
             #endif
-            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
+            float _Split_2d15148249864ec68585adec0ae2fed8_R_1 = _Property_c1801e9519f64f7f936a670ecbe7136e_Out_0[0];
+            float _Split_2d15148249864ec68585adec0ae2fed8_G_2 = _Property_c1801e9519f64f7f936a670ecbe7136e_Out_0[1];
+            float _Split_2d15148249864ec68585adec0ae2fed8_B_3 = _Property_c1801e9519f64f7f936a670ecbe7136e_Out_0[2];
+            float _Split_2d15148249864ec68585adec0ae2fed8_A_4 = _Property_c1801e9519f64f7f936a670ecbe7136e_Out_0[3];
+            #endif
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
+            UnityTexture2D _Property_864b169f1c6a43c0b59909b2aec86eb4_Out_0 = UnityBuildTexture2DStructNoScale(Texture2D_8790a9e04c6a4e70b402b45c5e760cd7);
+            #endif
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
+            float2 _Property_c1b8e20cd588445f9dabe524190a2656_Out_0 = Vector2_9a4cda2eb6c64c1ab91cda5fd2713e62;
+            #endif
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
+            float2 _Property_08619587a1384371af8d213876601012_Out_0 = Vector2_404fab8435f2423f85f5f8bbc745e531;
+            #endif
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
+            float2 _TilingAndOffset_3ede2584cc3b4c1ebbb7828e4ba5021a_Out_3;
+            Unity_TilingAndOffset_float(_Combine_25e50631448749efbb0da292180556ac_RG_6, _Property_c1b8e20cd588445f9dabe524190a2656_Out_0, _Property_08619587a1384371af8d213876601012_Out_0, _TilingAndOffset_3ede2584cc3b4c1ebbb7828e4ba5021a_Out_3);
+            #endif
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
+            float4 _SampleTexture2D_00954e9c38ba4eb3b1c85076038ce5cd_RGBA_0 = SAMPLE_TEXTURE2D(_Property_864b169f1c6a43c0b59909b2aec86eb4_Out_0.tex, _Property_864b169f1c6a43c0b59909b2aec86eb4_Out_0.samplerstate, _TilingAndOffset_3ede2584cc3b4c1ebbb7828e4ba5021a_Out_3);
+            float _SampleTexture2D_00954e9c38ba4eb3b1c85076038ce5cd_R_4 = _SampleTexture2D_00954e9c38ba4eb3b1c85076038ce5cd_RGBA_0.r;
+            float _SampleTexture2D_00954e9c38ba4eb3b1c85076038ce5cd_G_5 = _SampleTexture2D_00954e9c38ba4eb3b1c85076038ce5cd_RGBA_0.g;
+            float _SampleTexture2D_00954e9c38ba4eb3b1c85076038ce5cd_B_6 = _SampleTexture2D_00954e9c38ba4eb3b1c85076038ce5cd_RGBA_0.b;
+            float _SampleTexture2D_00954e9c38ba4eb3b1c85076038ce5cd_A_7 = _SampleTexture2D_00954e9c38ba4eb3b1c85076038ce5cd_RGBA_0.a;
+            #endif
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
+            #if defined(ENUM_BC782402F6BE4FA183DEE55887251E18_R)
+            float _ColorChannel_cfe94a227f8945789d08e35e20304d65_Out_0 = _SampleTexture2D_00954e9c38ba4eb3b1c85076038ce5cd_R_4;
+            #elif defined(ENUM_BC782402F6BE4FA183DEE55887251E18_G)
+            float _ColorChannel_cfe94a227f8945789d08e35e20304d65_Out_0 = _SampleTexture2D_00954e9c38ba4eb3b1c85076038ce5cd_G_5;
+            #else
+            float _ColorChannel_cfe94a227f8945789d08e35e20304d65_Out_0 = _SampleTexture2D_00954e9c38ba4eb3b1c85076038ce5cd_B_6;
+            #endif
+            #endif
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
+            float _Multiply_2973ed050a7840c6a931ed8bffb8f82e_Out_2;
+            Unity_Multiply_float(_Split_2d15148249864ec68585adec0ae2fed8_A_4, _ColorChannel_cfe94a227f8945789d08e35e20304d65_Out_0, _Multiply_2973ed050a7840c6a931ed8bffb8f82e_Out_2);
+            #endif
+            #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
             float4 _Blend_ca36642131a449a0b5e02aa1653d0ca4_Out_2;
-            Unity_Blend_Multiply_float4(_Saturate_e2c66aff0a8045cfb3c5c91605f527f8_Out_1, _Property_c1801e9519f64f7f936a670ecbe7136e_Out_0, _Blend_ca36642131a449a0b5e02aa1653d0ca4_Out_2, 1);
+            Unity_Blend_Multiply_float4(_Branch_cf6de22576ad412293d963d30af6cdc8_Out_3, _Property_c1801e9519f64f7f936a670ecbe7136e_Out_0, _Blend_ca36642131a449a0b5e02aa1653d0ca4_Out_2, _Multiply_2973ed050a7840c6a931ed8bffb8f82e_Out_2);
             #endif
             surface.BaseColor = (_Blend_ca36642131a449a0b5e02aa1653d0ca4_Out_2.xyz);
             return surface;
@@ -5062,35 +5323,35 @@ Shader "Custom/LitGridTillingFlatOutline"
             VertexDescriptionInputs output;
             ZERO_INITIALIZE(VertexDescriptionInputs, output);
 
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         output.ObjectSpaceNormal =           input.normalOS;
         #endif
 
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         output.WorldSpaceNormal =            TransformObjectToWorldNormal(input.normalOS);
         #endif
 
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         output.ObjectSpaceTangent =          input.tangentOS.xyz;
         #endif
 
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         output.WorldSpaceTangent =           TransformObjectToWorldDir(input.tangentOS.xyz);
         #endif
 
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         output.ObjectSpaceBiTangent =        normalize(cross(input.normalOS, input.tangentOS) * (input.tangentOS.w > 0.0f ? 1.0f : -1.0f) * GetOddNegativeScale());
         #endif
 
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         output.WorldSpaceBiTangent =         TransformObjectToWorldDir(output.ObjectSpaceBiTangent);
         #endif
 
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         output.ObjectSpacePosition =         input.positionOS;
         #endif
 
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         output.AbsoluteWorldSpacePosition =  GetAbsolutePositionWS(TransformObjectToWorld(input.positionOS));
         #endif
 
@@ -5106,7 +5367,7 @@ Shader "Custom/LitGridTillingFlatOutline"
 
 
 
-        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3)
+        #if defined(KEYWORD_PERMUTATION_0) || defined(KEYWORD_PERMUTATION_1) || defined(KEYWORD_PERMUTATION_2) || defined(KEYWORD_PERMUTATION_3) || defined(KEYWORD_PERMUTATION_4) || defined(KEYWORD_PERMUTATION_5)
         output.AbsoluteWorldSpacePosition =  GetAbsolutePositionWS(input.positionWS);
         #endif
 

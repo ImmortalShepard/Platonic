@@ -10,23 +10,26 @@ public class RollMovement : MonoBehaviour
     [SerializeField]
     private RollSettings _rollSettings = default;
 
-
     private Vector2 _movement;
     public Vector2 Movement
     {
         get => _movement;
         set => _movement = value;
     }
-    private bool _jump;
-    public bool Jump
-    {
-        get => _jump;
-        set => _jump = value;
-    }
 
     private void Reset()
     {
         _rigidbody = GetComponent<Rigidbody>();
+    }
+
+    private void OnEnable()
+    {
+        _rigidbody.constraints = RigidbodyConstraints.FreezeRotation;
+    }
+
+    private void OnDisable()
+    {
+        _rigidbody.constraints = RigidbodyConstraints.FreezeRotation | RigidbodyConstraints.FreezePositionX | RigidbodyConstraints.FreezePositionZ;
     }
 
     private void FixedUpdate()
@@ -48,7 +51,7 @@ public class RollMovement : MonoBehaviour
         Vector3 currentForward = transform.forward;
 
         Vector3 newForward = Vector3.RotateTowards(currentForward, inputForward, Mathf.Deg2Rad * _rollSettings.maxAngle * Time.fixedDeltaTime, 0);
-        _rigidbody.rotation = Quaternion.LookRotation(newForward);
+        SetForward(newForward);
 
         //Movement
         float currentVelocity = _rigidbody.velocity.magnitude;
@@ -89,5 +92,10 @@ public class RollMovement : MonoBehaviour
         }
 
         _rigidbody.velocity = forward * currentVelocity;
+    }
+
+    public void SetForward(Vector3 newForward)
+    {
+        _rigidbody.rotation = Quaternion.LookRotation(newForward);
     }
 }

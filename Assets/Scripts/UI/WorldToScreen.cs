@@ -18,12 +18,15 @@ public class WorldToScreen : MonoBehaviour
 
     private void OnEnable()
     {
-        Vector3 position = _camera.WorldToScreenPoint(_worldTransform.position + _worldOffset);
-        position.z = 0;
-        transform.position = position;
+        UpdatePosition();
     }
 
-    void Update()
+    private void LateUpdate()
+    {
+        UpdatePosition();
+    }
+
+    private void UpdatePosition()
     {
         Vector3 position = _camera.WorldToScreenPoint(_worldTransform.position + _worldOffset);
         position.z = 0;

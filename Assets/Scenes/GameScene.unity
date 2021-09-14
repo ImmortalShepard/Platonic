@@ -2258,8 +2258,8 @@ Rigidbody:
   m_AngularDrag: 0
   m_UseGravity: 1
   m_IsKinematic: 0
-  m_Interpolate: 1
-  m_Constraints: 112
+  m_Interpolate: 0
+  m_Constraints: 122
   m_CollisionDetection: 0
 --- !u!135 &1073800721
 SphereCollider:
@@ -2345,7 +2345,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1073800719}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 31dd64cd689a93c409589b9d920c69ec, type: 3}
   m_Name: 
@@ -3767,7 +3767,7 @@ MonoBehaviour:
   m_ShowCameraFrustum: 1
   m_IgnoreTimeScale: 0
   m_WorldUpOverride: {fileID: 0}
-  m_UpdateMethod: 1
+  m_UpdateMethod: 2
   m_BlendUpdateMethod: 1
   m_DefaultBlend:
     m_Style: 1
@@ -3961,7 +3961,7 @@ Rigidbody:
   serializedVersion: 2
   m_Mass: 1
   m_Drag: 0
-  m_AngularDrag: 0.05
+  m_AngularDrag: 0
   m_UseGravity: 1
   m_IsKinematic: 0
   m_Interpolate: 1
@@ -3982,7 +3982,6 @@ MonoBehaviour:
   _cameraTransform: {fileID: 2073385953}
   _inputReader: {fileID: 11400000, guid: b633d7dadab732049830fd1d712579fe, type: 2}
   _characterMovement: {fileID: 2087394386}
-  _rigidbody: {fileID: 2087394384}
 --- !u!114 &2087394386
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(RollMovement))]
+[RequireComponent(typeof(Rigidbody))]
 public class Rollable : MonoBehaviour, Interactable
 {
     [SerializeField]
@@ -73,6 +74,8 @@ public class Rollable : MonoBehaviour, Interactable
         {
             case true:
                 _inputReader.MoveEvent += OnMove;
+                _rollMovement.enabled = true;
+                _rollMovement.SetForward(_playerInteraction.transform.forward);
                 _playerMovement.enabled = false;
                 _follow.enabled = true;
                 _follow.FollowRigidbody = _rigidbody;
@@ -81,6 +84,7 @@ public class Rollable : MonoBehaviour, Interactable
                 break;
             case false:
                 _inputReader.MoveEvent -= OnMove;
+                _rollMovement.enabled = false;
                 _playerMovement.enabled = true;
                 _follow.enabled = false;
                 _playerInteraction.enabled = true;
