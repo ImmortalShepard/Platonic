@@ -33,10 +33,10 @@ public class Follow : MonoBehaviour
 
         _rigidbody.rotation = Quaternion.LookRotation(toFollow);
 
-        if (distance <= _followDistance)
-        {
-            return;
-        }
+        //if (distance <= _followDistance)
+        //{
+        //    return;
+        //}
 
         toFollow /= distance;
         _rigidbody.MovePosition(_rigidbody.position + toFollow * (distance - _followDistance));

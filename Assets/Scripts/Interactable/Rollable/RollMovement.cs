@@ -9,6 +9,8 @@ public class RollMovement : MonoBehaviour
     private Rigidbody _rigidbody;
     [SerializeField]
     private RollSettings _rollSettings = default;
+    [SerializeField]
+    private InteractableMovement _interactableMovement;
 
     private Vector2 _movement;
     public Vector2 Movement
@@ -25,11 +27,13 @@ public class RollMovement : MonoBehaviour
     private void OnEnable()
     {
         _rigidbody.constraints = RigidbodyConstraints.FreezeRotation;
+        _interactableMovement.enabled = true;
     }
 
     private void OnDisable()
     {
         _rigidbody.constraints = RigidbodyConstraints.FreezeRotation | RigidbodyConstraints.FreezePositionX | RigidbodyConstraints.FreezePositionZ;
+        _interactableMovement.enabled = false;
     }
 
     private void FixedUpdate()
@@ -74,6 +78,13 @@ public class RollMovement : MonoBehaviour
             }
         }
         _rigidbody.velocity = newForward * currentVelocity;
+
+        newForward.y = 0;
+        float distance = currentVelocity * Time.fixedDeltaTime;
+        if (!CheckInteractable(newForward, distance))
+        {
+            MoveInteractable(_rigidbody.velocity * Time.fixedDeltaTime);
+        }
     }
 
     private void MovementNoInput()
@@ -92,10 +103,38 @@ public class RollMovement : MonoBehaviour
         }
 
         _rigidbody.velocity = forward * currentVelocity;
+
+        float distance = currentVelocity * Time.fixedDeltaTime;
+        if (!CheckInteractable(forward, distance))
+        {
+            MoveInteractable(_rigidbody.velocity * Time.fixedDeltaTime);
+        }
     }
 
     public void SetForward(Vector3 newForward)
     {
         _rigidbody.rotation = Quaternion.LookRotation(newForward);
+    }
+
+    private void MoveInteractable(Vector3 movement)
+    {
+        _interactableMovement.MoveTo(_rigidbody.position + movement);
+    }
+
+    private bool CheckInteractable(Vector3 forward, float distance)
+    {
+        RaycastHit raycast;
+        bool hit = _interactableMovement.CheckMovement(ref forward, distance, out raycast);
+        if (hit)
+        {
+            float otherDistance = raycast.distance;
+            Debug.Log("Check: " + otherDistance);
+            Vector3 movement = forward * otherDistance;
+            movement.z = Util2D3D.Convert3Dto2D(movement.z);
+            _rigidbody.velocity = Vector3.zero;
+            _rigidbody.MovePosition(_rigidbody.position += movement);
+            MoveInteractable(movement);
+        }
+        return hit;
     }
 }
