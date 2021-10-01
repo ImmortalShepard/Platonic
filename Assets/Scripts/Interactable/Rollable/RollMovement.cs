@@ -79,7 +79,6 @@ public class RollMovement : MonoBehaviour
         }
         _rigidbody.velocity = newForward * currentVelocity;
 
-        newForward.y = 0;
         float distance = currentVelocity * Time.fixedDeltaTime;
         if (!CheckInteractable(newForward, distance))
         {
