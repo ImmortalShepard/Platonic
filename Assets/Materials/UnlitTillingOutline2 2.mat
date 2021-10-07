@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: UnlitTillingOutline2
+  m_Name: UnlitTillingOutline2 2
   m_Shader: {fileID: 4800000, guid: c7ebe2c4ad2e186478066038ae61463c, type: 3}
   m_ShaderKeywords: BOOLEAN_CB2BC336E5AC4F0CA6210C0EBF27A33C_ON USE_PRECALCULATED_OUTLINE_NORMALS
   m_LightmapFlags: 4
@@ -125,7 +125,7 @@ Material:
     - _ZWrite: 1
     m_Colors:
     - _BaseColor: {r: 0.07035423, g: 0.8773585, b: 0.8773585, a: 1}
-    - _Color: {r: 0.066666685, g: 0.8746794, b: 0.9137255, a: 1}
+    - _Color: {r: 0.38314345, g: 0.7735849, b: 0.7735849, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _GridColor: {r: 0, g: 0, b: 0, a: 0.5019608}
     - _GridOffset: {r: -0.05, g: -0.05, b: 0, a: 0}

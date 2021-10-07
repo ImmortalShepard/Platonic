@@ -44,6 +44,10 @@ public class Rollable : MonoBehaviour, Interactable
 
     private void FixedUpdate()
     {
+        if (!_rolling)
+        {
+            return;
+        }
         Vector3 movementInput = new Vector3(_movementInput.x, 0, _movementInput.y);
         float cameraAngle = _cameraTransform.eulerAngles.y;
         Quaternion inputRotation = Quaternion.Euler(0, cameraAngle, 0);

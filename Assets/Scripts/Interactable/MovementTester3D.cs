@@ -17,7 +17,7 @@ public class MovementTester3D : InteractableMovement
     [SerializeField]
     private float _checkOffset = 0.0f;
     [SerializeField]
-    private float _minDistance = 0.1f;
+    private float _minDistance = 0.01f;
     [SerializeField]
     private Collider _collider;
 
@@ -57,7 +57,7 @@ public class MovementTester3D : InteractableMovement
         position += forward * distance;
         raycast.distance = 0;
         _collider.enabled = false;
-        check = Physics.CheckCapsule(position + _capsuleSphere1, position + _capsuleSphere2, _capsuleRadius, LayerMask.GetMask("3D"), QueryTriggerInteraction.Ignore);
+        check = Physics.CheckCapsule(position + _capsuleSphere1, position + _capsuleSphere2, _capsuleRadius - _minDistance, LayerMask.GetMask("3D"), QueryTriggerInteraction.Ignore);
         _collider.enabled = true;
         return check;
     }

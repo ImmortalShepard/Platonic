@@ -69,41 +69,52 @@ public class CharacterMovement : MonoBehaviour
         _rigidbody.rotation = Quaternion.LookRotation(newForward);
 
         //Movement
-        float currentVelocity = _rigidbody.velocity.magnitude;
+        Vector3 velocity = _rigidbody.velocity;
+        float yVelocity = velocity.y;
+        velocity.y = 0;
+        float xyVelocity = velocity.magnitude;
         float inputMagnitude = inputForward.magnitude;
         float maxVelocity = inputMagnitude * _movementSettings.maxSpeed;
-        if (currentVelocity < maxVelocity)
+        if (xyVelocity < maxVelocity)
         {
-            currentVelocity += _movementSettings.acceleration * Time.fixedDeltaTime;
-            if (currentVelocity > maxVelocity)
+            xyVelocity += _movementSettings.acceleration * Time.fixedDeltaTime;
+            if (xyVelocity > maxVelocity)
             {
-                currentVelocity = maxVelocity;
+                xyVelocity = maxVelocity;
             }
         }
-        else if (currentVelocity > maxVelocity)
+        else if (xyVelocity > maxVelocity)
         {
-            currentVelocity -= _movementSettings.slowDown * Time.fixedDeltaTime;
-            if (currentVelocity < maxVelocity)
+            xyVelocity -= _movementSettings.slowDown * Time.fixedDeltaTime;
+            if (xyVelocity < maxVelocity)
             {
-                currentVelocity = maxVelocity;
+                xyVelocity = maxVelocity;
             }
         }
-        _rigidbody.velocity = newForward * currentVelocity;
+
+        velocity = newForward * xyVelocity;
+        velocity.y = yVelocity;
+        _rigidbody.velocity = velocity;
     }
 
     private void ReverseMovement()
     {
         Vector3 forward = transform.forward;
-        float currentVelocity = _rigidbody.velocity.magnitude;
-        currentVelocity -= _movementSettings.reverseAcceleration * Time.fixedDeltaTime;
-        if (currentVelocity < 0)
+        Vector3 velocity = _rigidbody.velocity;
+        float yVelocity = velocity.y;
+        velocity.y = 0;
+        float xyVelocity = velocity.magnitude;
+        xyVelocity -= _movementSettings.reverseAcceleration * Time.fixedDeltaTime;
+        if (xyVelocity < 0)
         {
-            currentVelocity = 0;
+            xyVelocity = 0;
             _rigidbody.rotation = _reverseRotation;
             _isReversing = false;
         }
 
-        _rigidbody.velocity = forward * currentVelocity;
+        velocity = forward * xyVelocity;
+        velocity.y = yVelocity;
+        _rigidbody.velocity = velocity;
     }
 
     private void MovementNoInput()
@@ -114,13 +125,18 @@ public class CharacterMovement : MonoBehaviour
         }
 
         Vector3 forward = transform.forward;
-        float currentVelocity = _rigidbody.velocity.magnitude;
-        currentVelocity -= _movementSettings.slowDown * Time.fixedDeltaTime;
-        if (currentVelocity < 0)
+        Vector3 velocity = _rigidbody.velocity;
+        float yVelocity = velocity.y;
+        velocity.y = 0;
+        float xyVelocity = velocity.magnitude;
+        xyVelocity -= _movementSettings.slowDown * Time.fixedDeltaTime;
+        if (xyVelocity < 0)
         {
-            currentVelocity = 0;
+            xyVelocity = 0;
         }
 
-        _rigidbody.velocity = forward * currentVelocity;
+        velocity = forward * xyVelocity;
+        velocity.y = yVelocity;
+        _rigidbody.velocity = velocity;
     }
 }
