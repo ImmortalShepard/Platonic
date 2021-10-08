@@ -1,18 +1,5 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!114 &-8407828729869939103
-MonoBehaviour:
-  m_ObjectHideFlags: 11
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d0353a89b1f911e48b9e16bdc9f2e058, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  version: 4
 --- !u!21 &2100000
 Material:
   serializedVersion: 6
@@ -20,10 +7,9 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: LitTillingFlat2
-  m_Shader: {fileID: 4800000, guid: 88f1f2ddb2a86a9499ac620fef082de1, type: 3}
-  m_ShaderKeywords: MAKE_FLAT_ON USE_PRECALCULATED_OUTLINE_NORMALS USE_VIEW_DIRECTION_ON
-    USR_VIEW_DIRECTION_ON
+  m_Name: Platform
+  m_Shader: {fileID: -6465566751694194690, guid: 6596415cac7fbc442acad47496db8f05, type: 3}
+  m_ShaderKeywords: BOOLEAN_DD5DA39E75D2436AAB33A21589DBB28E_ON ENUM_1A0F8D7AAB03480E9E581913EBFC0CBD_R
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -33,7 +19,15 @@ Material:
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
-    - Texture2D_8790a9e04c6a4e70b402b45c5e760cd7:
+    - Texture2D_1fc990c9f45d449aa9b6923ce3062095:
+        m_Texture: {fileID: 2800000, guid: a4139ff724568524a991db260a0f7744, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - Texture2D_bf4327dfa6ee4c29a1343eaa75c9f834:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - Texture2D_ef8abefa73d144d0b1ab3fe433ed182e:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
@@ -81,10 +75,6 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    - _Texture:
-        m_Texture: {fileID: 2800000, guid: a8cfdf656a0b4c9449501c566e5ef7c7, type: 3}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
     - unity_Lightmaps:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
@@ -98,14 +88,10 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Floats:
-    - ENUM_BC782402F6BE4FA183DEE55887251E18: 0
-    - MAKE_FLAT: 1
-    - USE_PRECALCULATED_OUTLINE_NORMALS: 0
-    - USE_VIEW_DIRECTION: 1
-    - USR_VIEW_DIRECTION: 1
+    - BOOLEAN_DD5DA39E75D2436AAB33A21589DBB28E: 1
+    - ENUM_1A0F8D7AAB03480E9E581913EBFC0CBD: 0
     - _AlphaClip: 0
     - _Blend: 0
-    - _BlendRatio: 0
     - _BumpScale: 1
     - _ClearCoatMask: 0
     - _ClearCoatSmoothness: 0
@@ -115,19 +101,12 @@ Material:
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
     - _EnvironmentReflections: 1
-    - _FlatHeight: 0.001
-    - _FlatRotationDegrees: 45
     - _GlossMapScale: 0
     - _Glossiness: 0
     - _GlossyReflections: 0
-    - _GridLineSize: 0.1
-    - _GridSize: 1
-    - _ID: 2
     - _Metallic: 0
     - _OcclusionStrength: 1
-    - _OutlineThickness: 0.1
     - _Parallax: 0.005
-    - _PrecalculateNormals: 1
     - _QueueOffset: 0
     - _ReceiveShadows: 1
     - _Smoothness: 0.5
@@ -138,19 +117,25 @@ Material:
     - _WorkflowMode: 1
     - _ZWrite: 1
     m_Colors:
-    - Vector2_404fab8435f2423f85f5f8bbc745e531: {r: 0, g: 0, b: 0, a: 0}
-    - Vector2_9a4cda2eb6c64c1ab91cda5fd2713e62: {r: 1, g: 1, b: 0, a: 0}
+    - Color_c0ffc53ddb0047bb944a13ff8a7a0a0e: {r: 0.5, g: 0.5, b: 0.5, a: 0}
+    - Color_efb4887819b44570a8104088ab699086: {r: 1, g: 1, b: 1, a: 0}
+    - Vector2_5fa281bf8f2149f3aa6e9bf4bb6caba0: {r: 0, g: 0, b: 0, a: 0}
+    - Vector2_9cfb547ff6834fdbbd6047f3b877b3fa: {r: 1, g: 1, b: 0, a: 0}
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
-    - _Color: {r: 0.09927912, g: 0.8903703, b: 0.9150943, a: 1}
+    - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _FlatRotationAxis: {r: 1, g: 0, b: 0, a: 0}
-    - _FlatRotationOffset: {r: 0, g: 0, b: 0, a: 0}
-    - _GridColor: {r: 0, g: 0, b: 0, a: 0.5019608}
-    - _GridOffset: {r: -0.05, g: -0.05, b: 0, a: 0}
-    - _Offset: {r: 0, g: 0, b: 0, a: 0}
-    - _OutlineColor: {r: 0, g: 0, b: 0, a: 1}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
-    - _Tiling: {r: 0.125, g: 0.125, b: 0, a: 0}
-    - _Tilling: {r: 0.125, g: 0.125, b: 0, a: 0}
-    - _ViewDirection: {r: 0, g: -1, b: 0, a: 0}
   m_BuildTextureStacks: []
+--- !u!114 &6796685275098895631
+MonoBehaviour:
+  m_ObjectHideFlags: 11
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0353a89b1f911e48b9e16bdc9f2e058, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  version: 4

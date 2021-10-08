@@ -3,17 +3,17 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
-[CustomEditor(typeof(CameraSwitcher))]
-public class CameraSwitcherEditor : Editor
+[CustomEditor(typeof(Switcher2D3D))]
+public class Switcher2D3DEditor : Editor
 {
     public override void OnInspectorGUI()
     {
-        DrawDefaultInspector();
+        base.OnInspectorGUI();
 
-        CameraSwitcher cameraSwitcher = (CameraSwitcher) target;
+        Switcher2D3D switcher2D3D = (Switcher2D3D) target;
         if (GUILayout.Button("Swap Projection"))
         {
-            cameraSwitcher.SwapProjection();
+            switcher2D3D.SwitchProjection();
         }
     }
 }

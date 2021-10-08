@@ -11,9 +11,9 @@ public class Player2D3DSwitcherEditor : Editor
         DrawDefaultInspector();
 
         Player2D3DSwitcher player2D3DSwitcher = (Player2D3DSwitcher) target;
-        if (GUILayout.Button("Swap Projection"))
+        if (GUILayout.Button("Switch Projection"))
         {
-            player2D3DSwitcher.SwapProjection();
+            player2D3DSwitcher.SwitchProjection();
         }
     }
 }

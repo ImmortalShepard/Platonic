@@ -33,6 +33,10 @@ Material:
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
+    - Texture2D_8790a9e04c6a4e70b402b45c5e760cd7:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _BaseMap:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
@@ -94,6 +98,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Floats:
+    - ENUM_BC782402F6BE4FA183DEE55887251E18: 0
     - MAKE_FLAT: 1
     - USE_PRECALCULATED_OUTLINE_NORMALS: 0
     - USE_VIEW_DIRECTION: 1
@@ -131,15 +136,19 @@ Material:
     - _WorkflowMode: 1
     - _ZWrite: 1
     m_Colors:
+    - Vector2_404fab8435f2423f85f5f8bbc745e531: {r: 0, g: 0, b: 0, a: 0}
+    - Vector2_9a4cda2eb6c64c1ab91cda5fd2713e62: {r: 1, g: 1, b: 0, a: 0}
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _Color: {r: 0, g: 0, b: 0, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _FlatRotationAxis: {r: 1, g: 0, b: 0, a: 0}
+    - _FlatRotationOffset: {r: 0, g: 0, b: 0, a: 0}
     - _GridColor: {r: 0, g: 0, b: 0, a: 0.5019608}
     - _GridOffset: {r: -0.05, g: -0.05, b: 0, a: 0}
     - _Offset: {r: 0, g: 0, b: 0, a: 0}
     - _OutlineColor: {r: 0, g: 0, b: 0, a: 1}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
+    - _Tiling: {r: 1, g: 1, b: 0, a: 0}
     - _Tilling: {r: 0.125, g: 0.125, b: 0, a: 0}
     - _ViewDirection: {r: 0, g: -1, b: 0, a: 0}
   m_BuildTextureStacks: []

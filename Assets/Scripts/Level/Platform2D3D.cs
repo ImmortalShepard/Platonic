@@ -2,10 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Platform2D3D : MonoBehaviour
+public class Platform2D3D : MonoBehaviour, ISwitcher2D3D
 {
     [SerializeField]
-    private CameraSwitcher _cameraSwitcher;
+    private Switcher2D3D _switcher2D3D;
     [SerializeField]
     private Transform _beamTransform;
     [SerializeField]
@@ -21,11 +21,30 @@ public class Platform2D3D : MonoBehaviour
     [SerializeField]
     private InputReader _inputReader = default;
     [SerializeField]
-    private Platform2D3D _otherPlatform2D3D;
+    private int _2DLayer;
+    [SerializeField]
+    private int _3DLayer;
+    [SerializeField]
+    private GameObject _beam;
+    private Renderer _platformRenderer;
+    private Renderer _beamRenderer;
+    [SerializeField]
+    private Material _2dMaterial;
+    [SerializeField]
+    private Material _3dMaterial;
 
     private void Reset()
     {
-        _cameraSwitcher = FindObjectOfType<CameraSwitcher>();
+        _switcher2D3D = FindObjectOfType<Switcher2D3D>();
+        _2DLayer = LayerMask.NameToLayer("2D");
+        _3DLayer = LayerMask.NameToLayer("3D");
+    }
+
+    private void Start()
+    {
+        Switcher2D3D.Instance.AddSwitcher(this);
+        _platformRenderer = GetComponent<Renderer>();
+        _beamRenderer = GetComponent<Renderer>();
     }
 
     private void OnTriggerEnter(Collider other)
@@ -35,9 +54,6 @@ public class Platform2D3D : MonoBehaviour
         {
             return;
         }
-        Debug.Log("Player entered platform");
-        //_cameraSwitcher.SwapProjection();
-        //player2D3DSwitcher.SwapProjection();
         _inputReader.InteractEvent += OnInteract;
         _beamUp = true;
         if (!_beamMoving)
@@ -67,6 +83,7 @@ public class Platform2D3D : MonoBehaviour
 
     private void OnInteract()
     {
+        _switcher2D3D.SwitchProjection();
     }
 
     private IEnumerator Beam()
@@ -80,5 +97,61 @@ public class Platform2D3D : MonoBehaviour
             yield return null;
         }
         _beamMoving = false;
+    }
+
+    public void SwitchProjection()
+    {
+        if (gameObject.layer == _2DLayer)
+        {
+            To3D();
+            return;
+        }
+        if (gameObject.layer == _3DLayer)
+        {
+            To2D();
+        }
+    }
+
+    private void To2D()
+    {
+        gameObject.layer = _2DLayer;
+        _beam.layer = _2DLayer;
+        _platformRenderer.material = _2dMaterial;
+#if UNITY_EDITOR
+        if (!Application.isPlaying)
+        {
+            Vector3 playerPosition = transform.position;
+            playerPosition.z = Util2D3D.Convert2Dto3D(playerPosition.z);
+            transform.position = playerPosition;
+            return;
+        }
+#endif
+        Vector3 position = transform.position;
+        position.z = Util2D3D.Convert2Dto3D(position.z);
+        transform.position = position;
+    }
+
+    private void To3D()
+    {
+        gameObject.layer = _3DLayer;
+        _beam.layer = _3DLayer;
+        _platformRenderer.material = _3dMaterial;
+#if UNITY_EDITOR
+        if (!Application.isPlaying)
+        {
+            Vector3 playerPosition = transform.position;
+            playerPosition.z = Util2D3D.Convert3Dto2D(playerPosition.z);
+            transform.position = playerPosition;
+            return;
+        }
+#endif
+        Vector3 position = transform.position;
+        position.z = Util2D3D.Convert3Dto2D(position.z);
+        transform.position = position;
+    }
+
+    public void Switch2D3D()
+    {
+        SwitchProjection();
     }
 }
